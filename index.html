@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <title>NU Sublets</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;500;600&family=Rubik:wght@400;500;600;800&display=swap" rel="stylesheet" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+        />
+        <style>
+            :root {
+                --nu-text: #000000;
+                --nu-white: #ffffff;
+                --nu-surface: #f2f2f2;
+                --nu-muted-border: rgba(255, 255, 255, 0.28);
+                --nu-card-bg: rgba(58, 58, 58, 0.25);
+                --nu-button: #9c51b6;
+                --nu-button-soft: rgba(130, 46, 227, 0.4);
+                --nu-shadow: 3.682px 3.682px 3.682px rgba(166, 166, 166, 0.25);
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                background: var(--nu-white);
+                color: var(--nu-text);
+                font-family: "Fustat", sans-serif;
+            }
+
+            img {
+                display: block;
+                max-width: 100%;
+            }
+
+            .page-shell {
+                min-height: 100vh;
+            }
+
+            .topbar {
+                background: var(--nu-white);
+                font-family: "Rubik", sans-serif;
+                padding: 14px 24px 13px;
+            }
+
+            .topbar-inner {
+                max-width: 1440px;
+                margin: 0 auto;
+            }
+
+            .brand,
+            .nav-link {
+                color: var(--nu-text);
+                font-size: 16px;
+                line-height: 1;
+                text-decoration: none;
+            }
+
+            .topbar-nav {
+                gap: 40px;
+            }
+
+            .hero {
+                min-height: 450px;
+                background: url("Northwestern Photo.jpg") center 75% / cover no-repeat;
+                padding: 28px 24px 40px;
+            }
+
+            .hero-grid,
+            .section-inner,
+            .cta-inner {
+                margin: 0 auto;
+            }
+
+            .hero-grid {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(320px, 550px);
+                align-items: start;
+                gap: 20px;
+            }
+
+            .headline {
+                max-width: 560px;
+                margin: 38px 0 0 20px;
+                color: var(--nu-white);
+                font-family: "Fustat", sans-serif;
+                font-size: clamp(3.6rem, 6vw, 6rem);
+                font-weight: 600;
+                line-height: 1.05;
+                text-shadow: 4px 8px 20.5px rgba(0, 0, 0, 0.9);
+            }
+
+            .search-card {
+                width: 100%;
+                margin-top: 28px;
+                padding: 12px 12px 10px;
+                border: 1px solid var(--nu-muted-border);
+                border-radius: 8px;
+                background: var(--nu-white);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            }
+
+            .search-title {
+                margin: 0 0 6px;
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 20px;
+                font-weight: 600;
+                line-height: 1.1;
+            }
+
+            .form-stack {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                margin-bottom: 12px;
+            }
+
+            .field-label {
+                display: block;
+                margin-bottom: 4px;
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 16px;
+                font-weight: 500;
+                line-height: 1.15;
+            }
+
+            .date-field {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 5px 10px;
+                border: 1px solid rgba(0, 0, 0, 0.16);
+                border-radius: 4px;
+                background: var(--nu-white);
+            }
+
+            .date-input {
+                flex: 1;
+                min-width: 0;
+                border: 0;
+                outline: 0;
+                padding: 0;
+                color: var(--nu-text);
+                font-size: 14px;
+                line-height: 1.35;
+                font-family: "Fustat", sans-serif;
+                background: transparent;
+            }
+
+            .date-input::placeholder {
+                color: var(--nu-text);
+                opacity: 1;
+            }
+
+            .icon-button {
+                flex: 0 0 auto;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 16px;
+                height: 16px;
+                padding: 0;
+                border: 0;
+                background: transparent;
+            }
+
+            .search-button,
+            .cta-button {
+                border: 0;
+                color: var(--nu-white);
+                font-family: "Rubik", sans-serif;
+                transition: transform 0.2s ease, opacity 0.2s ease;
+            }
+
+            .search-button {
+                width: 100%;
+                border-radius: 12px;
+                padding: 8px 18px;
+                font-size: 14px;
+                line-height: 1.1;
+                background: var(--nu-button);
+            }
+
+            .cta-button {
+                border-radius: 8px;
+                padding: 6px 8px;
+                font-size: 17px;
+                font-weight: 600;
+                line-height: 1.1;
+                background: var(--nu-button);
+            }
+
+            .search-button:hover,
+            .search-button:focus-visible,
+            .cta-button:hover,
+            .cta-button:focus-visible {
+                opacity: 0.92;
+                transform: translateY(-1px);
+            }
+
+            .section-block {
+                padding: 24px 24px 0;
+            }
+
+            .section-title {
+                margin: 0 0 14px;
+                font-family: "Rubik", sans-serif;
+                font-size: 24px;
+                font-weight: 600;
+                line-height: 1.15;
+            }
+
+            .listing-carousel {
+                position: relative;
+            }
+
+            .listing-track {
+                display: flex;
+                gap: 22px;
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+                scroll-behavior: smooth;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                padding: 4px 2px 8px;
+            }
+
+            .listing-track::-webkit-scrollbar {
+                display: none;
+            }
+
+            .listing-card {
+                flex: 0 0 min(360px, calc(100vw - 56px));
+                background: var(--nu-white);
+                border-radius: 7px;
+                overflow: hidden;
+                box-shadow: var(--nu-shadow);
+                scroll-snap-align: start;
+            }
+
+            .listing-media {
+                position: relative;
+                height: 190px;
+                overflow: visible;
+            }
+
+            .listing-main-image {
+                width: 100%;
+                height: 180px;
+                object-fit: cover;
+            }
+
+            .listing-avatar {
+                position: absolute;
+                left: 12px;
+                bottom: -8px;
+                width: 50px;
+                height: 50px;
+                border: 2px solid var(--nu-white);
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .listing-body {
+                padding: 6px 8px 10px;
+            }
+
+            .listing-price {
+                margin: 0 0 3px;
+                font-family: "Rubik", sans-serif;
+                font-size: 21px;
+                font-weight: 800;
+                line-height: 1.05;
+            }
+
+            .listing-meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                margin-bottom: 3px;
+                font-family: "Rubik", sans-serif;
+                font-size: 10px;
+                font-weight: 500;
+                line-height: 1.2;
+            }
+
+            .listing-address {
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 10px;
+                line-height: 1.2;
+            }
+
+            .carousel-button {
+                position: absolute;
+                top: 50%;
+                z-index: 2;
+                width: 40px;
+                height: 40px;
+                border: 1px solid rgba(0, 0, 0, 0.08);
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.96);
+                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 24px;
+                line-height: 1;
+                transform: translateY(-50%);
+                transition: opacity 0.2s ease, transform 0.2s ease;
+            }
+
+            .carousel-button:hover,
+            .carousel-button:focus-visible {
+                transform: translateY(-50%) scale(1.04);
+            }
+
+            .carousel-button:disabled {
+                opacity: 0.4;
+                cursor: default;
+            }
+
+            .carousel-button.prev {
+                left: -18px;
+            }
+
+            .carousel-button.next {
+                right: -18px;
+            }
+
+            .cta-section {
+                margin-top: 20px;
+                background: var(--nu-surface);
+                padding: 16px 0 16px 20px;
+            }
+
+            .cta-shell {
+                display: grid;
+                grid-template-columns: minmax(200px, 400px) minmax(200px, 600px);
+                align-items: stretch;
+                overflow: hidden;
+                border-radius: 16px;
+                background: var(--nu-white);
+            }
+
+            .cta-copy {
+                padding: 16px 16px;
+            }
+
+            .cta-title {
+                margin: 0 0 8px;
+                max-width: 520px;
+                font-family: "Rubik", sans-serif;
+                font-size: clamp(1.5rem, 3vw, 2.5rem);
+                font-weight: 500;
+                line-height: 0.98;
+            }
+
+            .cta-subtitle {
+                margin: 0 0 10px;
+                font-family: "Rubik", sans-serif;
+                font-size: clamp(1rem, 2vw, 1.5rem);
+                line-height: 1.1;
+            }
+
+            .cta-image {
+                width: 100%;
+                height: 100%;
+                min-height: 150px;
+                object-fit: cover;
+            }
+
+            .bottom-space {
+                height: 76px;
+            }
+
+            @media (max-width: 991.98px) {
+                .hero {
+                    padding: 24px 20px 32px;
+                }
+
+                .hero-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .headline {
+                    margin: 24px 0 0;
+                    max-width: 520px;
+                }
+
+                .search-card {
+                    max-width: 528px;
+                    margin-top: 0;
+                }
+
+                .listing-card {
+                    flex-basis: min(340px, calc(100vw - 52px));
+                }
+
+                .cta-shell {
+                    grid-template-columns: 1fr;
+                }
+
+                .cta-image {
+                    min-height: 240px;
+                }
+            }
+
+            @media (max-width: 767.98px) {
+                .topbar {
+                    padding-inline: 16px;
+                }
+
+                .brand,
+                .nav-link {
+                    font-size: 14px;
+                }
+
+                .topbar-nav {
+                    gap: 20px;
+                }
+
+                .hero,
+                .section-block,
+                .cta-section {
+                    padding-inline: 16px;
+                }
+
+                .headline {
+                    font-size: clamp(2.8rem, 13vw, 4.2rem);
+                }
+
+                .listing-card {
+                    flex-basis: min(300px, calc(100vw - 40px));
+                }
+
+                .listing-media {
+                    height: 216px;
+                }
+
+                .listing-main-image {
+                    height: 204px;
+                }
+
+                .bottom-space {
+                    height: 40px;
+                }
+
+                .carousel-button {
+                    display: none;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="page-shell">
+            <header class="topbar">
+                <div class="topbar-inner d-flex align-items-center justify-content-between">
+                    <a class="brand" href="#">NU-Sublets</a>
+                    <nav class="d-flex align-items-center topbar-nav">
+                        <a class="nav-link p-0" href="#recommendations">Browse</a>
+                        <a class="nav-link p-0" href="#">Log In</a>
+                    </nav>
+                </div>
+            </header>
+
+            <main>
+                <section class="hero">
+                    <div class="hero-grid">
+                        <div>
+                            <h1 class="headline">Find a Place in Evanston</h1>
+                        </div>
+
+                        <form class="search-card" action="#" method="get">
+                            <h2 class="search-title">Search Sublets</h2>
+
+                            <div class="form-stack">
+                                <label>
+                                    <span class="field-label">Move In</span>
+                                    <span class="date-field">
+                                        <input class="date-input" type="text" name="move-in" placeholder="mm/dd/yyyy" aria-label="Move in date" />
+                                        <button class="icon-button" type="button" aria-label="Open move in date picker">
+                                            <img src="https://www.figma.com/api/mcp/asset/459111e8-08b9-4ed1-aa3d-46e8785d8b1f" alt="" width="16" height="16" />
+                                        </button>
+                                    </span>
+                                </label>
+
+                                <label>
+                                    <span class="field-label">Move Out</span>
+                                    <span class="date-field">
+                                        <input class="date-input" type="text" name="move-out" placeholder="mm/dd/yyyy" aria-label="Move out date" />
+                                        <button class="icon-button" type="button" aria-label="Open move out date picker">
+                                            <img src="https://www.figma.com/api/mcp/asset/459111e8-08b9-4ed1-aa3d-46e8785d8b1f" alt="" width="16" height="16" />
+                                        </button>
+                                    </span>
+                                </label>
+                            </div>
+
+                            <button class="search-button" type="submit">Search</button>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="section-block" id="recommendations">
+                    <div class="section-inner">
+                        <h2 class="section-title">Sublets We Think You&rsquo;d Like</h2>
+                        <div class="listing-carousel">
+                            <button class="carousel-button prev" type="button" aria-label="Previous sublets" data-carousel-prev="recommendations-track">&#8249;</button>
+                            <div class="listing-track" id="recommendations-track" data-carousel-track>
+                            <article class="listing-card">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$850/month</p>
+                                    <div class="listing-meta">
+                                        <span>Female Roommates</span>
+                                        <span>1 bathroom</span>
+                                        <span>Laundry</span>
+                                    </div>
+                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
+                                </div>
+                            </article>
+
+                            <article class="listing-card">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$850/month</p>
+                                    <div class="listing-meta">
+                                        <span>Female Roommates</span>
+                                        <span>1 bathroom</span>
+                                        <span>Laundry</span>
+                                    </div>
+                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
+                                </div>
+                            </article>
+
+                            <article class="listing-card">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$850/month</p>
+                                    <div class="listing-meta">
+                                        <span>Female Roommates</span>
+                                        <span>1 bathroom</span>
+                                        <span>Laundry</span>
+                                    </div>
+                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
+                                </div>
+                            </article>
+
+                            <article class="listing-card">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Apartment with sunny bedroom" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$920/month</p>
+                                    <div class="listing-meta">
+                                        <span>2 roommates</span>
+                                        <span>1.5 bathrooms</span>
+                                        <span>Parking</span>
+                                    </div>
+                                    <p class="listing-address">614 Foster St, Evanston, IL</p>
+                                </div>
+                            </article>
+
+                            <article class="listing-card">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Cozy student apartment" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$1,050/month</p>
+                                    <div class="listing-meta">
+                                        <span>Private studio</span>
+                                        <span>1 bathroom</span>
+                                        <span>Utilities</span>
+                                    </div>
+                                    <p class="listing-address">930 Hinman Ave, Evanston, IL</p>
+                                </div>
+                            </article>
+
+                            <article class="listing-card">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Shared apartment near campus" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$780/month</p>
+                                    <div class="listing-meta">
+                                        <span>3 roommates</span>
+                                        <span>2 bathrooms</span>
+                                        <span>Pet friendly</span>
+                                    </div>
+                                    <p class="listing-address">2018 Sherman Ave, Evanston, IL</p>
+                                </div>
+                            </article>
+                            </div>
+                            <button class="carousel-button next" type="button" aria-label="Next sublets" data-carousel-next="recommendations-track">&#8250;</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="cta-section">
+                    <div class="cta-inner">
+                        <div class="cta-shell">
+                            <div class="cta-copy">
+                                <h2 class="cta-title">Looking For Someone to Sublet Your Room?</h2>
+                                <p class="cta-subtitle">List your sublet here</p>
+                                <button class="cta-button" type="button">Create a Posting</button>
+                            </div>
+                            <img class="cta-image" src="https://www.figma.com/api/mcp/asset/5f0bfc69-63af-460f-a9e9-eb92adb61a86" alt="Students relaxing on a couch" />
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-block" id="newest-sublets">
+                    <div class="section-inner">
+                        <h2 class="section-title">Newest Sublets</h2>
+                        <div class="listing-carousel">
+                            <button class="carousel-button prev" type="button" aria-label="Previous newest sublets" data-carousel-prev="newest-track">&#8249;</button>
+                            <div class="listing-track" id="newest-track" data-carousel-track>
+                            <article class="listing-card">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Bedroom listing" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$850/month</p>
+                                    <div class="listing-meta">
+                                        <span>Female Roommates</span>
+                                        <span>1 bathroom</span>
+                                        <span>Laundry</span>
+                                    </div>
+                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
+                                </div>
+                            </article>
+
+                            <article class="listing-card">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Bedroom listing" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$850/month</p>
+                                    <div class="listing-meta">
+                                        <span>Female Roommates</span>
+                                        <span>1 bathroom</span>
+                                        <span>Laundry</span>
+                                    </div>
+                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
+                                </div>
+                            </article>
+
+                            <article class="listing-card">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Bedroom listing" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$850/month</p>
+                                    <div class="listing-meta">
+                                        <span>Female Roommates</span>
+                                        <span>1 bathroom</span>
+                                        <span>Laundry</span>
+                                    </div>
+                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
+                                </div>
+                            </article>
+
+                            <article class="listing-card">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Newly listed apartment bedroom" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$1,180/month</p>
+                                    <div class="listing-meta">
+                                        <span>Private room</span>
+                                        <span>1 bathroom</span>
+                                        <span>Gym</span>
+                                    </div>
+                                    <p class="listing-address">811 Emerson St, Evanston, IL</p>
+                                </div>
+                            </article>
+
+                            <article class="listing-card">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Apartment available for summer sublet" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$860/month</p>
+                                    <div class="listing-meta">
+                                        <span>Summer only</span>
+                                        <span>1 bathroom</span>
+                                        <span>Furnished</span>
+                                    </div>
+                                    <p class="listing-address">415 Clark St, Evanston, IL</p>
+                                </div>
+                            </article>
+
+                            <article class="listing-card">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Bedroom in shared sublet" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$995/month</p>
+                                    <div class="listing-meta">
+                                        <span>2 roommates</span>
+                                        <span>2 bathrooms</span>
+                                        <span>In-unit laundry</span>
+                                    </div>
+                                    <p class="listing-address">1740 Oak Ave, Evanston, IL</p>
+                                </div>
+                            </article>
+                            </div>
+                            <button class="carousel-button next" type="button" aria-label="Next newest sublets" data-carousel-next="newest-track">&#8250;</button>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="bottom-space" aria-hidden="true"></div>
+            </main>
+        </div>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"
+        ></script>
+        <script>
+            document.querySelectorAll("[data-carousel-track]").forEach((track) => {
+                const prevButton = document.querySelector(`[data-carousel-prev="${track.id}"]`);
+                const nextButton = document.querySelector(`[data-carousel-next="${track.id}"]`);
+
+                if (!prevButton || !nextButton) {
+                    return;
+                }
+
+                const getScrollAmount = () => {
+                    const firstCard = track.querySelector(".listing-card");
+
+                    if (!firstCard) {
+                        return 0;
+                    }
+
+                    const styles = window.getComputedStyle(track);
+                    const gap = Number.parseFloat(styles.columnGap || styles.gap || "0");
+                    return firstCard.getBoundingClientRect().width + gap;
+                };
+
+                const updateButtons = () => {
+                    const maxScrollLeft = track.scrollWidth - track.clientWidth - 2;
+                    prevButton.disabled = track.scrollLeft <= 2;
+                    nextButton.disabled = track.scrollLeft >= maxScrollLeft;
+                };
+
+                prevButton.addEventListener("click", () => {
+                    track.scrollBy({ left: -getScrollAmount(), behavior: "smooth" });
+                });
+
+                nextButton.addEventListener("click", () => {
+                    track.scrollBy({ left: getScrollAmount(), behavior: "smooth" });
+                });
+
+                track.addEventListener("scroll", updateButtons, { passive: true });
+                window.addEventListener("resize", updateButtons);
+                updateButtons();
+            });
+        </script>
+    </body>
+</html>
