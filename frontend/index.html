@@ -48,24 +48,31 @@
             .topbar {
                 background: var(--nu-white);
                 font-family: "Rubik", sans-serif;
-                padding: 14px 24px 13px;
+                padding: 0 24px;
+                min-height: 60px;
+                display: flex;
+                align-items: center;
             }
 
             .topbar-inner {
-                max-width: 1440px;
+                max-width: 1200px;
+                width: 100%;
                 margin: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
             }
 
             .brand,
             .nav-link {
                 color: var(--nu-text);
                 font-size: 16px;
-                line-height: 1;
+                line-height: 1.2;
                 text-decoration: none;
             }
 
             .topbar-nav {
-                gap: 40px;
+                gap: 28px;
             }
 
             .hero {
@@ -240,12 +247,28 @@
             }
 
             .listing-card {
+                display: block;
                 flex: 0 0 min(360px, calc(100vw - 56px));
                 background: var(--nu-white);
                 border-radius: 7px;
                 overflow: hidden;
                 box-shadow: var(--nu-shadow);
                 scroll-snap-align: start;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                text-decoration: none;
+                color: inherit;
+                cursor: pointer;
+            }
+
+            .listing-card:hover,
+            .listing-card:focus-visible {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            }
+
+            .listing-card:focus-visible {
+                outline: 3px solid rgba(156, 81, 182, 0.45);
+                outline-offset: 4px;
             }
 
             .listing-media {
@@ -517,7 +540,7 @@
                         <div class="listing-carousel">
                             <button class="carousel-button prev" type="button" aria-label="Previous sublets" data-carousel-prev="recommendations-track">&#8249;</button>
                             <div class="listing-track" id="recommendations-track" data-carousel-track>
-                            <article class="listing-card">
+                            <a class="listing-card" href="#">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
@@ -531,9 +554,9 @@
                                     </div>
                                     <p class="listing-address">820 Noyes St, Evanston, IL</p>
                                 </div>
-                            </article>
+                            </a>
 
-                            <article class="listing-card">
+                            <a class="listing-card" href="#">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
@@ -547,9 +570,9 @@
                                     </div>
                                     <p class="listing-address">820 Noyes St, Evanston, IL</p>
                                 </div>
-                            </article>
+                            </a>
 
-                            <article class="listing-card">
+                            <a class="listing-card" href="#">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
@@ -563,9 +586,9 @@
                                     </div>
                                     <p class="listing-address">820 Noyes St, Evanston, IL</p>
                                 </div>
-                            </article>
+                            </a>
 
-                            <article class="listing-card">
+                            <a class="listing-card" href="#">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Apartment with sunny bedroom" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
@@ -579,9 +602,9 @@
                                     </div>
                                     <p class="listing-address">614 Foster St, Evanston, IL</p>
                                 </div>
-                            </article>
+                            </a>
 
-                            <article class="listing-card">
+                            <a class="listing-card" href="#">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Cozy student apartment" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
@@ -595,9 +618,9 @@
                                     </div>
                                     <p class="listing-address">930 Hinman Ave, Evanston, IL</p>
                                 </div>
-                            </article>
+                            </a>
 
-                            <article class="listing-card">
+                            <a class="listing-card" href="#">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Shared apartment near campus" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
@@ -611,7 +634,7 @@
                                     </div>
                                     <p class="listing-address">2018 Sherman Ave, Evanston, IL</p>
                                 </div>
-                            </article>
+                            </a>
                             </div>
                             <button class="carousel-button next" type="button" aria-label="Next sublets" data-carousel-next="recommendations-track">&#8250;</button>
                         </div>
@@ -637,7 +660,7 @@
                         <div class="listing-carousel">
                             <button class="carousel-button prev" type="button" aria-label="Previous newest sublets" data-carousel-prev="newest-track">&#8249;</button>
                             <div class="listing-track" id="newest-track" data-carousel-track>
-                            <article class="listing-card">
+                            <a class="listing-card" href="#">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
@@ -651,9 +674,9 @@
                                     </div>
                                     <p class="listing-address">820 Noyes St, Evanston, IL</p>
                                 </div>
-                            </article>
+                            </a>
 
-                            <article class="listing-card">
+                            <a class="listing-card" href="#">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
@@ -667,9 +690,9 @@
                                     </div>
                                     <p class="listing-address">820 Noyes St, Evanston, IL</p>
                                 </div>
-                            </article>
+                            </a>
 
-                            <article class="listing-card">
+                            <a class="listing-card" href="#">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
@@ -683,9 +706,9 @@
                                     </div>
                                     <p class="listing-address">820 Noyes St, Evanston, IL</p>
                                 </div>
-                            </article>
+                            </a>
 
-                            <article class="listing-card">
+                            <a class="listing-card" href="#">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Newly listed apartment bedroom" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
@@ -699,9 +722,9 @@
                                     </div>
                                     <p class="listing-address">811 Emerson St, Evanston, IL</p>
                                 </div>
-                            </article>
+                            </a>
 
-                            <article class="listing-card">
+                            <a class="listing-card" href="#">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Apartment available for summer sublet" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
@@ -715,9 +738,9 @@
                                     </div>
                                     <p class="listing-address">415 Clark St, Evanston, IL</p>
                                 </div>
-                            </article>
+                            </a>
 
-                            <article class="listing-card">
+                            <a class="listing-card" href="#">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Bedroom in shared sublet" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
@@ -731,7 +754,7 @@
                                     </div>
                                     <p class="listing-address">1740 Oak Ave, Evanston, IL</p>
                                 </div>
-                            </article>
+                            </a>
                             </div>
                             <button class="carousel-button next" type="button" aria-label="Next newest sublets" data-carousel-next="newest-track">&#8250;</button>
                         </div>

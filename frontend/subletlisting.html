@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <title>Sublet Listing | NU Sublets</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;500;600&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+        />
+        <style>
+            :root {
+                --nu-text: #000000;
+                --nu-surface: #ffffff;
+                --nu-border: #d9d9d9;
+                --nu-muted: #5b5b5b;
+                --nu-accent: #9c51b6;
+                --nu-card-shadow: 0 0 25px rgba(217, 217, 217, 0.5);
+                --nu-gallery-fill: #bcbcbc;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                background: var(--nu-surface);
+                color: var(--nu-text);
+                font-family: "Fustat", sans-serif;
+            }
+
+            a {
+                color: inherit;
+            }
+
+            .page-shell {
+                min-height: 100vh;
+            }
+
+            .topbar {
+                border-bottom: 1px solid var(--nu-border);
+                background: #fff;
+                font-family: "Rubik", sans-serif;
+                padding: 0 24px;
+                min-height: 76px;
+                display: flex;
+                align-items: center;
+            }
+
+            .topbar-inner {
+                max-width: 1312px;
+                width: 100%;
+                margin: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .brand {
+                font-size: 1.25rem;
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+            .topbar-nav {
+                gap: 3rem;
+            }
+
+            .topbar-link {
+                font-size: 1.25rem;
+                text-decoration: none;
+            }
+
+            .listing-page {
+                padding: 5rem 0 4rem;
+            }
+
+            .page-container {
+                max-width: 1360px;
+                padding-inline: 24px;
+            }
+
+            .gallery-main,
+            .gallery-tile {
+                border-radius: 8px;
+                overflow: hidden;
+                background: var(--nu-gallery-fill);
+            }
+
+            .gallery-main {
+                height: 504px;
+            }
+
+            .gallery-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-rows: 1fr 1fr;
+                gap: 1rem;
+                height: 504px;
+            }
+
+            .gallery-tile {
+                height: 100%;
+            }
+
+            .gallery-photo {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .listing-title {
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+                font-weight: 800;
+                line-height: 1.1;
+            }
+
+            .host-row {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-top: 0.6rem;
+            }
+
+            .host-avatar {
+                width: 64px;
+                height: 64px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .host-name {
+                font-family: "Rubik", sans-serif;
+                font-size: clamp(1.3rem, 2.5vw, 1.75rem);
+                line-height: 1.1;
+            }
+
+            .verified-badge {
+                width: 48px;
+                height: 48px;
+            }
+
+            .description-copy {
+                max-width: 46rem;
+                margin-top: 1rem;
+                font-size: 1rem;
+                line-height: 2;
+            }
+
+            .info-card {
+                border: 0;
+                border-radius: 26px;
+                box-shadow: var(--nu-card-shadow);
+            }
+
+            .availability-card {
+                max-width: 435px;
+                margin-left: auto;
+            }
+
+            .contact-card {
+                max-width: 534px;
+                margin: 1.75rem 0 0 auto;
+            }
+
+            .card-title,
+            .section-title {
+                font-family: "Rubik", sans-serif;
+                font-weight: 600;
+                color: var(--nu-text);
+            }
+
+            .card-title {
+                font-size: 1.5rem;
+            }
+
+            .section-title {
+                margin-bottom: 1rem;
+                font-size: 1.5rem;
+            }
+
+            .availability-label {
+                font-family: "Rubik", sans-serif;
+                font-size: 1.25rem;
+                font-weight: 500;
+                margin-bottom: 1rem;
+            }
+
+            .availability-range {
+                display: flex;
+                align-items: center;
+                gap: 1.8rem;
+                font-size: 1rem;
+            }
+
+            .arrow-icon {
+                width: 24px;
+                height: 24px;
+                flex: 0 0 auto;
+            }
+
+            .arrow-icon,
+            .contact-icon,
+            .amenity-icon,
+            .verified-badge {
+                display: inline-block;
+                vertical-align: middle;
+            }
+
+            .contact-grid {
+                display: grid;
+                grid-template-columns: auto 1fr;
+                gap: 1.15rem 2rem;
+                align-items: center;
+            }
+
+            .contact-label {
+                display: inline-flex;
+                align-items: center;
+                gap: 1rem;
+                font-family: "Rubik", sans-serif;
+                font-size: 1.25rem;
+            }
+
+            .contact-icon {
+                width: 24px;
+                height: 24px;
+            }
+
+            .contact-link {
+                color: var(--nu-accent);
+                font-size: 1rem;
+                text-decoration: none;
+                word-break: break-word;
+            }
+
+            .contact-link:hover,
+            .contact-link:focus-visible {
+                text-decoration: underline;
+            }
+
+            .amenities-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1rem 2rem;
+            }
+
+            .amenity,
+            .preference {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-family: "Rubik", sans-serif;
+                font-size: 1rem;
+                font-weight: 500;
+            }
+
+            .amenity-icon {
+                width: 32px;
+                height: 32px;
+            }
+
+            .preferences-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1rem 2rem;
+            }
+
+            @media (max-width: 991.98px) {
+                .topbar {
+                    min-height: 68px;
+                }
+
+                .brand,
+                .topbar-link {
+                    font-size: 0.9rem;
+                }
+
+                .topbar-nav {
+                    gap: 1.5rem;
+                }
+
+                .listing-page {
+                    padding-top: 2.5rem;
+                }
+
+                .gallery-main {
+                    height: 400px;
+                }
+
+                .gallery-grid {
+                    gap: 0.75rem;
+                }
+
+                .gallery-tile {
+                    height: 188px;
+                }
+
+                .availability-card,
+                .contact-card {
+                    max-width: none;
+                    margin-left: 0;
+                }
+            }
+
+            @media (max-width: 767.98px) {
+                .topbar {
+                    padding-inline: 16px;
+                }
+
+                .page-container {
+                    padding-inline: 24px;
+                }
+
+                .gallery-main {
+                    height: 280px;
+                }
+
+                .gallery-grid {
+                    grid-template-columns: 1fr 1fr;
+                    gap: 0.5rem;
+                }
+
+                .gallery-tile {
+                    height: 132px;
+                }
+
+                .host-row {
+                    align-items: flex-start;
+                    flex-wrap: wrap;
+                }
+
+                .description-copy {
+                    font-size: 0.875rem;
+                    line-height: 1.85;
+                }
+
+                .availability-range {
+                    gap: 0.85rem;
+                    flex-wrap: wrap;
+                }
+
+                .contact-grid {
+                    grid-template-columns: 1fr;
+                    gap: 0.75rem;
+                }
+
+                .contact-label {
+                    font-size: 0.9rem;
+                }
+
+                .contact-link,
+                .amenity,
+                .preference {
+                    font-size: 0.875rem;
+                }
+
+                .card-title,
+                .section-title {
+                    font-size: 1.25rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="page-shell">
+            <header class="topbar">
+                <div class="topbar-inner">
+                    <a class="brand" href="index.html">NU-Sublets</a>
+                    <nav class="d-flex align-items-center topbar-nav">
+                        <a class="topbar-link" href="index.html#recommendations">Browse</a>
+                        <a class="topbar-link" href="#">Log In</a>
+                    </nav>
+                </div>
+            </header>
+
+            <main class="listing-page">
+                <div class="container-fluid page-container">
+                    <section class="row g-3 g-lg-4 align-items-stretch">
+                        <div class="col-lg-6">
+                            <div class="gallery-main">
+                                <img class="gallery-photo" src="Northwestern Photo.jpg" alt="Main view of the sublet near Northwestern University" />
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="gallery-grid">
+                                <div class="gallery-tile">
+                                    <img class="gallery-photo" src="Northwestern Photo.jpg" alt="Living space view of the sublet" />
+                                </div>
+                                <div class="gallery-tile">
+                                    <img class="gallery-photo" src="Northwestern Photo.jpg" alt="Kitchen view of the apartment" />
+                                </div>
+                                <div class="gallery-tile">
+                                    <img class="gallery-photo" src="Northwestern Photo.jpg" alt="Bedroom area in the apartment" />
+                                </div>
+                                <div class="gallery-tile">
+                                    <img class="gallery-photo" src="Northwestern Photo.jpg" alt="Exterior neighborhood photo near the sublet" />
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="row g-3 g-lg-4 pt-3 pt-lg-4">
+                        <div class="col-lg-7 col-xl-7">
+                            <h1 class="listing-title">$850/month</h1>
+                            <div class="host-row">
+                                <img class="host-avatar" src="https://www.figma.com/api/mcp/asset/a18cff4f-a0e2-4375-9568-69b422c15407" alt="Jane Doe profile photo" />
+                                <div class="host-name">Jane Doe</div>
+                                <svg class="verified-badge" viewBox="0 0 48 48" aria-label="Verified listing badge" role="img">
+                                    <path
+                                        d="M24 3.75 9.75 9v12.49c0 10.23 6.07 19.8 14.25 22.76 8.18-2.96 14.25-12.53 14.25-22.76V9L24 3.75Z"
+                                        fill="none"
+                                        stroke="#000"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2.5"
+                                    />
+                                    <path d="m16.5 24.38 5.25 5.25L31.5 18.38" fill="none" stroke="#9c51b6" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" />
+                                </svg>
+                            </div>
+
+                            <p class="description-copy">
+                                I&rsquo;m looking to sublet my room in a 2-bedroom apartment for the summer (June&ndash;August, with some flexibility). The room comes fully furnished with a bed, desk, and closet space, and the apartment includes a shared living room, kitchen, and bathroom. It&rsquo;s located just a short walk from campus, with easy access to public transportation, grocery stores, and restaurants. The unit gets great natural light and has amenities like in-unit laundry, high-speed Wi-Fi, and air conditioning. You&rsquo;d be living with one clean, respectful roommate who will be working full-time during the day. Rent is $850 per month, utilities included, and I&rsquo;m happy to discuss exact dates or answer any questions.
+                            </p>
+                        </div>
+
+                        <div class="col-lg-5 col-xl-5">
+                            <div class="card info-card availability-card">
+                                <div class="card-body p-4 p-xl-5">
+                                    <div class="availability-label">Available from:</div>
+                                    <div class="availability-range">
+                                        <span>June 16, 2026</span>
+                                        <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M4 12h13.5m0 0-5-5m5 5-5 5" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
+                                        </svg>
+                                        <span>August 31, 2026</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card info-card contact-card">
+                                <div class="card-body p-4 p-xl-5">
+                                    <h2 class="card-title mb-4">Contact Jane</h2>
+                                    <div class="contact-grid">
+                                        <div class="contact-label">
+                                            <svg class="contact-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                                <path
+                                                    d="M20.3 15.3c-1.2 0-2.3-.2-3.3-.7-.3-.1-.7-.1-1 .2l-2.1 2.1c-2.7-1.4-4.8-3.5-6.2-6.2l2.1-2.1c.3-.3.4-.7.2-1-.4-1-.7-2.1-.7-3.3 0-.6-.4-1-1-1H4.5c-.6 0-1 .4-1 1C3.5 14 10 20.5 18.7 20.5c.6 0 1-.4 1-1v-3.2c0-.6-.4-1-1-1Z"
+                                                    fill="none"
+                                                    stroke="#000"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="1.7"
+                                                />
+                                            </svg>
+                                            <span>Phone:</span>
+                                        </div>
+                                        <a class="contact-link" href="tel:+11234567890">+1 (123) 456-7890</a>
+
+                                        <div class="contact-label">
+                                            <svg class="contact-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                                <path d="M3.75 6.75h16.5v10.5H3.75z" fill="none" stroke="#000" stroke-linejoin="round" stroke-width="1.7" />
+                                                <path d="m4.75 7.75 7.25 5.5 7.25-5.5" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" />
+                                            </svg>
+                                            <span>Email:</span>
+                                        </div>
+                                        <a class="contact-link" href="mailto:janedoe@u.northwestern.edu">janedoe@u.northwestern.edu</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="pt-4 pt-lg-2">
+                        <h2 class="section-title">Amenities</h2>
+                        <div class="amenities-row">
+                            <div class="amenity">
+                                <svg class="amenity-icon" viewBox="0 0 32 32" aria-hidden="true">
+                                    <path d="M6 8h20v16H6zM10 8V5m12 3V5M10 16h12" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
+                                </svg>
+                                <span>Kitchen</span>
+                            </div>
+                            <div class="amenity">
+                                <svg class="amenity-icon" viewBox="0 0 32 32" aria-hidden="true">
+                                    <path d="M9 6h14l2 4v12a4 4 0 0 1-4 4H11a4 4 0 0 1-4-4V10l2-4Z" fill="none" stroke="#000" stroke-linejoin="round" stroke-width="1.8" />
+                                    <circle cx="16" cy="17" r="4" fill="none" stroke="#000" stroke-width="1.8" />
+                                    <path d="M13 6V3.8M19 6V3.8" fill="none" stroke="#000" stroke-linecap="round" stroke-width="1.8" />
+                                </svg>
+                                <span>Laundry</span>
+                            </div>
+                            <div class="amenity">
+                                <svg class="amenity-icon" viewBox="0 0 32 32" aria-hidden="true">
+                                    <path d="M16 4c-5 0-8 4.2-8 8.4 0 3.7 2.1 6.3 4.4 7.6L10 28h12l-2.3-8c2.2-1.3 4.3-3.9 4.3-7.6C24 8.2 21 4 16 4Z" fill="none" stroke="#000" stroke-linejoin="round" stroke-width="1.8" />
+                                    <path d="M16 28V16" fill="none" stroke="#000" stroke-linecap="round" stroke-width="1.8" />
+                                </svg>
+                                <span>Backyard</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="pt-5">
+                        <h2 class="section-title">Preferences</h2>
+                        <div class="preferences-row">
+                            <div class="preference">Female</div>
+                            <div class="preference">Cleanly</div>
+                            <div class="preference">LGBTQ+ Friendly</div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"
+        ></script>
+    </body>
+</html>
