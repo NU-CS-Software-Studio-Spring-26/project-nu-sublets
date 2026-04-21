@@ -44,17 +44,17 @@
             }
 
             .topbar {
-                border-bottom: 1px solid var(--nu-border);
                 background: #fff;
+                border-bottom: 1px solid #d9d9d9;
                 font-family: "Rubik", sans-serif;
                 padding: 0 24px;
-                min-height: 76px;
+                min-height: 60px;
                 display: flex;
                 align-items: center;
             }
 
             .topbar-inner {
-                max-width: 1312px;
+                max-width: 1200px;
                 width: 100%;
                 margin: 0 auto;
                 display: flex;
@@ -62,23 +62,28 @@
                 justify-content: space-between;
             }
 
-            .brand {
-                font-size: 1.25rem;
-                font-weight: 600;
+            .topbar-nav {
+                gap: 28px;
+            }
+
+            .brand,
+            .nav-link {
+                color: var(--nu-text);
+                font-size: 16px;
+                line-height: 1.2;
                 text-decoration: none;
             }
 
-            .topbar-nav {
-                gap: 3rem;
+            .brand {
+                font-weight: 400;
             }
 
-            .topbar-link {
-                font-size: 1.25rem;
+            .nav-link {
                 text-decoration: none;
             }
 
             .listing-page {
-                padding: 5rem 0 4rem;
+                padding: 1.25rem 0 4rem;
             }
 
             .page-container {
@@ -126,26 +131,35 @@
             .host-row {
                 display: flex;
                 align-items: center;
-                gap: 1rem;
+                gap: 0.75rem;
                 margin-top: 0.6rem;
             }
 
+            .listing-address {
+                margin-top: 0.45rem;
+                font-family: "Rubik", sans-serif;
+                font-size: 1rem;
+                font-weight: 400;
+                line-height: 1.35;
+                color: var(--nu-muted);
+            }
+
             .host-avatar {
-                width: 64px;
-                height: 64px;
+                width: 48px;
+                height: 48px;
                 border-radius: 50%;
                 object-fit: cover;
             }
 
             .host-name {
                 font-family: "Rubik", sans-serif;
-                font-size: clamp(1.3rem, 2.5vw, 1.75rem);
+                font-size: clamp(1.05rem, 2vw, 1.35rem);
                 line-height: 1.1;
             }
 
             .verified-badge {
-                width: 48px;
-                height: 48px;
+                width: 34px;
+                height: 34px;
             }
 
             .description-copy {
@@ -153,6 +167,14 @@
                 margin-top: 1rem;
                 font-size: 1rem;
                 line-height: 2;
+            }
+
+            .listing-copy-column {
+                padding-left: 1.75rem;
+            }
+
+            .listing-offset-section {
+                padding-left: 1.75rem;
             }
 
             .info-card {
@@ -163,12 +185,12 @@
 
             .availability-card {
                 max-width: 435px;
-                margin-left: auto;
+                margin-left: 0.75rem;
             }
 
             .contact-card {
-                max-width: 534px;
-                margin: 1.75rem 0 0 auto;
+                max-width: 435px;
+                margin: 1.75rem 0 0 0.75rem;
             }
 
             .card-title,
@@ -227,7 +249,7 @@
                 align-items: center;
                 gap: 1rem;
                 font-family: "Rubik", sans-serif;
-                font-size: 1.25rem;
+                font-size: 1rem;
             }
 
             .contact-icon {
@@ -237,7 +259,7 @@
 
             .contact-link {
                 color: var(--nu-accent);
-                font-size: 1rem;
+                font-size: 0.95rem;
                 text-decoration: none;
                 word-break: break-word;
             }
@@ -275,21 +297,13 @@
             }
 
             @media (max-width: 991.98px) {
-                .topbar {
-                    min-height: 68px;
-                }
-
                 .brand,
-                .topbar-link {
-                    font-size: 0.9rem;
-                }
-
-                .topbar-nav {
-                    gap: 1.5rem;
+                .nav-link {
+                    font-size: 16px;
                 }
 
                 .listing-page {
-                    padding-top: 2.5rem;
+                    padding-top: 1rem;
                 }
 
                 .gallery-main {
@@ -309,11 +323,28 @@
                     max-width: none;
                     margin-left: 0;
                 }
+
+                .listing-copy-column {
+                    padding-left: calc(var(--bs-gutter-x) * 0.5);
+                }
+
+                .listing-offset-section {
+                    padding-left: 0;
+                }
             }
 
             @media (max-width: 767.98px) {
                 .topbar {
                     padding-inline: 16px;
+                }
+
+                .topbar-nav {
+                    gap: 20px;
+                }
+
+                .brand,
+                .nav-link {
+                    font-size: 14px;
                 }
 
                 .page-container {
@@ -376,8 +407,8 @@
                 <div class="topbar-inner">
                     <a class="brand" href="index.html">NU-Sublets</a>
                     <nav class="d-flex align-items-center topbar-nav">
-                        <a class="topbar-link" href="index.html#recommendations">Browse</a>
-                        <a class="topbar-link" href="#">Log In</a>
+                        <a class="nav-link p-0" href="index.html#recommendations">Browse</a>
+                        <a class="nav-link p-0" href="#">Log In</a>
                     </nav>
                 </div>
             </header>
@@ -409,8 +440,9 @@
                     </section>
 
                     <section class="row g-3 g-lg-4 pt-3 pt-lg-4">
-                        <div class="col-lg-7 col-xl-7">
+                        <div class="col-lg-7 col-xl-7 listing-copy-column">
                             <h1 class="listing-title">$850/month</h1>
+                            <p class="listing-address">820 Noyes St, Evanston, IL 60201</p>
                             <div class="host-row">
                                 <img class="host-avatar" src="https://www.figma.com/api/mcp/asset/a18cff4f-a0e2-4375-9568-69b422c15407" alt="Jane Doe profile photo" />
                                 <div class="host-name">Jane Doe</div>
@@ -479,7 +511,7 @@
                         </div>
                     </section>
 
-                    <section class="pt-4 pt-lg-2">
+                    <section class="pt-4 pt-lg-2 listing-offset-section">
                         <h2 class="section-title">Amenities</h2>
                         <div class="amenities-row">
                             <div class="amenity">
@@ -506,7 +538,7 @@
                         </div>
                     </section>
 
-                    <section class="pt-5">
+                    <section class="pt-5 listing-offset-section">
                         <h2 class="section-title">Preferences</h2>
                         <div class="preferences-row">
                             <div class="preference">Female</div>
