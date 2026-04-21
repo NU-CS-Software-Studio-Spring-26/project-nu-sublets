@@ -405,9 +405,9 @@
         <div class="page-shell">
             <header class="topbar">
                 <div class="topbar-inner">
-                    <a class="brand" href="index.html">NU-Sublets</a>
+                    <a class="brand" href="<%= root_path %>">NU-Sublets</a>
                     <nav class="d-flex align-items-center topbar-nav">
-                        <a class="nav-link p-0" href="index.html#recommendations">Browse</a>
+                        <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
                         <a class="nav-link p-0" href="#">Log In</a>
                     </nav>
                 </div>
@@ -418,22 +418,22 @@
                     <section class="row g-3 g-lg-4 align-items-stretch">
                         <div class="col-lg-6">
                             <div class="gallery-main">
-                                <img class="gallery-photo" src="Northwestern Photo.jpg" alt="Main view of the sublet near Northwestern University" />
+                                <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Main view of the sublet near Northwestern University" />
                             </div>
                         </div>
                         <div class="col-lg-6">
                             <div class="gallery-grid">
                                 <div class="gallery-tile">
-                                    <img class="gallery-photo" src="Northwestern Photo.jpg" alt="Living space view of the sublet" />
+                                    <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Living space view of the sublet" />
                                 </div>
                                 <div class="gallery-tile">
-                                    <img class="gallery-photo" src="Northwestern Photo.jpg" alt="Kitchen view of the apartment" />
+                                    <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Kitchen view of the apartment" />
                                 </div>
                                 <div class="gallery-tile">
-                                    <img class="gallery-photo" src="Northwestern Photo.jpg" alt="Bedroom area in the apartment" />
+                                    <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Bedroom area in the apartment" />
                                 </div>
                                 <div class="gallery-tile">
-                                    <img class="gallery-photo" src="Northwestern Photo.jpg" alt="Exterior neighborhood photo near the sublet" />
+                                    <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Exterior neighborhood photo near the sublet" />
                                 </div>
                             </div>
                         </div>
