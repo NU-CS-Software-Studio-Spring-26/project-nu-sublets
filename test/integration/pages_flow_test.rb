@@ -12,4 +12,16 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
 
     assert_response :success
   end
+
+  test "search results page is reachable" do
+    get search_results_path
+
+    assert_response :success
+  end
+
+  test "post sublet page is reachable" do
+    get post_sublet_path
+
+    assert_response :success
+  end
 end

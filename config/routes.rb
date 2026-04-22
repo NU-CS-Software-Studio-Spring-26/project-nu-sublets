@@ -11,4 +11,6 @@ Rails.application.routes.draw do
 
   root "pages#home"
   get "listing" => "pages#listing", as: :listing
+  get "search-results" => "pages#search_results", as: :search_results
+  get "post-sublet" => "pages#post_sublet", as: :post_sublet
 end
