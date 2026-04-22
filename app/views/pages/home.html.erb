@@ -81,7 +81,7 @@
 
             .hero {
                 min-height: 450px;
-                background: url("Northwestern Photo.jpg") center 75% / cover no-repeat;
+                background: url("<%= asset_path('northwestern-photo.jpg') %>") center 75% / cover no-repeat;
                 padding: 28px 24px 40px;
             }
 
@@ -493,7 +493,7 @@
         <div class="page-shell">
             <header class="topbar">
                 <div class="topbar-inner d-flex align-items-center justify-content-between">
-                    <a class="brand" href="#">NU-Sublets</a>
+                    <a class="brand" href="<%= root_path %>">NU-Sublets</a>
                     <nav class="d-flex align-items-center topbar-nav">
                         <a class="nav-link p-0" href="#recommendations">Browse</a>
                         <a class="nav-link p-0" href="#">Log In</a>
@@ -513,27 +513,27 @@
 
                             <div class="form-stack">
                                 <label>
-                                    <span class="field-label">Move In</span>
-                                    <span class="date-field">
-                                        <input class="date-input" type="text" name="move-in" placeholder="mm/dd/yyyy" aria-label="Move in date" />
-                                        <button class="icon-button" type="button" aria-label="Open move in date picker">
+                                    <span class="field-label form-label">Move In</span>
+                                    <span class="date-field input-group">
+                                        <input class="date-input form-control" type="text" name="move-in" placeholder="mm/dd/yyyy" aria-label="Move in date" />
+                                        <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open move in date picker">
                                             <img src="https://www.figma.com/api/mcp/asset/459111e8-08b9-4ed1-aa3d-46e8785d8b1f" alt="" width="16" height="16" />
                                         </button>
                                     </span>
                                 </label>
 
                                 <label>
-                                    <span class="field-label">Move Out</span>
-                                    <span class="date-field">
-                                        <input class="date-input" type="text" name="move-out" placeholder="mm/dd/yyyy" aria-label="Move out date" />
-                                        <button class="icon-button" type="button" aria-label="Open move out date picker">
+                                    <span class="field-label form-label">Move Out</span>
+                                    <span class="date-field input-group">
+                                        <input class="date-input form-control" type="text" name="move-out" placeholder="mm/dd/yyyy" aria-label="Move out date" />
+                                        <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open move out date picker">
                                             <img src="https://www.figma.com/api/mcp/asset/459111e8-08b9-4ed1-aa3d-46e8785d8b1f" alt="" width="16" height="16" />
                                         </button>
                                     </span>
                                 </label>
                             </div>
 
-                            <button class="search-button" type="submit">Search</button>
+                            <button class="search-button btn btn-primary" type="submit">Search</button>
                         </form>
                     </div>
                 </section>
@@ -544,7 +544,7 @@
                         <div class="listing-carousel">
                             <button class="carousel-button prev" type="button" aria-label="Previous sublets" data-carousel-prev="recommendations-track">&#8249;</button>
                             <div class="listing-track" id="recommendations-track" data-carousel-track>
-                            <a class="listing-card" href="#">
+                            <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
@@ -560,7 +560,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="#">
+                            <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
@@ -576,7 +576,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="#">
+                            <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
@@ -592,7 +592,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="#">
+                            <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Apartment with sunny bedroom" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
@@ -608,7 +608,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="#">
+                            <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Cozy student apartment" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
@@ -624,7 +624,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="#">
+                            <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Shared apartment near campus" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
@@ -664,7 +664,7 @@
                         <div class="listing-carousel">
                             <button class="carousel-button prev" type="button" aria-label="Previous newest sublets" data-carousel-prev="newest-track">&#8249;</button>
                             <div class="listing-track" id="newest-track" data-carousel-track>
-                            <a class="listing-card" href="#">
+                            <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
@@ -680,7 +680,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="#">
+                            <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
@@ -696,7 +696,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="#">
+                            <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
@@ -712,7 +712,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="#">
+                            <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Newly listed apartment bedroom" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
@@ -728,7 +728,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="#">
+                            <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Apartment available for summer sublet" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
@@ -744,7 +744,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="#">
+                            <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Bedroom in shared sublet" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
