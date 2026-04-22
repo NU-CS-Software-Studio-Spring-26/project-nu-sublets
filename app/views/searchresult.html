@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <title>Search Results | NU Sublets</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;500;600&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+        />
+        <style>
+            :root {
+                --nu-text: #000000;
+                --nu-surface: #ffffff;
+                --nu-border: #d9d9d9;
+                --nu-muted: #5b5b5b;
+                --nu-accent: #9c51b6;
+                --nu-card-shadow: 3.682px 3.682px 3.682px rgba(166, 166, 166, 0.25);
+                --nu-toolbar-bg: #ffffff;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                background: var(--nu-surface);
+                color: var(--nu-text);
+                font-family: "Fustat", sans-serif;
+            }
+
+            a {
+                color: inherit;
+            }
+
+            img {
+                display: block;
+                max-width: 100%;
+            }
+
+            .page-shell {
+                min-height: 100vh;
+            }
+
+            .topbar {
+                background: #fff;
+                border-bottom: 1px solid var(--nu-border);
+                font-family: "Rubik", sans-serif;
+                padding: 0 24px;
+                min-height: 60px;
+                display: flex;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+            }
+
+            .topbar-inner {
+                max-width: 1200px;
+                width: 100%;
+                margin: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .topbar-nav {
+                gap: 28px;
+            }
+
+            .brand,
+            .nav-link {
+                color: var(--nu-text);
+                font-size: 16px;
+                line-height: 1.2;
+                text-decoration: none;
+            }
+
+            .brand {
+                font-weight: 400;
+            }
+
+            .results-toolbar {
+                position: sticky;
+                top: 60px;
+                z-index: 20;
+                border-bottom: 1px solid var(--nu-border);
+                background: var(--nu-toolbar-bg);
+            }
+
+            .toolbar-inner,
+            .results-shell {
+                max-width: 1440px;
+                margin: 0 auto;
+                padding-inline: 32px;
+            }
+
+            .toolbar-inner {
+                min-height: 82px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .date-range {
+                display: inline-flex;
+                align-items: stretch;
+                border: 1px solid var(--nu-border);
+                background: #fff;
+            }
+
+            .date-chip {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 34px;
+                padding: 5px 14px;
+                border: 0;
+                background: transparent;
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 15px;
+                line-height: 1.15;
+            }
+
+            .date-chip + .date-chip {
+                border-left: 1px solid var(--nu-border);
+            }
+
+            .filter-button {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                min-height: 36px;
+                padding: 5px 14px;
+                border: 0;
+                border-radius: 4px;
+                background: var(--nu-accent);
+                color: #fff;
+                font-family: "Rubik", sans-serif;
+                font-size: 15px;
+                line-height: 1.15;
+                transition: transform 0.2s ease, opacity 0.2s ease;
+            }
+
+            .filter-button:hover,
+            .filter-button:focus-visible {
+                opacity: 0.92;
+                transform: translateY(-1px);
+            }
+
+            .filter-icon {
+                width: 14px;
+                height: 14px;
+            }
+
+            .results-page {
+                padding: 24px 0 56px;
+            }
+
+            .results-title {
+                margin: 0 0 16px;
+                font-family: "Rubik", sans-serif;
+                font-size: 18px;
+                font-weight: 500;
+                line-height: 1.15;
+            }
+
+            .results-grid {
+                display: grid;
+                grid-template-columns: minmax(0, 760px) minmax(300px, 1fr);
+                gap: 34px;
+                align-items: start;
+            }
+
+            .cards-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 24px 24px;
+                max-width: 720px;
+            }
+
+            .listing-card {
+                display: block;
+                background: #fff;
+                border-radius: 7px;
+                overflow: hidden;
+                box-shadow: var(--nu-card-shadow);
+                text-decoration: none;
+                color: inherit;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .listing-card:hover,
+            .listing-card:focus-visible {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            }
+
+            .listing-card:focus-visible {
+                outline: 3px solid rgba(156, 81, 182, 0.45);
+                outline-offset: 4px;
+            }
+
+            .listing-media {
+                position: relative;
+                height: 190px;
+                overflow: visible;
+            }
+
+            .listing-main-image {
+                width: 100%;
+                height: 180px;
+                object-fit: cover;
+            }
+
+            .listing-avatar {
+                position: absolute;
+                left: 12px;
+                bottom: -8px;
+                width: 50px;
+                height: 50px;
+                border: 2px solid #fff;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .listing-body {
+                padding: 6px 8px 10px;
+            }
+
+            .listing-price {
+                margin: 0 0 3px;
+                font-family: "Rubik", sans-serif;
+                font-size: 21px;
+                font-weight: 800;
+                line-height: 1.05;
+            }
+
+            .listing-meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                margin-bottom: 3px;
+                font-family: "Rubik", sans-serif;
+                font-size: 10px;
+                font-weight: 500;
+                line-height: 1.2;
+            }
+
+            .listing-address {
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 10px;
+                line-height: 1.2;
+            }
+
+            .map-card {
+                position: sticky;
+                top: 24px;
+                background: #fff;
+            }
+
+            .map-embed {
+                width: 100%;
+                max-width: 447px;
+                height: 950px;
+                border: 0;
+                display: block;
+            }
+
+            @media (max-width: 1199.98px) {
+                .results-grid {
+                    grid-template-columns: minmax(0, 1fr);
+                    gap: 24px;
+                }
+
+                .map-card {
+                    position: static;
+                }
+
+                .map-embed {
+                    max-width: 100%;
+                    height: 420px;
+                }
+            }
+
+            @media (max-width: 991.98px) {
+                .date-chip,
+                .filter-button {
+                    font-size: 14px;
+                }
+
+                .filter-icon {
+                    width: 13px;
+                    height: 13px;
+                }
+
+                .cards-grid {
+                    gap: 24px;
+                }
+
+            }
+
+            @media (max-width: 767.98px) {
+                .topbar {
+                    padding-inline: 16px;
+                }
+
+                .topbar-nav {
+                    gap: 20px;
+                }
+
+                .brand,
+                .nav-link {
+                    font-size: 14px;
+                }
+
+                .toolbar-inner,
+                .results-shell {
+                    padding-inline: 16px;
+                }
+
+                .results-toolbar {
+                    top: 60px;
+                }
+
+                .toolbar-inner {
+                    min-height: 72px;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    padding-block: 8px;
+                }
+
+                .date-range {
+                    width: 100%;
+                }
+
+                .date-chip {
+                    flex: 1 1 0;
+                    min-width: 0;
+                    font-size: 13px;
+                }
+
+                .filter-button {
+                    font-size: 13px;
+                }
+
+                .results-page {
+                    padding-top: 16px;
+                }
+
+                .results-title {
+                    font-size: 16px;
+                }
+
+                .cards-grid {
+                    grid-template-columns: 1fr;
+                    gap: 20px;
+                }
+
+                .listing-media {
+                    height: 216px;
+                }
+
+                .listing-main-image {
+                    height: 204px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="page-shell">
+            <header class="topbar">
+                <div class="topbar-inner">
+                    <a class="brand" href="../app/views/index.html">NU-Sublets</a>
+                    <nav class="d-flex align-items-center topbar-nav">
+                        <a class="nav-link p-0" href="../app/views/index.html#recommendations">Browse</a>
+                        <a class="nav-link p-0" href="#">Log In</a>
+                    </nav>
+                </div>
+            </header>
+
+            <section class="results-toolbar" aria-label="Search filters">
+                <div class="toolbar-inner">
+                    <div class="date-range" role="group" aria-label="Selected dates">
+                        <button class="date-chip" type="button">Jun 2 2026</button>
+                        <button class="date-chip" type="button">Aug 31 2026</button>
+                    </div>
+
+                    <button class="filter-button" type="button">
+                        <img class="filter-icon" src="https://www.figma.com/api/mcp/asset/dc027e89-3614-42d6-aa48-8176b45f4178" alt="" />
+                        <span>Filter</span>
+                    </button>
+                </div>
+            </section>
+
+            <main class="results-page">
+                <div class="results-shell">
+                    <h1 class="results-title">20 Sublets Available</h1>
+
+                    <div class="results-grid">
+                        <section class="cards-grid" aria-label="Search result listings">
+                            <a class="listing-card" href="../app/views/subletlisting.html">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$850/month</p>
+                                    <div class="listing-meta">
+                                        <span>Female Roommates</span>
+                                        <span>1 bathroom</span>
+                                        <span>Laundry</span>
+                                    </div>
+                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
+                                </div>
+                            </a>
+
+                            <a class="listing-card" href="../app/views/subletlisting.html">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$850/month</p>
+                                    <div class="listing-meta">
+                                        <span>Female Roommates</span>
+                                        <span>1 bathroom</span>
+                                        <span>Laundry</span>
+                                    </div>
+                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
+                                </div>
+                            </a>
+
+                            <a class="listing-card" href="../app/views/subletlisting.html">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$850/month</p>
+                                    <div class="listing-meta">
+                                        <span>Female Roommates</span>
+                                        <span>1 bathroom</span>
+                                        <span>Laundry</span>
+                                    </div>
+                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
+                                </div>
+                            </a>
+
+                            <a class="listing-card" href="../app/views/subletlisting.html">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Apartment with sunny bedroom" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$920/month</p>
+                                    <div class="listing-meta">
+                                        <span>2 roommates</span>
+                                        <span>1.5 bathrooms</span>
+                                        <span>Parking</span>
+                                    </div>
+                                    <p class="listing-address">614 Foster St, Evanston, IL</p>
+                                </div>
+                            </a>
+
+                            <a class="listing-card" href="../app/views/subletlisting.html">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Cozy student apartment" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$1,050/month</p>
+                                    <div class="listing-meta">
+                                        <span>Private studio</span>
+                                        <span>1 bathroom</span>
+                                        <span>Utilities</span>
+                                    </div>
+                                    <p class="listing-address">930 Hinman Ave, Evanston, IL</p>
+                                </div>
+                            </a>
+
+                            <a class="listing-card" href="../app/views/subletlisting.html">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Shared apartment near campus" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$780/month</p>
+                                    <div class="listing-meta">
+                                        <span>3 roommates</span>
+                                        <span>2 bathrooms</span>
+                                        <span>Pet friendly</span>
+                                    </div>
+                                    <p class="listing-address">2018 Sherman Ave, Evanston, IL</p>
+                                </div>
+                            </a>
+
+                            <a class="listing-card" href="../app/views/subletlisting.html">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Bedroom listing" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$850/month</p>
+                                    <div class="listing-meta">
+                                        <span>Female Roommates</span>
+                                        <span>1 bathroom</span>
+                                        <span>Laundry</span>
+                                    </div>
+                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
+                                </div>
+                            </a>
+
+                            <a class="listing-card" href="../app/views/subletlisting.html">
+                                <div class="listing-media">
+                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Newly listed apartment bedroom" />
+                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
+                                </div>
+                                <div class="listing-body">
+                                    <p class="listing-price">$1,180/month</p>
+                                    <div class="listing-meta">
+                                        <span>Private room</span>
+                                        <span>1 bathroom</span>
+                                        <span>Gym</span>
+                                    </div>
+                                    <p class="listing-address">811 Emerson St, Evanston, IL</p>
+                                </div>
+                            </a>
+                        </section>
+
+                        <aside class="map-card" aria-label="Map of listings">
+                            <iframe
+                                class="map-embed"
+                                title="Google Map of Evanston near Northwestern University"
+                                src="https://maps.google.com/maps?q=Northwestern%20University%2C%20Evanston%2C%20IL&z=14&output=embed"
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade"
+                            ></iframe>
+                        </aside>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"
+        ></script>
+    </body>
+</html>

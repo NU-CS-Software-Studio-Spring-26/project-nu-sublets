@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <title>Post Sublet | NU Sublets</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;500;600&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+        />
+        <style>
+            :root {
+                --nu-text: #000000;
+                --nu-surface: #ffffff;
+                --nu-border: #d9d9d9;
+                --nu-muted: #5f5f5f;
+                --nu-helper: #abb5be;
+                --nu-accent: #9c51b6;
+                --nu-chip: #d9d9d9;
+                --nu-shadow: 0 0 25px rgba(217, 217, 217, 0.5);
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                background: var(--nu-surface);
+                color: var(--nu-text);
+                font-family: "Fustat", sans-serif;
+            }
+
+            a {
+                color: inherit;
+            }
+
+            button,
+            input,
+            textarea {
+                font: inherit;
+            }
+
+            .page-shell {
+                min-height: 100vh;
+            }
+
+            .topbar {
+                background: #fff;
+                border-bottom: 1px solid var(--nu-border);
+                font-family: "Rubik", sans-serif;
+                padding: 0 24px;
+                min-height: 60px;
+                display: flex;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+            }
+
+            .topbar-inner {
+                max-width: 1200px;
+                width: 100%;
+                margin: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .topbar-nav {
+                gap: 28px;
+            }
+
+            .brand,
+            .nav-link {
+                color: var(--nu-text);
+                font-size: 16px;
+                line-height: 1.2;
+                text-decoration: none;
+            }
+
+            .brand {
+                font-weight: 400;
+            }
+
+            .post-page {
+                padding: 46px 24px 72px;
+            }
+
+            .post-shell {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+
+            .page-title {
+                margin: 0 0 16px;
+                padding-inline: 32px;
+                font-family: "Rubik", sans-serif;
+                font-size: clamp(2rem, 4vw, 2.25rem);
+                font-weight: 700;
+                line-height: 1.2;
+            }
+
+            .post-card {
+                background: #fff;
+                border-radius: 16px;
+                box-shadow: var(--nu-shadow);
+                padding: 32px 48px;
+            }
+
+            .section-block + .section-block {
+                margin-top: 16px;
+            }
+
+            .section-title {
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 20px;
+                font-weight: 400;
+                line-height: 2;
+            }
+
+            .section-helper {
+                margin: 0;
+                font-size: 14px;
+                line-height: 2;
+                color: var(--nu-muted);
+            }
+
+            .field-stack {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .field-grid {
+                display: grid;
+                gap: 8px;
+            }
+
+            .field-grid.two-col {
+                grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+            }
+
+            .field-grid.city-row,
+            .field-grid.single-col {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .field-grid.state-row {
+                grid-template-columns: minmax(0, 1.9fr) minmax(0, 0.9fr);
+                gap: 18px;
+            }
+
+            .availability-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 16px;
+            }
+
+            .field-label {
+                display: block;
+                font-size: 14px;
+                line-height: 2;
+                color: var(--nu-text);
+            }
+
+            .field-input,
+            .field-textarea,
+            .date-field {
+                width: 100%;
+                border: 1px solid var(--nu-border);
+                border-radius: 8px;
+                background: #fff;
+                color: var(--nu-text);
+                font-size: 16px;
+                line-height: 2;
+                min-height: 52px;
+            }
+
+            .field-input,
+            .field-textarea {
+                padding: 8px 16px;
+            }
+
+            .field-input::placeholder,
+            .field-textarea::placeholder,
+            .date-value::placeholder {
+                color: var(--nu-text);
+                opacity: 1;
+            }
+
+            .field-textarea {
+                min-height: 104px;
+                resize: vertical;
+            }
+
+            .date-field {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                padding: 8px 16px;
+            }
+
+            .date-value {
+                width: 100%;
+                border: 0;
+                outline: 0;
+                padding: 0;
+                background: transparent;
+                font-size: 16px;
+                line-height: 2;
+            }
+
+            .icon-button {
+                width: 24px;
+                height: 24px;
+                padding: 0;
+                border: 0;
+                background: transparent;
+                color: var(--nu-text);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex: 0 0 auto;
+            }
+
+            .icon-button svg,
+            .chip-icon svg {
+                display: block;
+            }
+
+            .price-field {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                padding-inline: 16px;
+            }
+
+            .prefix {
+                font-family: "Rubik", sans-serif;
+                font-size: 16px;
+                line-height: 2;
+            }
+
+            .rubik-input {
+                font-family: "Rubik", sans-serif;
+            }
+
+            .field-input.no-border {
+                border: 0;
+                min-height: auto;
+                padding: 0;
+                background: transparent;
+            }
+
+            .search-input {
+                min-height: 52px;
+            }
+
+            .chip-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px 24px;
+            }
+
+            .chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 4px 8px;
+                border-radius: 8px;
+                background: var(--nu-chip);
+                min-height: 32px;
+            }
+
+            .chip-icon {
+                width: 24px;
+                height: 24px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--nu-text);
+                flex: 0 0 auto;
+            }
+
+            .chip-label {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                font-family: "Rubik", sans-serif;
+                font-size: 12px;
+                line-height: 2;
+            }
+
+            .upload-box {
+                width: 112px;
+                height: 72px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border: 0;
+                background: var(--nu-chip);
+                color: #fff;
+                font-size: 28px;
+                line-height: 1;
+            }
+
+            .phone-field {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding-inline: 16px;
+            }
+
+            .checkbox-row {
+                display: grid;
+                grid-template-columns: 16px minmax(0, 1fr);
+                align-items: start;
+                gap: 16px;
+                margin-top: 12px;
+            }
+
+            .checkbox-row input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+                margin-top: 4px;
+                border: 1px solid var(--nu-helper);
+                accent-color: var(--nu-accent);
+            }
+
+            .checkbox-copy {
+                margin: 0;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+
+            .submit-button {
+                width: 100%;
+                border: 0;
+                border-radius: 16px;
+                background: var(--nu-accent);
+                color: #fff;
+                font-family: "Rubik", sans-serif;
+                font-size: 16px;
+                font-weight: 600;
+                line-height: 1.5;
+                padding: 16px 10px;
+                transition: transform 0.2s ease, opacity 0.2s ease;
+            }
+
+            .submit-button:hover,
+            .submit-button:focus-visible {
+                opacity: 0.92;
+                transform: translateY(-1px);
+            }
+
+            @media (max-width: 767.98px) {
+                .topbar {
+                    padding-inline: 16px;
+                }
+
+                .topbar-nav {
+                    gap: 20px;
+                }
+
+                .brand,
+                .nav-link {
+                    font-size: 14px;
+                }
+
+                .post-page {
+                    padding: 28px 16px 48px;
+                }
+
+                .page-title {
+                    padding-inline: 0;
+                    margin-bottom: 20px;
+                    font-size: clamp(1.8rem, 9vw, 2.2rem);
+                }
+
+                .post-card {
+                    padding: 24px 20px;
+                }
+
+                .field-grid.two-col,
+                .field-grid.state-row,
+                .availability-grid {
+                    grid-template-columns: minmax(0, 1fr);
+                    gap: 8px;
+                }
+
+                .chip-row {
+                    gap: 8px;
+                }
+
+                .checkbox-row {
+                    gap: 12px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="page-shell">
+            <header class="topbar">
+                <div class="topbar-inner">
+                    <a class="brand" href="../app/views/index.html">NU-Sublets</a>
+                    <nav class="d-flex align-items-center topbar-nav">
+                        <a class="nav-link p-0" href="../app/views/index.html#recommendations">Browse</a>
+                        <a class="nav-link p-0" href="#">Log In</a>
+                    </nav>
+                </div>
+            </header>
+
+            <main class="post-page">
+                <div class="post-shell">
+                    <h1 class="page-title">List your apartment</h1>
+
+                    <form class="post-card" action="#" method="post">
+                        <section class="section-block field-stack">
+                            <div>
+                                <h2 class="section-title">Address</h2>
+                                <p class="section-helper">Tell us where your room is</p>
+                            </div>
+
+                            <div class="field-grid two-col">
+                                <input class="field-input" type="text" name="street-address" placeholder="Street Address" />
+                                <input class="field-input" type="text" name="address-line-2" placeholder="Apt, suite, etc. (optional)" />
+                            </div>
+
+                            <div class="field-grid city-row">
+                                <input class="field-input" type="text" name="city" placeholder="City" />
+                            </div>
+
+                            <div class="field-grid state-row">
+                                <input class="field-input" type="text" name="state" placeholder="State" />
+                                <input class="field-input" type="text" name="zip-code" placeholder="Zip Code" />
+                            </div>
+                        </section>
+
+                        <section class="section-block field-stack">
+                            <h2 class="section-title">Availability</h2>
+
+                            <div class="availability-grid">
+                                <label class="field-stack">
+                                    <span class="field-label">Start Date</span>
+                                    <span class="date-field">
+                                        <input class="date-value" type="text" name="start-date" placeholder="mm/dd/yyyy" />
+                                        <button class="icon-button" type="button" aria-label="Open start date picker">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                                <rect x="4" y="5" width="16" height="15" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+                                            </svg>
+                                        </button>
+                                    </span>
+                                </label>
+
+                                <label class="field-stack">
+                                    <span class="field-label">End Date</span>
+                                    <span class="date-field">
+                                        <input class="date-value" type="text" name="end-date" placeholder="mm/dd/yyyy" />
+                                        <button class="icon-button" type="button" aria-label="Open end date picker">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                                <rect x="4" y="5" width="16" height="15" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+                                            </svg>
+                                        </button>
+                                    </span>
+                                </label>
+                            </div>
+                        </section>
+
+                        <section class="section-block field-stack">
+                            <h2 class="section-title">Rent</h2>
+                            <label class="field-input price-field">
+                                <span class="prefix">$</span>
+                                <input class="field-input no-border" type="text" name="price" placeholder="Price" />
+                            </label>
+                        </section>
+
+                        <section class="section-block field-stack">
+                            <h2 class="section-title">Description</h2>
+                            <textarea class="field-textarea" name="description" placeholder="Describe apartment here"></textarea>
+                        </section>
+
+                        <section class="section-block field-stack">
+                            <h2 class="section-title">Amenities</h2>
+                            <input class="field-input search-input" type="text" name="amenities-search" placeholder="Search Amenities" />
+
+                            <div class="chip-row" aria-label="Selected amenities">
+                                <span class="chip">
+                                    <span class="chip-icon" aria-hidden="true">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                            <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                        </svg>
+                                    </span>
+                                    <span class="chip-label">
+                                        <span class="chip-icon" aria-hidden="true">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                <path d="M5 8.5h14M7 8.5V6a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v2.5M6 8.5V18a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8.5M10 12v3M14 12v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </span>
+                                        Kitchen
+                                    </span>
+                                </span>
+
+                                <span class="chip">
+                                    <span class="chip-icon" aria-hidden="true">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                            <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                        </svg>
+                                    </span>
+                                    <span class="chip-label">
+                                        <span class="chip-icon" aria-hidden="true">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                <path d="M5 8.5h14M7 8.5V6a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v2.5M6 8.5V18a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8.5M10 12v3M14 12v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </span>
+                                        Kitchen
+                                    </span>
+                                </span>
+                            </div>
+                        </section>
+
+                        <section class="section-block field-stack">
+                            <h2 class="section-title">Preferences</h2>
+                            <input class="field-input search-input" type="text" name="preferences-search" placeholder="Search Preferences" />
+
+                            <div class="chip-row" aria-label="Selected preferences">
+                                <span class="chip">
+                                    <span class="chip-icon" aria-hidden="true">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                            <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                        </svg>
+                                    </span>
+                                    <span class="chip-label">Female</span>
+                                </span>
+                            </div>
+                        </section>
+
+                        <section class="section-block field-stack">
+                            <div>
+                                <h2 class="section-title">Photos</h2>
+                                <p class="section-helper">You must upload a minimum of 4 photos</p>
+                            </div>
+
+                            <button class="upload-box" type="button" aria-label="Upload photos">+</button>
+                        </section>
+
+                        <section class="section-block field-stack">
+                            <h2 class="section-title">Phone</h2>
+                            <label class="field-input phone-field">
+                                <span class="prefix">+1</span>
+                                <input class="field-input no-border rubik-input" type="tel" name="phone" aria-label="Phone number" />
+                            </label>
+                        </section>
+
+                        <section class="section-block field-stack">
+                            <div>
+                                <h2 class="section-title">School Email</h2>
+                                <p class="section-helper">School email will be used to verify your student status</p>
+                            </div>
+
+                            <input class="field-input" type="email" name="school-email" placeholder="ex: janedoe@u.northwestern.edu" />
+                        </section>
+
+                        <section class="section-block">
+                            <label class="checkbox-row">
+                                <input type="checkbox" name="terms" />
+                                <span class="checkbox-copy">By checking this box, I confirm that I have read, understood, and agree to the Terms and Conditions and Privacy Policy.</span>
+                            </label>
+                        </section>
+
+                        <section class="section-block">
+                            <button class="submit-button" type="submit">Post Sublet</button>
+                        </section>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </body>
+</html>
