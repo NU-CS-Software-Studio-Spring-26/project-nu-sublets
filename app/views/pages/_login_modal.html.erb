@@ -1,0 +1,269 @@
+<style>
+    .login-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+
+    .login-modal.is-open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .login-modal__backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(17, 12, 20, 0.34);
+        backdrop-filter: blur(3px);
+    }
+
+    .login-modal__dialog {
+        position: relative;
+        width: min(100%, 650px);
+        border-radius: 16px;
+        background: #ffffff;
+        box-shadow: 0 0 25px rgba(217, 217, 217, 0.5);
+        padding: 32px 48px;
+    }
+
+    .login-modal__close {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        width: 36px;
+        height: 36px;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: #5f5f5f;
+        font-size: 24px;
+        line-height: 1;
+    }
+
+    .login-modal__title {
+        margin: 0 0 16px;
+        font-family: "Rubik", sans-serif;
+        font-size: 20px;
+        font-weight: 400;
+        line-height: 1.5;
+    }
+
+    .login-modal__form,
+    .login-modal__actions {
+        display: grid;
+        gap: 16px;
+    }
+
+    .login-modal__field,
+    .login-modal__social {
+        width: 100%;
+        min-height: 52px;
+        border: 1px solid #d9d9d9;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #000000;
+        font-family: "Rubik", sans-serif;
+        font-size: 16px;
+        line-height: 2;
+    }
+
+    .login-modal__field {
+        padding: 8px 16px;
+    }
+
+    .login-modal__field::placeholder {
+        color: #000000;
+        opacity: 1;
+    }
+
+    .login-modal__submit {
+        width: 100%;
+        border: 0;
+        border-radius: 16px;
+        background: #9c51b6;
+        color: #ffffff;
+        font-family: "Rubik", sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.5;
+        padding: 16px 10px;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .login-modal__submit:hover,
+    .login-modal__submit:focus-visible,
+    .login-modal__social:hover,
+    .login-modal__social:focus-visible {
+        opacity: 0.92;
+        transform: translateY(-1px);
+    }
+
+    .login-modal__signup {
+        margin: 0;
+        font-family: "Rubik", sans-serif;
+        font-size: 14px;
+        font-weight: 300;
+        line-height: 2;
+        text-align: center;
+    }
+
+    .login-modal__signup-link {
+        color: #9c51b6;
+        text-decoration: underline;
+    }
+
+    .login-modal__divider {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .login-modal__divider::before,
+    .login-modal__divider::after {
+        content: "";
+        flex: 1 1 auto;
+        border-top: 1px solid #000000;
+    }
+
+    .login-modal__divider-text {
+        font-family: "Rubik", sans-serif;
+        font-size: 14px;
+        font-weight: 300;
+        line-height: 2;
+    }
+
+    .login-modal__social {
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+        padding: 8px 16px;
+        text-align: left;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .login-modal__icon {
+        width: 24px;
+        height: 24px;
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-modal__trigger {
+        border: 1px solid #d9d9d9;
+        border-radius: 999px;
+        padding: 8px 16px;
+        font-family: "Rubik", sans-serif;
+        line-height: 1.2;
+    }
+
+    body.login-modal-open {
+        overflow: hidden;
+    }
+
+    @media (max-width: 767.98px) {
+        .login-modal {
+            padding: 16px;
+        }
+
+        .login-modal__dialog {
+            padding: 28px 20px 24px;
+        }
+    }
+</style>
+
+<div class="login-modal" data-login-modal aria-hidden="true">
+    <div class="login-modal__backdrop" data-login-close></div>
+    <div class="login-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="login-modal-title">
+        <button class="login-modal__close" type="button" aria-label="Close login popup" data-login-close>&times;</button>
+        <h2 class="login-modal__title" id="login-modal-title">Login</h2>
+
+        <form class="login-modal__form" action="#" method="post">
+            <input class="login-modal__field" type="email" name="login-email" placeholder="Email" />
+            <input class="login-modal__field" type="password" name="login-password" placeholder="Password" />
+            <button class="login-modal__submit" type="submit">Continue</button>
+        </form>
+
+        <p class="login-modal__signup">
+            Don&rsquo;t have an account?
+            <a class="login-modal__signup-link" href="#">Sign up here</a>
+        </p>
+
+        <div class="login-modal__divider" aria-hidden="true">
+            <span class="login-modal__divider-text">OR</span>
+        </div>
+
+        <div class="login-modal__actions">
+            <button class="login-modal__social" type="button">
+                <span class="login-modal__icon" aria-hidden="true">
+                    <img src="https://www.figma.com/api/mcp/asset/5f1f2dfd-48ad-42e4-af1e-5eebeb17c4d8" alt="" width="24" height="24" />
+                </span>
+                <span>Login with Google</span>
+            </button>
+
+            <button class="login-modal__social" type="button">
+                <span class="login-modal__icon" aria-hidden="true">
+                    <img src="https://www.figma.com/api/mcp/asset/363f4892-5fc8-4a52-87f6-fc572afe4dff" alt="" width="24" height="24" />
+                </span>
+                <span>Login with Phone Number</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (() => {
+        const modal = document.querySelector("[data-login-modal]");
+
+        if (!modal || modal.dataset.loginBound === "true") {
+            return;
+        }
+
+        modal.dataset.loginBound = "true";
+
+        const openModal = () => {
+            modal.classList.add("is-open");
+            modal.setAttribute("aria-hidden", "false");
+            document.body.classList.add("login-modal-open");
+        };
+
+        const closeModal = () => {
+            modal.classList.remove("is-open");
+            modal.setAttribute("aria-hidden", "true");
+            document.body.classList.remove("login-modal-open");
+        };
+
+        document.querySelectorAll("[data-login-trigger]").forEach((trigger) => {
+            trigger.addEventListener("click", (event) => {
+                event.preventDefault();
+                openModal();
+            });
+        });
+
+        modal.querySelectorAll("[data-login-close]").forEach((closeButton) => {
+            closeButton.addEventListener("click", closeModal);
+        });
+
+        modal.addEventListener("click", (event) => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && modal.classList.contains("is-open")) {
+                closeModal();
+            }
+        });
+    })();
+</script>

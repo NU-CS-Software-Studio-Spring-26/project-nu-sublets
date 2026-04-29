@@ -8,4 +8,6 @@ class PagesController < ApplicationController
   def search_results; end
 
   def post_sublet; end
+
+  def profile; end
 end

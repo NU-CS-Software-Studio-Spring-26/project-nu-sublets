@@ -415,6 +415,7 @@
                         <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
                         <a class="nav-link p-0" href="<%= search_results_path %>">Search</a>
                         <a class="nav-link p-0" href="<%= listing_path %>">View Listing</a>
+                        <a class="nav-link p-0 login-modal__trigger" href="#" data-login-trigger>Log in</a>
                     </nav>
                 </div>
             </header>
@@ -579,11 +580,12 @@
                         </section>
 
                         <section class="section-block">
-                            <button class="submit-button" type="submit">Post Sublet</button>
+                            <button class="submit-button" type="button" data-login-trigger>Post Sublet</button>
                         </section>
                     </form>
                 </div>
             </main>
         </div>
+        <%= render "login_modal" %>
     </body>
 </html>

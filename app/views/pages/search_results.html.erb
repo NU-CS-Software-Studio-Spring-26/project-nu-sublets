@@ -384,6 +384,7 @@
                         <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
                         <a class="nav-link p-0" href="<%= post_sublet_path %>">Post Sublet</a>
                         <a class="nav-link p-0" href="<%= listing_path %>">Featured Listing</a>
+                        <a class="nav-link p-0 login-modal__trigger" href="#" data-login-trigger>Log in</a>
                     </nav>
                 </div>
             </header>
@@ -556,5 +557,6 @@
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"
         ></script>
+        <%= render "login_modal" %>
     </body>
 </html>

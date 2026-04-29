@@ -498,6 +498,7 @@
                         <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
                         <a class="nav-link p-0" href="<%= search_results_path %>">Search</a>
                         <a class="nav-link p-0" href="<%= post_sublet_path %>">Post Sublet</a>
+                        <a class="nav-link p-0 login-modal__trigger" href="#" data-login-trigger>Log in</a>
                     </nav>
                 </div>
             </header>
@@ -652,7 +653,7 @@
                             <div class="cta-copy">
                                 <h2 class="cta-title">Looking For Someone to Sublet Your Room?</h2>
                                 <p class="cta-subtitle">List your sublet here</p>
-                                <a class="cta-button btn btn-primary" href="<%= post_sublet_path %>">Create a Posting</a>
+                                <a class="cta-button btn btn-primary" href="#" data-login-trigger>Create a Posting</a>
                             </div>
                             <img class="cta-image" src="https://www.figma.com/api/mcp/asset/5f0bfc69-63af-460f-a9e9-eb92adb61a86" alt="Students relaxing on a couch" />
                         </div>
@@ -775,6 +776,7 @@
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"
         ></script>
+        <%= render "login_modal" %>
         <script>
             document.querySelectorAll("[data-carousel-track]").forEach((track) => {
                 const prevButton = document.querySelector(`[data-carousel-prev="${track.id}"]`);
