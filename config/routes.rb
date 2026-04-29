@@ -13,9 +13,6 @@ Rails.application.routes.draw do
   get "listing" => "pages#listing", as: :listing
   get "search-results" => "pages#search_results", as: :search_results
   get "post-sublet" => "pages#post_sublet", as: :post_sublet
-<<<<<<< HEAD
   get "profile" => "pages#profile", as: :profile
-=======
   post "post-sublet" => "pages#submit_sublet", as: :submit_sublet
->>>>>>> e4fa85c ([feat] routed post sublet)
 end
