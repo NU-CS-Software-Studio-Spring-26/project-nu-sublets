@@ -424,7 +424,7 @@
                 <div class="post-shell">
                     <h1 class="page-title">List your apartment</h1>
 
-                    <form class="post-card" action="#" method="post">
+                    <%= form_with url: submit_sublet_path, method: :post, local: true, class: "post-card" do %>
                         <section class="section-block field-stack">
                             <div>
                                 <h2 class="section-title">Address</h2>
@@ -582,7 +582,7 @@
                         <section class="section-block">
                             <button class="submit-button" type="button" data-login-trigger>Post Sublet</button>
                         </section>
-                    </form>
+                    <% end %>
                 </div>
             </main>
         </div>

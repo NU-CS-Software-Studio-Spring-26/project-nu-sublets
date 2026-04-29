@@ -9,5 +9,11 @@ class PagesController < ApplicationController
 
   def post_sublet; end
 
+<<<<<<< HEAD
   def profile; end
+=======
+  def submit_sublet
+    redirect_to listing_path
+  end
+>>>>>>> e4fa85c ([feat] routed post sublet)
 end

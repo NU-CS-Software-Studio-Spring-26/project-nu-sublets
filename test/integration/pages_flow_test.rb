@@ -25,6 +25,18 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "post sublet form submits to an app endpoint" do
+    post submit_sublet_path, params: {
+      "street-address" => "820 Noyes St",
+      "city" => "Evanston",
+      "state" => "IL",
+      "zip-code" => "60201",
+      "price" => "850"
+    }
+
+    assert_redirected_to listing_path
+  end
+
   test "home page links to the other product views" do
     get root_path
 
@@ -39,5 +51,11 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{root_path}']", text: /NU-Sublets/
     assert_select "a[href='#{listing_path}']"
     assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet/
+  end
+
+  test "post sublet page uses the submit endpoint" do
+    get post_sublet_path
+
+    assert_select "form[action='#{submit_sublet_path}'][method='post']"
   end
 end
