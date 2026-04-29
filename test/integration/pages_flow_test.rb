@@ -24,4 +24,20 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
 
     assert_response :success
   end
+
+  test "home page links to the other product views" do
+    get root_path
+
+    assert_select "a[href='#{search_results_path}']", text: /Search/
+    assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet|Create a Posting/
+    assert_select "a[href='#{listing_path}']"
+  end
+
+  test "search results page links into listing and home" do
+    get search_results_path
+
+    assert_select "a[href='#{root_path}']", text: /NU-Sublets/
+    assert_select "a[href='#{listing_path}']"
+    assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet/
+  end
 end
