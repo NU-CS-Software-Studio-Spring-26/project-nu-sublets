@@ -11,6 +11,8 @@ class PagesController < ApplicationController
 
   def profile; end
 
+  def login; end
+
   def submit_sublet
     redirect_to listing_path
   end

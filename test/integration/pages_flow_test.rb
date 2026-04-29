@@ -25,6 +25,12 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "login page is reachable" do
+    get login_path
+
+    assert_response :success
+  end
+
   test "post sublet form submits to an app endpoint" do
     post submit_sublet_path, params: {
       "street-address" => "820 Noyes St",
@@ -42,6 +48,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
 
     assert_select "a[href='#{search_results_path}']", text: /Search/
     assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet|Create a Posting/
+    assert_select "a[href='#{login_path}']", text: /Log in/
     assert_select "a[href='#{listing_path}']"
   end
 

@@ -14,5 +14,6 @@ Rails.application.routes.draw do
   get "search-results" => "pages#search_results", as: :search_results
   get "post-sublet" => "pages#post_sublet", as: :post_sublet
   get "profile" => "pages#profile", as: :profile
+  get "login" => "pages#login", as: :login
   post "post-sublet" => "pages#submit_sublet", as: :submit_sublet
 end
