@@ -668,24 +668,17 @@
 
                         <section class="section-block field-stack">
                             <h2 class="section-title">Amenities</h2>
-                            <input class="field-input search-input" type="text" name="amenities-search" placeholder="Search Amenities" />
-
-                            <div class="chip-row" aria-label="Selected amenities">
-                                <span class="chip">
-                                    <span class="chip-icon" aria-hidden="true">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                            <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                                        </svg>
-                                    </span>
-                                    <span class="chip-label">
-                                        <span class="chip-icon" aria-hidden="true">
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                <path d="M5 8.5h14M7 8.5V6a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v2.5M6 8.5V18a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8.5M10 12v3M14 12v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
-                                        </span>
-                                        Kitchen
-                                    </span>
-                                </span>
+                            <div class="amenities-picker" data-amenities-picker>
+                                <input
+                                    class="field-input search-input"
+                                    type="search"
+                                    name="amenities-search"
+                                    placeholder="Search Amenities"
+                                    autocomplete="off"
+                                    aria-controls="amenity-results"
+                                    aria-expanded="false"
+                                    data-amenity-search
+                                />
 
                                 <div class="amenity-results" id="amenity-results" aria-label="Available amenities" data-amenity-results></div>
                             </div>
