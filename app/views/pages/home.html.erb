@@ -519,7 +519,10 @@
                                     <span class="date-field input-group">
                                         <input class="date-input form-control" type="text" name="move-in" placeholder="mm/dd/yyyy" aria-label="Move in date" />
                                         <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open move in date picker">
-                                            <img src="https://www.figma.com/api/mcp/asset/459111e8-08b9-4ed1-aa3d-46e8785d8b1f" alt="" width="16" height="16" />
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                                <rect x="4" y="5" width="16" height="15" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+                                            </svg>
                                         </button>
                                     </span>
                                 </label>
@@ -529,7 +532,10 @@
                                     <span class="date-field input-group">
                                         <input class="date-input form-control" type="text" name="move-out" placeholder="mm/dd/yyyy" aria-label="Move out date" />
                                         <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open move out date picker">
-                                            <img src="https://www.figma.com/api/mcp/asset/459111e8-08b9-4ed1-aa3d-46e8785d8b1f" alt="" width="16" height="16" />
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                                <rect x="4" y="5" width="16" height="15" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+                                            </svg>
                                         </button>
                                     </span>
                                 </label>
@@ -781,6 +787,7 @@
             crossorigin="anonymous"
         ></script>
         <%= render "login_modal" %>
+        <%= render "favorite_listings" %>
         <script>
             document.querySelectorAll("[data-carousel-track]").forEach((track) => {
                 const prevButton = document.querySelector(`[data-carousel-prev="${track.id}"]`);
