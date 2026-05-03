@@ -4,9 +4,26 @@ class PagesController < ApplicationController
 
   def home; end
 
-  def listing; end
+  def listing
+    @listing = if params[:id].present?
+                 SubletListing.find(params[:id])
+               else
+                 SubletListing.find_available_listings.first
+               end
 
-  def search_results; end
+    @listing ||= fallback_listing
+    @listing_host = @listing.user || fallback_host
+  end
+
+  def search_results
+    @move_in = search_date_param("move-in")
+    @move_out = search_date_param("move-out")
+    @listings = SubletListing.search_listings(
+      move_in: @move_in,
+      move_out: @move_out,
+      available_only: true
+    ).order(:price)
+  end
 
   def post_sublet; end
 
@@ -17,6 +34,80 @@ class PagesController < ApplicationController
   end
 
   def submit_sublet
-    redirect_to listing_path
+    @listing = current_user.sublet_listings.new(sublet_listing_params)
+
+    if @listing.save
+      redirect_to search_results_path(
+        "move-in": @listing.available_from.strftime("%m/%d/%Y"),
+        "move-out": @listing.available_until.strftime("%m/%d/%Y")
+      )
+    else
+      @listing_errors = @listing.errors.full_messages
+      render :post_sublet, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def search_date_param(key)
+    return if params[key].blank?
+
+    Date.strptime(params[key], "%m/%d/%Y")
+  rescue Date::Error
+    nil
+  end
+
+  def sublet_listing_params
+    {
+      title: params[:title].presence || default_listing_title,
+      description: params[:description],
+      price: params[:price],
+      address: formatted_address,
+      bedrooms: params[:bedrooms],
+      bathrooms: params[:bathrooms],
+      furnished: params[:furnished] == "1",
+      pets_allowed: params[:pets_allowed] == "1",
+      utilities_included: params[:utilities_included] == "1",
+      available_from: search_date_param("start-date"),
+      available_until: search_date_param("end-date")
+    }
+  end
+
+  def default_listing_title
+    street_address = params["street-address"].presence || "Campus"
+    "Sublet at #{street_address}"
+  end
+
+  def formatted_address
+    [
+      params["street-address"],
+      params["address-line-2"],
+      params[:city],
+      params[:state],
+      params["zip-code"]
+    ].reject(&:blank?).join(", ")
+  end
+
+  def fallback_listing
+    SubletListing.new(
+      title: "Summer Sublet Near Campus",
+      description: "Furnished room near Northwestern campus with easy access to transit, groceries, and restaurants.",
+      price: 850,
+      address: "820 Noyes St, Evanston, IL 60201",
+      bedrooms: 1,
+      bathrooms: 1,
+      furnished: true,
+      pets_allowed: false,
+      utilities_included: true,
+      available_from: Date.new(2026, 6, 16),
+      available_until: Date.new(2026, 8, 31)
+    )
+  end
+
+  def fallback_host
+    User.new(
+      name: "Jane Doe",
+      email: "janedoe@u.northwestern.edu"
+    )
   end
 end

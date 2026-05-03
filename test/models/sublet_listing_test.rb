@@ -65,6 +65,38 @@ class SubletListingTest < ActiveSupport::TestCase
     assert_equal "820 Noyes St", listing.short_address
   end
 
+  test "search_listings only returns listings covering the full requested stay" do
+    covers_full_stay = @user.sublet_listings.create!(
+      valid_listing_params.merge(
+        title: "Full Summer and Fall Stay",
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 9, 30)
+      )
+    )
+    @user.sublet_listings.create!(
+      valid_listing_params.merge(
+        title: "Ends Before Requested Move Out",
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 8, 15)
+      )
+    )
+    @user.sublet_listings.create!(
+      valid_listing_params.merge(
+        title: "Starts After Requested Move In",
+        available_from: Date.new(2026, 7, 1),
+        available_until: Date.new(2026, 9, 30)
+      )
+    )
+
+    results = SubletListing.search_listings(
+      move_in: Date.new(2026, 6, 12),
+      move_out: Date.new(2026, 9, 11)
+    )
+
+    assert_includes results, covers_full_stay
+    assert_equal [covers_full_stay], results.to_a
+  end
+
   private
 
   def valid_listing_params

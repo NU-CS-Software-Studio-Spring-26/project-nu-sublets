@@ -132,6 +132,28 @@
                 color: var(--nu-muted);
             }
 
+            .form-errors {
+                margin: 0 0 18px;
+                padding: 12px 16px;
+                border: 1px solid rgba(156, 81, 182, 0.28);
+                border-radius: 8px;
+                background: rgba(156, 81, 182, 0.08);
+                color: var(--nu-text);
+                font-size: 14px;
+                line-height: 1.45;
+            }
+
+            .form-errors p {
+                margin: 0 0 6px;
+                font-family: "Rubik", sans-serif;
+                font-weight: 600;
+            }
+
+            .form-errors ul {
+                margin: 0;
+                padding-left: 18px;
+            }
+
             .field-stack {
                 display: flex;
                 flex-direction: column;
@@ -425,6 +447,27 @@
                     <h1 class="page-title">List your apartment</h1>
 
                     <%= form_with url: submit_sublet_path, method: :post, local: true, class: "post-card" do %>
+                        <% if @listing_errors.present? %>
+                            <div class="form-errors">
+                                <p>Please fix these details before posting:</p>
+                                <ul>
+                                    <% @listing_errors.each do |error| %>
+                                        <li><%= error %></li>
+                                    <% end %>
+                                </ul>
+                            </div>
+                        <% end %>
+
+                        <section class="section-block field-stack">
+                            <h2 class="section-title">Listing Details</h2>
+                            <input class="field-input" type="text" name="title" placeholder="Listing title" value="<%= params[:title] %>" />
+
+                            <div class="field-grid two-col">
+                                <input class="field-input" type="number" min="0" name="bedrooms" placeholder="Bedrooms" value="<%= params[:bedrooms] %>" />
+                                <input class="field-input" type="number" min="0" name="bathrooms" placeholder="Bathrooms" value="<%= params[:bathrooms] %>" />
+                            </div>
+                        </section>
+
                         <section class="section-block field-stack">
                             <div>
                                 <h2 class="section-title">Address</h2>
@@ -432,17 +475,17 @@
                             </div>
 
                             <div class="field-grid two-col">
-                                <input class="field-input" type="text" name="street-address" placeholder="Street Address" />
-                                <input class="field-input" type="text" name="address-line-2" placeholder="Apt, suite, etc. (optional)" />
+                                <input class="field-input" type="text" name="street-address" placeholder="Street Address" value="<%= params["street-address"] %>" />
+                                <input class="field-input" type="text" name="address-line-2" placeholder="Apt, suite, etc. (optional)" value="<%= params["address-line-2"] %>" />
                             </div>
 
                             <div class="field-grid city-row">
-                                <input class="field-input" type="text" name="city" placeholder="City" />
+                                <input class="field-input" type="text" name="city" placeholder="City" value="<%= params[:city] %>" />
                             </div>
 
                             <div class="field-grid state-row">
-                                <input class="field-input" type="text" name="state" placeholder="State" />
-                                <input class="field-input" type="text" name="zip-code" placeholder="Zip Code" />
+                                <input class="field-input" type="text" name="state" placeholder="State" value="<%= params[:state] %>" />
+                                <input class="field-input" type="text" name="zip-code" placeholder="Zip Code" value="<%= params["zip-code"] %>" />
                             </div>
                         </section>
 
@@ -453,7 +496,7 @@
                                 <label class="field-stack">
                                     <span class="field-label">Start Date</span>
                                     <span class="date-field">
-                                        <input class="date-value" type="text" name="start-date" placeholder="mm/dd/yyyy" />
+                                        <input class="date-value" type="text" name="start-date" placeholder="mm/dd/yyyy" value="<%= params["start-date"] %>" />
                                         <button class="icon-button" type="button" aria-label="Open start date picker">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                                 <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -466,7 +509,7 @@
                                 <label class="field-stack">
                                     <span class="field-label">End Date</span>
                                     <span class="date-field">
-                                        <input class="date-value" type="text" name="end-date" placeholder="mm/dd/yyyy" />
+                                        <input class="date-value" type="text" name="end-date" placeholder="mm/dd/yyyy" value="<%= params["end-date"] %>" />
                                         <button class="icon-button" type="button" aria-label="Open end date picker">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                                 <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -482,18 +525,33 @@
                             <h2 class="section-title">Rent</h2>
                             <label class="field-input price-field">
                                 <span class="prefix">$</span>
-                                <input class="field-input no-border" type="text" name="price" placeholder="Price" />
+                                <input class="field-input no-border" type="text" name="price" placeholder="Price" value="<%= params[:price] %>" />
                             </label>
                         </section>
 
                         <section class="section-block field-stack">
                             <h2 class="section-title">Description</h2>
-                            <textarea class="field-textarea" name="description" placeholder="Describe apartment here"></textarea>
+                            <textarea class="field-textarea" name="description" placeholder="Describe apartment here"><%= params[:description] %></textarea>
                         </section>
 
                         <section class="section-block field-stack">
                             <h2 class="section-title">Amenities</h2>
                             <input class="field-input search-input" type="text" name="amenities-search" placeholder="Search Amenities" />
+
+                            <label class="checkbox-row">
+                                <input type="checkbox" name="furnished" value="1" <%= "checked" if params[:furnished] == "1" %> />
+                                <span class="checkbox-copy">Furnished</span>
+                            </label>
+
+                            <label class="checkbox-row">
+                                <input type="checkbox" name="utilities_included" value="1" <%= "checked" if params[:utilities_included] == "1" %> />
+                                <span class="checkbox-copy">Utilities included</span>
+                            </label>
+
+                            <label class="checkbox-row">
+                                <input type="checkbox" name="pets_allowed" value="1" <%= "checked" if params[:pets_allowed] == "1" %> />
+                                <span class="checkbox-copy">Pets allowed</span>
+                            </label>
 
                             <div class="chip-row" aria-label="Selected amenities">
                                 <span class="chip">

@@ -131,6 +131,14 @@
                 line-height: 1.1;
             }
 
+            .listing-price {
+                margin: 0.45rem 0 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 1.35rem;
+                font-weight: 700;
+                line-height: 1.2;
+            }
+
             .host-row {
                 display: flex;
                 align-items: center;
@@ -405,6 +413,13 @@
         </style>
     </head>
     <body>
+        <% host_name = @listing_host.display_name || @listing_host.name || "Listing Host" %>
+        <% host_email = @listing_host.email.presence || "janedoe@u.northwestern.edu" %>
+        <% amenities = [] %>
+        <% amenities << "Furnished" if @listing.furnished %>
+        <% amenities << "Utilities included" if @listing.utilities_included %>
+        <% amenities << "Pets allowed" if @listing.pets_allowed %>
+        <% amenities = ["Ask host for amenity details"] if amenities.empty? %>
         <div class="page-shell">
             <header class="topbar">
                 <div class="topbar-inner">
@@ -446,11 +461,12 @@
 
                     <section class="row g-3 g-lg-4 pt-3 pt-lg-4">
                         <div class="col-lg-7 col-xl-7 listing-copy-column">
-                            <h1 class="listing-title">$850/month</h1>
-                            <p class="listing-address">820 Noyes St, Evanston, IL 60201</p>
+                            <h1 class="listing-title"><%= @listing.title %></h1>
+                            <p class="listing-price"><%= number_to_currency(@listing.price, precision: 0) %>/month</p>
+                            <p class="listing-address"><%= @listing.address %></p>
                             <div class="host-row">
-                                <img class="host-avatar" src="https://www.figma.com/api/mcp/asset/a18cff4f-a0e2-4375-9568-69b422c15407" alt="Jane Doe profile photo" />
-                                <div class="host-name">Jane Doe</div>
+                                <img class="host-avatar" src="https://www.figma.com/api/mcp/asset/a18cff4f-a0e2-4375-9568-69b422c15407" alt="<%= host_name %> profile photo" />
+                                <div class="host-name"><%= host_name %></div>
                                 <svg class="verified-badge" viewBox="0 0 48 48" aria-label="Verified listing badge" role="img">
                                     <path
                                         d="M24 3.75 9.75 9v12.49c0 10.23 6.07 19.8 14.25 22.76 8.18-2.96 14.25-12.53 14.25-22.76V9L24 3.75Z"
@@ -464,9 +480,7 @@
                                 </svg>
                             </div>
 
-                            <p class="description-copy">
-                                I&rsquo;m looking to sublet my room in a 2-bedroom apartment for the summer (June&ndash;August, with some flexibility). The room comes fully furnished with a bed, desk, and closet space, and the apartment includes a shared living room, kitchen, and bathroom. It&rsquo;s located just a short walk from campus, with easy access to public transportation, grocery stores, and restaurants. The unit gets great natural light and has amenities like in-unit laundry, high-speed Wi-Fi, and air conditioning. You&rsquo;d be living with one clean, respectful roommate who will be working full-time during the day. Rent is $850 per month, utilities included, and I&rsquo;m happy to discuss exact dates or answer any questions.
-                            </p>
+                            <p class="description-copy"><%= @listing.description %></p>
                         </div>
 
                         <div class="col-lg-5 col-xl-5">
@@ -474,18 +488,18 @@
                                 <div class="card-body p-4 p-xl-5">
                                     <div class="availability-label">Available from:</div>
                                     <div class="availability-range">
-                                        <span>June 16, 2026</span>
+                                        <span><%= @listing.available_from.strftime("%B %-d, %Y") %></span>
                                         <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
                                             <path d="M4 12h13.5m0 0-5-5m5 5-5 5" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
                                         </svg>
-                                        <span>August 31, 2026</span>
+                                        <span><%= @listing.available_until.strftime("%B %-d, %Y") %></span>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="card info-card contact-card">
                                 <div class="card-body p-4 p-xl-5">
-                                    <h2 class="card-title mb-4">Contact Jane</h2>
+                                    <h2 class="card-title mb-4">Contact <%= host_name.split.first || host_name %></h2>
                                     <div class="contact-grid">
                                         <div class="contact-label">
                                             <svg class="contact-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -509,11 +523,11 @@
                                             </svg>
                                             <span>Email:</span>
                                         </div>
-                                        <a class="contact-link" href="mailto:janedoe@u.northwestern.edu">janedoe@u.northwestern.edu</a>
+                                        <a class="contact-link" href="mailto:<%= host_email %>"><%= host_email %></a>
                                     </div>
                                     <div class="d-flex gap-2 flex-wrap mt-4">
                                         <% if user_signed_in? %>
-                                            <a class="btn btn-primary" href="mailto:janedoe@u.northwestern.edu">Email Host</a>
+                                            <a class="btn btn-primary" href="mailto:<%= host_email %>">Email Host</a>
                                             <a class="btn btn-outline-secondary" href="tel:+11234567890">Call Host</a>
                                         <% else %>
                                             <a class="btn btn-primary" href="#" data-login-trigger>Email Host</a>
@@ -538,23 +552,23 @@
                                 <tbody>
                                     <tr>
                                         <th scope="row">Rent</th>
-                                        <td>$850/month, utilities included</td>
+                                        <td><%= number_to_currency(@listing.price, precision: 0) %>/month<%= ", utilities included" if @listing.utilities_included %></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Lease Window</th>
-                                        <td>June 16, 2026 to August 31, 2026</td>
+                                        <td><%= @listing.available_from.strftime("%B %-d, %Y") %> to <%= @listing.available_until.strftime("%B %-d, %Y") %></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Location</th>
-                                        <td>820 Noyes St, Evanston, IL 60201</td>
+                                        <td><%= @listing.address %></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Unit Type</th>
-                                        <td>Furnished room in a 2-bedroom apartment</td>
+                                        <td><%= pluralize(@listing.bedrooms, "bedroom") %>, <%= pluralize(@listing.bathrooms, "bathroom") %><%= @listing.furnished ? ", furnished" : "" %></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Amenities</th>
-                                        <td>Kitchen, laundry, backyard, Wi-Fi, air conditioning</td>
+                                        <td><%= amenities.join(", ") %></td>
                                     </tr>
                                 </tbody>
                             </table>
