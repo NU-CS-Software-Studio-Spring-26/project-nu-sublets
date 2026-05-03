@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  NORTHWESTERN_EMAIL_DOMAINS = %w[u.northwestern.edu northwestern.edu ads.northwestern.edu].freeze
+
   # Authentication (you'll want to add has_secure_password if using bcrypt)
   # has_secure_password
   
@@ -30,6 +32,11 @@ class User < ApplicationRecord
   
   def self.search(query)
     where("name ILIKE ? OR email ILIKE ?", "%#{query}%", "%#{query}%")
+  end
+
+  def self.northwestern_email?(email)
+    domain = email.to_s.downcase.split("@").last
+    NORTHWESTERN_EMAIL_DOMAINS.include?(domain)
   end
   
   # Instance Methods
