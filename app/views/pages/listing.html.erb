@@ -413,7 +413,7 @@
                         <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
                         <a class="nav-link p-0" href="<%= search_results_path %>">Search</a>
                         <a class="nav-link p-0" href="<%= post_sublet_path %>">Post Sublet</a>
-                        <a class="nav-link p-0" href="<%= login_path %>">Log in</a>
+                        <%= render "auth_nav" %>
                     </nav>
                 </div>
             </header>
@@ -512,8 +512,13 @@
                                         <a class="contact-link" href="mailto:janedoe@u.northwestern.edu">janedoe@u.northwestern.edu</a>
                                     </div>
                                     <div class="d-flex gap-2 flex-wrap mt-4">
-                                        <a class="btn btn-primary" href="#" data-login-trigger>Email Host</a>
-                                        <a class="btn btn-outline-secondary" href="#" data-login-trigger>Call Host</a>
+                                        <% if user_signed_in? %>
+                                            <a class="btn btn-primary" href="mailto:janedoe@u.northwestern.edu">Email Host</a>
+                                            <a class="btn btn-outline-secondary" href="tel:+11234567890">Call Host</a>
+                                        <% else %>
+                                            <a class="btn btn-primary" href="#" data-login-trigger>Email Host</a>
+                                            <a class="btn btn-outline-secondary" href="#" data-login-trigger>Call Host</a>
+                                        <% end %>
                                     </div>
                                 </div>
                             </div>
