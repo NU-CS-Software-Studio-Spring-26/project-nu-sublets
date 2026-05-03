@@ -22,6 +22,7 @@ class SubletListing < ApplicationRecord
   scope :by_bedrooms, ->(count) { where(bedrooms: count) }
   scope :furnished_only, -> { where(furnished: true) }
   scope :pets_allowed_only, -> { where(pets_allowed: true) }
+  scope :covering_date_range, ->(move_in, move_out) { where('available_from <= ? AND available_until >= ?', move_in, move_out) }
   
   # Methods
   def available_duration_days
@@ -66,6 +67,17 @@ class SubletListing < ApplicationRecord
     listings = listings.furnished_only if filters[:furnished] == true
     listings = listings.pets_allowed_only if filters[:pets_allowed] == true
     listings = listings.available if filters[:available_only] == true
+
+    move_in = normalize_filter_date(filters[:move_in] || filters["move-in"])
+    move_out = normalize_filter_date(filters[:move_out] || filters["move-out"])
+
+    if move_in && move_out
+      listings = listings.covering_date_range(move_in, move_out)
+    elsif move_in
+      listings = listings.where('available_until >= ?', move_in)
+    elsif move_out
+      listings = listings.where('available_from <= ?', move_out)
+    end
     
     listings
   end
@@ -108,6 +120,17 @@ class SubletListing < ApplicationRecord
   end
   
   private
+
+  def self.normalize_filter_date(value)
+    case value
+    when Date
+      value
+    when String
+      Date.strptime(value, "%m/%d/%Y")
+    end
+  rescue Date::Error
+    nil
+  end
   
   def available_until_after_available_from
     return unless available_from && available_until

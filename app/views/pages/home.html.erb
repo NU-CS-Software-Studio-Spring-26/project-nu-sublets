@@ -155,6 +155,11 @@
                 background: var(--nu-white);
             }
 
+            .date-picker-label {
+                display: block;
+                position: relative;
+            }
+
             .date-input {
                 flex: 1;
                 min-width: 0;
@@ -183,6 +188,109 @@
                 padding: 0;
                 border: 0;
                 background: transparent;
+            }
+
+            .icon-button {
+                color: var(--nu-text);
+            }
+
+            .icon-button svg {
+                display: block;
+            }
+
+            .date-picker-popover {
+                position: absolute;
+                top: calc(100% + 8px);
+                right: 0;
+                z-index: 1010;
+                width: min(340px, calc(100vw - 48px));
+                padding: 16px;
+                border: 1px solid rgba(0, 0, 0, 0.12);
+                border-radius: 8px;
+                background: var(--nu-white);
+                box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
+                font-family: "Rubik", sans-serif;
+            }
+
+            .date-picker-popover[hidden] {
+                display: none;
+            }
+
+            .date-picker-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                margin-bottom: 14px;
+            }
+
+            .date-picker-title {
+                flex: 1;
+                text-align: center;
+                font-size: 16px;
+                font-weight: 600;
+                line-height: 1.2;
+            }
+
+            .date-picker-nav {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 34px;
+                height: 34px;
+                border: 1px solid rgba(0, 0, 0, 0.14);
+                border-radius: 4px;
+                background: var(--nu-white);
+                color: var(--nu-text);
+                font-size: 22px;
+                line-height: 1;
+            }
+
+            .date-picker-nav:hover,
+            .date-picker-nav:focus-visible,
+            .date-picker-day:hover,
+            .date-picker-day:focus-visible {
+                border-color: var(--nu-button);
+                outline: 0;
+            }
+
+            .date-picker-weekdays,
+            .date-picker-grid {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 6px;
+            }
+
+            .date-picker-weekdays {
+                margin-bottom: 6px;
+                color: rgba(0, 0, 0, 0.62);
+                font-size: 12px;
+                font-weight: 600;
+                text-align: center;
+            }
+
+            .date-picker-day {
+                width: 100%;
+                aspect-ratio: 1;
+                border: 1px solid transparent;
+                border-radius: 4px;
+                background: transparent;
+                color: var(--nu-text);
+                font-size: 15px;
+                line-height: 1;
+            }
+
+            .date-picker-day.is-muted {
+                color: rgba(0, 0, 0, 0.35);
+            }
+
+            .date-picker-day.is-today {
+                border-color: rgba(156, 81, 182, 0.42);
+            }
+
+            .date-picker-day.is-selected {
+                background: var(--nu-button);
+                color: var(--nu-white);
             }
 
             .search-button,
@@ -498,7 +606,7 @@
                         <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
                         <a class="nav-link p-0" href="<%= search_results_path %>">Search</a>
                         <a class="nav-link p-0" href="<%= post_sublet_path %>">Post Sublet</a>
-                        <a class="nav-link p-0" href="<%= login_path %>">Log in</a>
+                        <%= render "auth_nav" %>
                     </nav>
                 </div>
             </header>
@@ -514,30 +622,32 @@
                             <h2 class="search-title">Search Sublets</h2>
 
                             <div class="form-stack">
-                                <label>
+                                <label class="date-picker-label" data-date-picker>
                                     <span class="field-label form-label">Move In</span>
                                     <span class="date-field input-group">
-                                        <input class="date-input form-control" type="text" name="move-in" placeholder="mm/dd/yyyy" aria-label="Move in date" />
-                                        <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open move in date picker">
+                                        <input class="date-input form-control" type="text" name="move-in" placeholder="mm/dd/yyyy" aria-label="Move in date" data-date-input />
+                                        <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open move in date picker" aria-expanded="false" aria-controls="move-in-picker" data-date-toggle>
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                                 <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                                                 <rect x="4" y="5" width="16" height="15" rx="1.5" stroke="currentColor" stroke-width="1.5" />
                                             </svg>
                                         </button>
                                     </span>
+                                    <div class="date-picker-popover" id="move-in-picker" role="dialog" aria-label="Move in calendar" hidden data-date-popover></div>
                                 </label>
 
-                                <label>
+                                <label class="date-picker-label" data-date-picker>
                                     <span class="field-label form-label">Move Out</span>
                                     <span class="date-field input-group">
-                                        <input class="date-input form-control" type="text" name="move-out" placeholder="mm/dd/yyyy" aria-label="Move out date" />
-                                        <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open move out date picker">
+                                        <input class="date-input form-control" type="text" name="move-out" placeholder="mm/dd/yyyy" aria-label="Move out date" data-date-input />
+                                        <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open move out date picker" aria-expanded="false" aria-controls="move-out-picker" data-date-toggle>
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                                 <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                                                 <rect x="4" y="5" width="16" height="15" rx="1.5" stroke="currentColor" stroke-width="1.5" />
                                             </svg>
                                         </button>
                                     </span>
+                                    <div class="date-picker-popover" id="move-out-picker" role="dialog" aria-label="Move out calendar" hidden data-date-popover></div>
                                 </label>
                             </div>
 
@@ -659,7 +769,11 @@
                             <div class="cta-copy">
                                 <h2 class="cta-title">Looking For Someone to Sublet Your Room?</h2>
                                 <p class="cta-subtitle">List your sublet here</p>
-                                <a class="cta-button btn btn-primary" href="#" data-login-trigger>Create a Posting</a>
+                                <% if user_signed_in? %>
+                                    <a class="cta-button btn btn-primary" href="<%= post_sublet_path %>">Create a Posting</a>
+                                <% else %>
+                                    <a class="cta-button btn btn-primary" href="#" data-login-trigger>Create a Posting</a>
+                                <% end %>
                             </div>
                             <img class="cta-image" src="https://www.figma.com/api/mcp/asset/5f0bfc69-63af-460f-a9e9-eb92adb61a86" alt="Students relaxing on a couch" />
                         </div>
@@ -785,6 +899,225 @@
         <%= render "login_modal" %>
         <%= render "favorite_listings" %>
         <script>
+            (() => {
+                const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" });
+                const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                let activePicker = null;
+
+                const toDateKey = (date) => [
+                    date.getFullYear(),
+                    String(date.getMonth() + 1).padStart(2, "0"),
+                    String(date.getDate()).padStart(2, "0")
+                ].join("-");
+
+                const formatDate = (date) => [
+                    String(date.getMonth() + 1).padStart(2, "0"),
+                    String(date.getDate()).padStart(2, "0"),
+                    date.getFullYear()
+                ].join("/");
+
+                const parseDate = (value) => {
+                    const match = value.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+
+                    if (!match) {
+                        return null;
+                    }
+
+                    const month = Number.parseInt(match[1], 10) - 1;
+                    const day = Number.parseInt(match[2], 10);
+                    const year = Number.parseInt(match[3], 10);
+                    const date = new Date(year, month, day);
+
+                    if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
+                        return null;
+                    }
+
+                    return date;
+                };
+
+                const closePicker = (picker) => {
+                    if (!picker) {
+                        return;
+                    }
+
+                    picker.popover.hidden = true;
+                    picker.toggle.setAttribute("aria-expanded", "false");
+
+                    if (activePicker === picker) {
+                        activePicker = null;
+                    }
+                };
+
+                const closeActivePicker = () => closePicker(activePicker);
+
+                const renderPicker = (picker) => {
+                    const selectedDate = parseDate(picker.input.value);
+                    const selectedKey = selectedDate ? toDateKey(selectedDate) : null;
+                    const todayKey = toDateKey(new Date());
+                    const monthStart = new Date(picker.visibleYear, picker.visibleMonth, 1);
+                    const gridStart = new Date(picker.visibleYear, picker.visibleMonth, 1 - monthStart.getDay());
+
+                    picker.popover.innerHTML = "";
+
+                    const header = document.createElement("div");
+                    header.className = "date-picker-header";
+
+                    const previousButton = document.createElement("button");
+                    previousButton.className = "date-picker-nav";
+                    previousButton.type = "button";
+                    previousButton.setAttribute("aria-label", "Previous month");
+                    previousButton.textContent = "\u2039";
+
+                    const title = document.createElement("div");
+                    title.className = "date-picker-title";
+                    title.setAttribute("aria-live", "polite");
+                    title.textContent = monthFormatter.format(monthStart);
+
+                    const nextButton = document.createElement("button");
+                    nextButton.className = "date-picker-nav";
+                    nextButton.type = "button";
+                    nextButton.setAttribute("aria-label", "Next month");
+                    nextButton.textContent = "\u203a";
+
+                    header.append(previousButton, title, nextButton);
+
+                    const weekdays = document.createElement("div");
+                    weekdays.className = "date-picker-weekdays";
+                    weekdayLabels.forEach((weekday) => {
+                        const label = document.createElement("span");
+                        label.textContent = weekday;
+                        weekdays.append(label);
+                    });
+
+                    const grid = document.createElement("div");
+                    grid.className = "date-picker-grid";
+
+                    for (let index = 0; index < 42; index += 1) {
+                        const date = new Date(gridStart);
+                        date.setDate(gridStart.getDate() + index);
+
+                        const dateKey = toDateKey(date);
+                        const dayButton = document.createElement("button");
+                        dayButton.className = "date-picker-day";
+                        dayButton.type = "button";
+                        dayButton.textContent = date.getDate();
+                        dayButton.setAttribute("aria-label", new Intl.DateTimeFormat("en-US", { dateStyle: "full" }).format(date));
+
+                        if (date.getMonth() !== picker.visibleMonth) {
+                            dayButton.classList.add("is-muted");
+                        }
+
+                        if (dateKey === todayKey) {
+                            dayButton.classList.add("is-today");
+                        }
+
+                        if (dateKey === selectedKey) {
+                            dayButton.classList.add("is-selected");
+                            dayButton.setAttribute("aria-pressed", "true");
+                        }
+
+                        dayButton.addEventListener("click", (event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            picker.input.value = formatDate(date);
+                            picker.input.dispatchEvent(new Event("change", { bubbles: true }));
+                            closePicker(picker);
+                        });
+
+                        grid.append(dayButton);
+                    }
+
+                    previousButton.addEventListener("click", (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        picker.visibleMonth -= 1;
+
+                        if (picker.visibleMonth < 0) {
+                            picker.visibleMonth = 11;
+                            picker.visibleYear -= 1;
+                        }
+
+                        renderPicker(picker);
+                    });
+
+                    nextButton.addEventListener("click", (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        picker.visibleMonth += 1;
+
+                        if (picker.visibleMonth > 11) {
+                            picker.visibleMonth = 0;
+                            picker.visibleYear += 1;
+                        }
+
+                        renderPicker(picker);
+                    });
+
+                    picker.popover.append(header, weekdays, grid);
+                };
+
+                const openPicker = (picker) => {
+                    const selectedDate = parseDate(picker.input.value) || new Date();
+
+                    if (activePicker && activePicker !== picker) {
+                        closePicker(activePicker);
+                    }
+
+                    picker.visibleMonth = selectedDate.getMonth();
+                    picker.visibleYear = selectedDate.getFullYear();
+                    renderPicker(picker);
+                    picker.popover.hidden = false;
+                    picker.toggle.setAttribute("aria-expanded", "true");
+                    activePicker = picker;
+                };
+
+                document.querySelectorAll("[data-date-picker]").forEach((container) => {
+                    const input = container.querySelector("[data-date-input]");
+                    const toggle = container.querySelector("[data-date-toggle]");
+                    const popover = container.querySelector("[data-date-popover]");
+
+                    if (!input || !toggle || !popover) {
+                        return;
+                    }
+
+                    const picker = {
+                        container,
+                        input,
+                        toggle,
+                        popover,
+                        visibleMonth: new Date().getMonth(),
+                        visibleYear: new Date().getFullYear()
+                    };
+
+                    toggle.addEventListener("click", (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        if (popover.hidden) {
+                            openPicker(picker);
+                        } else {
+                            closePicker(picker);
+                        }
+                    });
+
+                    input.addEventListener("focus", () => openPicker(picker));
+                    input.addEventListener("click", () => openPicker(picker));
+                    popover.addEventListener("click", (event) => event.stopPropagation());
+                });
+
+                document.addEventListener("click", (event) => {
+                    if (activePicker && !activePicker.container.contains(event.target)) {
+                        closeActivePicker();
+                    }
+                });
+
+                document.addEventListener("keydown", (event) => {
+                    if (event.key === "Escape") {
+                        closeActivePicker();
+                    }
+                });
+            })();
+
             document.querySelectorAll("[data-carousel-track]").forEach((track) => {
                 const prevButton = document.querySelector(`[data-carousel-prev="${track.id}"]`);
                 const nextButton = document.querySelector(`[data-carousel-next="${track.id}"]`);

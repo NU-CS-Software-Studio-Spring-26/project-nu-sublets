@@ -11,9 +11,12 @@ Rails.application.routes.draw do
 
   root "pages#home"
   get "listing" => "pages#listing", as: :listing
+  get "listings/:id" => "pages#listing", as: :sublet_listing
   get "search-results" => "pages#search_results", as: :search_results
   get "post-sublet" => "pages#post_sublet", as: :post_sublet
   get "profile" => "pages#profile", as: :profile
   get "login" => "pages#login", as: :login
+  post "session" => "sessions#create", as: :session
+  delete "session" => "sessions#destroy"
   post "post-sublet" => "pages#submit_sublet", as: :submit_sublet
 end

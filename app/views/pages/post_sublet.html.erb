@@ -132,6 +132,28 @@
                 color: var(--nu-muted);
             }
 
+            .form-errors {
+                margin: 0 0 18px;
+                padding: 12px 16px;
+                border: 1px solid rgba(156, 81, 182, 0.28);
+                border-radius: 8px;
+                background: rgba(156, 81, 182, 0.08);
+                color: var(--nu-text);
+                font-size: 14px;
+                line-height: 1.45;
+            }
+
+            .form-errors p {
+                margin: 0 0 6px;
+                font-family: "Rubik", sans-serif;
+                font-weight: 600;
+            }
+
+            .form-errors ul {
+                margin: 0;
+                padding-left: 18px;
+            }
+
             .field-stack {
                 display: flex;
                 flex-direction: column;
@@ -568,7 +590,7 @@
                         <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
                         <a class="nav-link p-0" href="<%= search_results_path %>">Search</a>
                         <a class="nav-link p-0" href="<%= listing_path %>">View Listing</a>
-                        <a class="nav-link p-0" href="<%= login_path %>">Log in</a>
+                        <%= render "auth_nav" %>
                     </nav>
                 </div>
             </header>
@@ -577,7 +599,7 @@
                 <div class="post-shell">
                     <h1 class="page-title">List your apartment</h1>
 
-                    <%= form_with url: submit_sublet_path, method: :post, local: true, html: { multipart: true }, class: "post-card" do %>
+                    <%= form_with url: submit_sublet_path, method: :post, local: true, class: "post-card" do %>
                         <section class="section-block field-stack">
                             <div>
                                 <h2 class="section-title">Address</h2>
@@ -585,17 +607,17 @@
                             </div>
 
                             <div class="field-grid two-col">
-                                <input class="field-input" type="text" name="street-address" placeholder="Street Address" />
-                                <input class="field-input" type="text" name="address-line-2" placeholder="Apt, suite, etc. (optional)" />
+                                <input class="field-input" type="text" name="street-address" placeholder="Street Address" value="<%= params["street-address"] %>" />
+                                <input class="field-input" type="text" name="address-line-2" placeholder="Apt, suite, etc. (optional)" value="<%= params["address-line-2"] %>" />
                             </div>
 
                             <div class="field-grid city-row">
-                                <input class="field-input" type="text" name="city" placeholder="City" />
+                                <input class="field-input" type="text" name="city" placeholder="City" value="<%= params[:city] %>" />
                             </div>
 
                             <div class="field-grid state-row">
-                                <input class="field-input" type="text" name="state" placeholder="State" />
-                                <input class="field-input" type="text" name="zip-code" placeholder="Zip Code" />
+                                <input class="field-input" type="text" name="state" placeholder="State" value="<%= params[:state] %>" />
+                                <input class="field-input" type="text" name="zip-code" placeholder="Zip Code" value="<%= params["zip-code"] %>" />
                             </div>
                         </section>
 
@@ -606,7 +628,7 @@
                                 <label class="field-stack">
                                     <span class="field-label">Start Date</span>
                                     <span class="date-field">
-                                        <input class="date-value" type="text" name="start-date" placeholder="mm/dd/yyyy" />
+                                        <input class="date-value" type="text" name="start-date" placeholder="mm/dd/yyyy" value="<%= params["start-date"] %>" />
                                         <button class="icon-button" type="button" aria-label="Open start date picker">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                                 <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -619,7 +641,7 @@
                                 <label class="field-stack">
                                     <span class="field-label">End Date</span>
                                     <span class="date-field">
-                                        <input class="date-value" type="text" name="end-date" placeholder="mm/dd/yyyy" />
+                                        <input class="date-value" type="text" name="end-date" placeholder="mm/dd/yyyy" value="<%= params["end-date"] %>" />
                                         <button class="icon-button" type="button" aria-label="Open end date picker">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                                 <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -635,28 +657,35 @@
                             <h2 class="section-title">Rent</h2>
                             <label class="field-input price-field">
                                 <span class="prefix">$</span>
-                                <input class="field-input no-border" type="text" name="price" placeholder="Price" />
+                                <input class="field-input no-border" type="text" name="price" placeholder="Price" value="<%= params[:price] %>" />
                             </label>
                         </section>
 
                         <section class="section-block field-stack">
                             <h2 class="section-title">Description</h2>
-                            <textarea class="field-textarea" name="description" placeholder="Describe apartment here"></textarea>
+                            <textarea class="field-textarea" name="description" placeholder="Describe apartment here"><%= params[:description] %></textarea>
                         </section>
 
                         <section class="section-block field-stack">
                             <h2 class="section-title">Amenities</h2>
-                            <div class="amenities-picker" data-amenities-picker>
-                                <input
-                                    class="field-input search-input"
-                                    type="search"
-                                    name="amenities-search"
-                                    placeholder="Search Amenities"
-                                    autocomplete="off"
-                                    aria-controls="amenity-results"
-                                    aria-expanded="false"
-                                    data-amenity-search
-                                />
+                            <input class="field-input search-input" type="text" name="amenities-search" placeholder="Search Amenities" />
+
+                            <div class="chip-row" aria-label="Selected amenities">
+                                <span class="chip">
+                                    <span class="chip-icon" aria-hidden="true">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                            <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                        </svg>
+                                    </span>
+                                    <span class="chip-label">
+                                        <span class="chip-icon" aria-hidden="true">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                <path d="M5 8.5h14M7 8.5V6a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v2.5M6 8.5V18a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8.5M10 12v3M14 12v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </span>
+                                        Kitchen
+                                    </span>
+                                </span>
 
                                 <div class="amenity-results" id="amenity-results" aria-label="Available amenities" data-amenity-results></div>
                             </div>
@@ -727,7 +756,11 @@
                         </section>
 
                         <section class="section-block">
-                            <button class="submit-button" type="button" data-login-trigger>Post Sublet</button>
+                            <% if user_signed_in? %>
+                                <button class="submit-button" type="submit">Post Sublet</button>
+                            <% else %>
+                                <button class="submit-button" type="button" data-login-trigger>Post Sublet</button>
+                            <% end %>
                         </section>
                     <% end %>
                 </div>

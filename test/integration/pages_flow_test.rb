@@ -31,7 +31,15 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "post sublet form submits to an app endpoint" do
+  test "login page redirects after sign in" do
+    sign_in_with_firebase_email("student@u.northwestern.edu")
+
+    get login_path
+
+    assert_redirected_to profile_path
+  end
+
+  test "post sublet form requires login" do
     post submit_sublet_path, params: {
       "street-address" => "820 Noyes St",
       "city" => "Evanston",
@@ -40,7 +48,21 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
       "price" => "850"
     }
 
-    assert_redirected_to listing_path
+    assert_redirected_to login_path
+  end
+
+  test "logged in post sublet form submits to an app endpoint" do
+    sign_in_with_firebase_email("student@u.northwestern.edu")
+
+    assert_difference("SubletListing.count", 1) do
+      post submit_sublet_path, params: valid_sublet_post_params
+    end
+
+    listing = SubletListing.order(:created_at).last
+
+    assert_equal Date.new(2026, 6, 12), listing.available_from
+    assert_equal Date.new(2026, 9, 11), listing.available_until
+    assert_redirected_to search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
   end
 
   test "home page links to the other product views" do
@@ -52,17 +74,149 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{listing_path}']"
   end
 
+  test "signed in navigation shows the current user and logout" do
+    sign_in_with_firebase_email("student@u.northwestern.edu")
+
+    get root_path
+
+    assert_response :success
+    assert_select "a[href='#{profile_path}']", text: "Profile"
+    assert_select "form[action='#{session_path}'] button", text: "Log out"
+    assert_select "a[data-login-trigger]", text: "Create a Posting", count: 0
+    assert_select "a[href='#{post_sublet_path}']", text: "Create a Posting"
+  end
+
+  test "profile page is tailored to the signed in user" do
+    sign_in_with_firebase_email("student@u.northwestern.edu")
+
+    get profile_path
+
+    assert_response :success
+    assert_select "h1", text: "Test Student"
+    assert_includes response.body, "student@u.northwestern.edu"
+    assert_includes response.body, "Hi Test"
+    assert_select "a[href='#{post_sublet_path}']", text: "Post a Sublet"
+  end
+
   test "search results page links into listing and home" do
     get search_results_path
 
     assert_select "a[href='#{root_path}']", text: /NU-Sublets/
-    assert_select "a[href='#{listing_path}']"
     assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet/
+  end
+
+  test "search results only include listings covering the requested dates" do
+    user = User.create!(
+      name: "Search Owner",
+      email: "search.owner@u.northwestern.edu",
+      active: true
+    )
+    matching_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Covers Full Stay",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Ends Too Early",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 8, 15)
+      )
+    )
+    user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Starts Too Late",
+        available_from: Date.new(2026, 7, 1),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    get search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
+
+    assert_select "a[href='#{sublet_listing_path(matching_listing)}']", text: /Covers Full Stay/
+    assert_no_match "Ends Too Early", response.body
+    assert_no_match "Starts Too Late", response.body
+  end
+
+  test "listing page shows the selected listing dates" do
+    user = User.create!(
+      name: "Detail Owner",
+      email: "detail.owner@u.northwestern.edu",
+      active: true
+    )
+    listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Detail Date Match",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    get sublet_listing_path(listing)
+
+    assert_response :success
+    assert_includes response.body, "May 24, 2026"
+    assert_includes response.body, "October 3, 2026"
+    assert_includes response.body, "Detail Date Match"
   end
 
   test "post sublet page uses the submit endpoint" do
     get post_sublet_path
 
     assert_select "form[action='#{submit_sublet_path}'][method='post']"
+  end
+
+  private
+
+  def valid_sublet_post_params
+    {
+      title: "Sunny Room Near Campus",
+      description: "Clean furnished room within walking distance of campus.",
+      bedrooms: "1",
+      bathrooms: "1",
+      "street-address" => "820 Noyes St",
+      "city" => "Evanston",
+      "state" => "IL",
+      "zip-code" => "60201",
+      "start-date" => "06/12/2026",
+      "end-date" => "09/11/2026",
+      price: "850",
+      furnished: "1",
+      utilities_included: "1"
+    }
+  end
+
+  def valid_listing_attributes
+    {
+      description: "Clean furnished room within walking distance of campus.",
+      price: 850,
+      address: "820 Noyes St, Evanston, IL 60201",
+      bedrooms: 1,
+      bathrooms: 1,
+      furnished: true,
+      pets_allowed: false,
+      utilities_included: true
+    }
+  end
+
+  def sign_in_with_firebase_email(email)
+    verifier = Class.new do
+      define_method(:verify) do |_id_token|
+        {
+          "email" => email,
+          "email_verified" => true,
+          "name" => "Test Student"
+        }
+      end
+    end.new
+
+    original_new = FirebaseTokenVerifier.method(:new)
+    FirebaseTokenVerifier.define_singleton_method(:new) { |*| verifier }
+
+    post session_path, params: { id_token: "firebase-token" }, as: :json
+  ensure
+    FirebaseTokenVerifier.define_singleton_method(:new) { |*args, **kwargs| original_new.call(*args, **kwargs) }
   end
 end

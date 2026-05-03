@@ -243,6 +243,14 @@
                 line-height: 1.05;
             }
 
+            .listing-card-title {
+                margin: 0 0 3px;
+                font-family: "Rubik", sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+                line-height: 1.2;
+            }
+
             .listing-meta {
                 display: flex;
                 flex-wrap: wrap;
@@ -259,6 +267,28 @@
                 font-family: "Rubik", sans-serif;
                 font-size: 10px;
                 line-height: 1.2;
+            }
+
+            .empty-results {
+                max-width: 720px;
+                padding: 28px;
+                border: 1px solid var(--nu-border);
+                border-radius: 7px;
+                background: #fff;
+                font-family: "Rubik", sans-serif;
+            }
+
+            .empty-results-title {
+                margin: 0 0 8px;
+                font-size: 18px;
+                font-weight: 600;
+            }
+
+            .empty-results-copy {
+                margin: 0;
+                color: var(--nu-muted);
+                font-size: 14px;
+                line-height: 1.45;
             }
 
             .map-card {
@@ -384,7 +414,7 @@
                         <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
                         <a class="nav-link p-0" href="<%= post_sublet_path %>">Post Sublet</a>
                         <a class="nav-link p-0" href="<%= listing_path %>">Featured Listing</a>
-                        <a class="nav-link p-0" href="<%= login_path %>">Log in</a>
+                        <%= render "auth_nav" %>
                     </nav>
                 </div>
             </header>
@@ -392,8 +422,8 @@
             <section class="results-toolbar" aria-label="Search filters">
                 <div class="toolbar-inner">
                     <div class="date-range" role="group" aria-label="Selected dates">
-                        <button class="date-chip" type="button">Jun 2 2026</button>
-                        <button class="date-chip" type="button">Aug 31 2026</button>
+                        <button class="date-chip" type="button"><%= @move_in&.strftime("%b %-d %Y") || "Move in" %></button>
+                        <button class="date-chip" type="button"><%= @move_out&.strftime("%b %-d %Y") || "Move out" %></button>
                     </div>
 
                     <button class="filter-button" type="button">
@@ -405,137 +435,43 @@
 
             <main class="results-page">
                 <div class="results-shell">
-                    <h1 class="results-title">20 Sublets Available</h1>
+                    <h1 class="results-title"><%= pluralize(@listings.count, "Sublet") %> Available</h1>
 
                     <div class="results-grid">
                         <section class="cards-grid" aria-label="Search result listings">
-                            <a class="listing-card" href="<%= listing_path %>">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
-                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
+                            <% if @listings.any? %>
+                                <% listing_images = [
+                                    "https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef",
+                                    "https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735"
+                                ] %>
+                                <% avatar_images = [
+                                    "https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c",
+                                    "https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1"
+                                ] %>
+                                <% @listings.each_with_index do |listing, index| %>
+                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>">
+                                        <div class="listing-media">
+                                            <img class="listing-main-image" src="<%= listing_images[index % listing_images.length] %>" alt="<%= listing.title %>" />
+                                            <img class="listing-avatar" src="<%= avatar_images[index % avatar_images.length] %>" alt="Listing host" />
+                                        </div>
+                                        <div class="listing-body">
+                                            <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
+                                            <p class="listing-card-title"><%= listing.title %></p>
+                                            <div class="listing-meta">
+                                                <span><%= pluralize(listing.bedrooms, "bedroom") %></span>
+                                                <span><%= pluralize(listing.bathrooms, "bathroom") %></span>
+                                                <span><%= listing.available_from.strftime("%b %-d") %> - <%= listing.available_until.strftime("%b %-d") %></span>
+                                            </div>
+                                            <p class="listing-address"><%= listing.address %></p>
+                                        </div>
+                                    </a>
+                                <% end %>
+                            <% else %>
+                                <div class="empty-results">
+                                    <p class="empty-results-title">No sublets cover those dates yet.</p>
+                                    <p class="empty-results-copy">Try widening your move-in or move-out dates to see more available listings.</p>
                                 </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$850/month</p>
-                                    <div class="listing-meta">
-                                        <span>Female Roommates</span>
-                                        <span>1 bathroom</span>
-                                        <span>Laundry</span>
-                                    </div>
-                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
-                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$850/month</p>
-                                    <div class="listing-meta">
-                                        <span>Female Roommates</span>
-                                        <span>1 bathroom</span>
-                                        <span>Laundry</span>
-                                    </div>
-                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Bedroom listing" />
-                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$850/month</p>
-                                    <div class="listing-meta">
-                                        <span>Female Roommates</span>
-                                        <span>1 bathroom</span>
-                                        <span>Laundry</span>
-                                    </div>
-                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Apartment with sunny bedroom" />
-                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$920/month</p>
-                                    <div class="listing-meta">
-                                        <span>2 roommates</span>
-                                        <span>1.5 bathrooms</span>
-                                        <span>Parking</span>
-                                    </div>
-                                    <p class="listing-address">614 Foster St, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Cozy student apartment" />
-                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$1,050/month</p>
-                                    <div class="listing-meta">
-                                        <span>Private studio</span>
-                                        <span>1 bathroom</span>
-                                        <span>Utilities</span>
-                                    </div>
-                                    <p class="listing-address">930 Hinman Ave, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef" alt="Shared apartment near campus" />
-                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c" alt="Listing host" />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$780/month</p>
-                                    <div class="listing-meta">
-                                        <span>3 roommates</span>
-                                        <span>2 bathrooms</span>
-                                        <span>Pet friendly</span>
-                                    </div>
-                                    <p class="listing-address">2018 Sherman Ave, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Bedroom listing" />
-                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$850/month</p>
-                                    <div class="listing-meta">
-                                        <span>Female Roommates</span>
-                                        <span>1 bathroom</span>
-                                        <span>Laundry</span>
-                                    </div>
-                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735" alt="Newly listed apartment bedroom" />
-                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1" alt="Listing host" />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$1,180/month</p>
-                                    <div class="listing-meta">
-                                        <span>Private room</span>
-                                        <span>1 bathroom</span>
-                                        <span>Gym</span>
-                                    </div>
-                                    <p class="listing-address">811 Emerson St, Evanston, IL</p>
-                                </div>
-                            </a>
+                            <% end %>
                         </section>
 
                         <aside class="map-card" aria-label="Map of listings">
