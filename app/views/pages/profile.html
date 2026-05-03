@@ -222,6 +222,56 @@
                 overflow: visible;
             }
 
+            .favorite-button {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                z-index: 2;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 24px;
+                height: 24px;
+                border: 0;
+                padding: 0;
+                background: transparent;
+                cursor: pointer;
+                filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+            }
+
+            .favorite-button svg {
+                width: 24px;
+                height: 24px;
+                display: block;
+                pointer-events: none;
+            }
+
+            .favorite-button path {
+                fill: transparent;
+                stroke: #fff;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                transition: fill 0.16s ease, stroke 0.16s ease, transform 0.16s ease;
+            }
+
+            .favorite-button.is-favorite path {
+                fill: #fff;
+                stroke: #fff;
+            }
+
+            .favorite-button:hover path,
+            .favorite-button:focus-visible path {
+                transform: scale(1.04);
+                transform-origin: center;
+            }
+
+            .favorite-button:focus-visible {
+                outline: 3px solid rgba(156, 81, 182, 0.5);
+                outline-offset: 4px;
+                border-radius: 999px;
+            }
+
             .listing-main-image {
                 width: 100%;
                 height: 180px;
@@ -394,6 +444,11 @@
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/60d2304b-8c7b-4325-9d1f-6e46979c0f62" alt="Jane Doe's apartment listing" />
                                     <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/fc9b3617-2b88-4595-8cf9-b6d7242fdb75" alt="Jane Doe listing avatar" />
+                                    <span class="favorite-button" role="button" tabindex="0" aria-pressed="false" aria-label="Save to favorite listings">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            <path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"></path>
+                                        </svg>
+                                    </span>
                                 </div>
                                 <div class="listing-body">
                                     <p class="listing-price">$850/month</p>
@@ -417,5 +472,79 @@
             crossorigin="anonymous"
         ></script>
         <%= render "login_modal" %>
+        <script>
+            (() => {
+                const storageKey = "nuSublets.favoriteListings";
+
+                const readFavorites = () => {
+                    try {
+                        return JSON.parse(localStorage.getItem(storageKey)) || [];
+                    } catch (_error) {
+                        return [];
+                    }
+                };
+
+                const writeFavorites = (favorites) => {
+                    localStorage.setItem(storageKey, JSON.stringify(favorites));
+                };
+
+                const getCardId = (card) => {
+                    const address = card.querySelector(".listing-address")?.textContent.trim() || "";
+                    const price = card.querySelector(".listing-price")?.textContent.trim() || "";
+                    const image = card.querySelector(".listing-main-image")?.getAttribute("src") || "";
+                    return [address, price, image].join("|").toLowerCase();
+                };
+
+                const getCardData = (card) => ({
+                    id: getCardId(card),
+                    href: card.getAttribute("href") || "#",
+                    imageSrc: card.querySelector(".listing-main-image")?.getAttribute("src") || "",
+                    imageAlt: card.querySelector(".listing-main-image")?.getAttribute("alt") || "Favorite listing",
+                    avatarSrc: card.querySelector(".listing-avatar")?.getAttribute("src") || "",
+                    avatarAlt: card.querySelector(".listing-avatar")?.getAttribute("alt") || "Listing host",
+                    price: card.querySelector(".listing-price")?.textContent.trim() || "",
+                    meta: Array.from(card.querySelectorAll(".listing-meta span")).map((item) => item.textContent.trim()),
+                    address: card.querySelector(".listing-address")?.textContent.trim() || ""
+                });
+
+                document.querySelectorAll(".listing-card").forEach((card) => {
+                    const button = card.querySelector(".favorite-button");
+                    if (!button) {
+                        return;
+                    }
+
+                    const setButtonState = (favored) => {
+                        button.classList.toggle("is-favorite", favored);
+                        button.setAttribute("aria-pressed", favored ? "true" : "false");
+                        button.setAttribute("aria-label", favored ? "Remove from favorite listings" : "Save to favorite listings");
+                    };
+
+                    const id = getCardId(card);
+                    setButtonState(readFavorites().some((listing) => listing.id === id));
+
+                    const activate = (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const listing = getCardData(card);
+                        const favorites = readFavorites();
+                        const alreadySaved = favorites.some((item) => item.id === listing.id);
+                        const nextFavorites = alreadySaved
+                            ? favorites.filter((item) => item.id !== listing.id)
+                            : [listing, ...favorites];
+
+                        writeFavorites(nextFavorites);
+                        setButtonState(!alreadySaved);
+                    };
+
+                    button.addEventListener("click", activate);
+                    button.addEventListener("keydown", (event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                            activate(event);
+                        }
+                    });
+                });
+            })();
+        </script>
     </body>
 </html>

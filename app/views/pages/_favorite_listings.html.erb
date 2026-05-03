@@ -1,0 +1,220 @@
+<style>
+    .favorite-button {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        z-index: 2;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border: 0;
+        padding: 0;
+        background: transparent;
+        cursor: pointer;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+    }
+
+    .favorite-button svg {
+        width: 24px;
+        height: 24px;
+        display: block;
+        pointer-events: none;
+    }
+
+    .favorite-button path {
+        fill: transparent;
+        stroke: #fff;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: fill 0.16s ease, stroke 0.16s ease, transform 0.16s ease;
+    }
+
+    .favorite-button.is-favorite path {
+        fill: #fff;
+        stroke: #fff;
+    }
+
+    .favorite-button:hover path,
+    .favorite-button:focus-visible path {
+        transform: scale(1.04);
+        transform-origin: center;
+    }
+
+    .favorite-button:focus-visible {
+        outline: 3px solid rgba(156, 81, 182, 0.5);
+        outline-offset: 4px;
+        border-radius: 999px;
+    }
+</style>
+
+<script>
+    (() => {
+        const storageKey = "nuSublets.favoriteListings";
+        const heartSvg = `
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"></path>
+            </svg>
+        `;
+
+        const escapeHtml = (value) => String(value || "").replace(/[&<>"']/g, (character) => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[character]);
+
+        const readFavorites = () => {
+            try {
+                return JSON.parse(localStorage.getItem(storageKey)) || [];
+            } catch (_error) {
+                return [];
+            }
+        };
+
+        const writeFavorites = (favorites) => {
+            localStorage.setItem(storageKey, JSON.stringify(favorites));
+        };
+
+        const getCardId = (card) => {
+            const address = card.querySelector(".listing-address")?.textContent.trim() || "";
+            const price = card.querySelector(".listing-price")?.textContent.trim() || "";
+            const image = card.querySelector(".listing-main-image")?.getAttribute("src") || "";
+            return [address, price, image].join("|").toLowerCase();
+        };
+
+        const getCardData = (card) => ({
+            id: getCardId(card),
+            href: card.getAttribute("href") || "#",
+            imageSrc: card.querySelector(".listing-main-image")?.getAttribute("src") || "",
+            imageAlt: card.querySelector(".listing-main-image")?.getAttribute("alt") || "Favorite listing",
+            avatarSrc: card.querySelector(".listing-avatar")?.getAttribute("src") || "",
+            avatarAlt: card.querySelector(".listing-avatar")?.getAttribute("alt") || "Listing host",
+            price: card.querySelector(".listing-price")?.textContent.trim() || "",
+            meta: Array.from(card.querySelectorAll(".listing-meta span")).map((item) => item.textContent.trim()),
+            address: card.querySelector(".listing-address")?.textContent.trim() || ""
+        });
+
+        const updateButton = (button, favored) => {
+            button.classList.toggle("is-favorite", favored);
+            button.setAttribute("aria-pressed", favored ? "true" : "false");
+            button.setAttribute("aria-label", favored ? "Remove from favorite listings" : "Save to favorite listings");
+        };
+
+        const renderFavoriteCards = () => {
+            const target = document.querySelector("[data-favorite-listings]");
+            if (!target) {
+                return;
+            }
+
+            const favorites = readFavorites();
+            const emptyState = document.querySelector("[data-favorites-empty]");
+            target.innerHTML = "";
+
+            favorites.forEach((listing) => {
+                const card = document.createElement("a");
+                card.className = "listing-card";
+                card.href = listing.href || "#";
+                card.innerHTML = `
+                    <div class="listing-media">
+                        <img class="listing-main-image" src="${escapeHtml(listing.imageSrc)}" alt="${escapeHtml(listing.imageAlt)}" />
+                        ${listing.avatarSrc ? `<img class="listing-avatar" src="${escapeHtml(listing.avatarSrc)}" alt="${escapeHtml(listing.avatarAlt)}" />` : ""}
+                    </div>
+                    <div class="listing-body">
+                        <p class="listing-price">${escapeHtml(listing.price)}</p>
+                        <div class="listing-meta">
+                            ${(listing.meta || []).map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
+                        </div>
+                        <p class="listing-address">${escapeHtml(listing.address)}</p>
+                    </div>
+                `;
+                target.appendChild(card);
+            });
+
+            if (emptyState) {
+                emptyState.hidden = favorites.length > 0;
+            }
+
+            bindFavoriteButtons();
+        };
+
+        const isFavorite = (id) => readFavorites().some((listing) => listing.id === id);
+
+        const toggleFavorite = (card, button) => {
+            const listing = getCardData(card);
+            const favorites = readFavorites();
+            const existingIndex = favorites.findIndex((item) => item.id === listing.id);
+            const nextFavorites = existingIndex >= 0
+                ? favorites.filter((item) => item.id !== listing.id)
+                : [listing, ...favorites];
+
+            writeFavorites(nextFavorites);
+            updateButton(button, existingIndex < 0);
+
+            document.querySelectorAll(".listing-card").forEach((otherCard) => {
+                if (getCardId(otherCard) === listing.id) {
+                    const otherButton = otherCard.querySelector(".favorite-button");
+                    if (otherButton) {
+                        updateButton(otherButton, existingIndex < 0);
+                    }
+                }
+            });
+
+            renderFavoriteCards();
+        };
+
+        function bindFavoriteButtons() {
+            document.querySelectorAll(".listing-card").forEach((card) => {
+                const media = card.querySelector(".listing-media");
+                if (!media) {
+                    return;
+                }
+
+                let button = media.querySelector(".favorite-button");
+                if (!button) {
+                    button = document.createElement("span");
+                    button.className = "favorite-button";
+                    button.setAttribute("role", "button");
+                    button.setAttribute("tabindex", "0");
+                    button.innerHTML = heartSvg;
+                    media.appendChild(button);
+                }
+
+                updateButton(button, isFavorite(getCardId(card)));
+
+                if (button.dataset.favoriteBound === "true") {
+                    return;
+                }
+
+                button.dataset.favoriteBound = "true";
+
+                const activate = (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    toggleFavorite(card, button);
+                };
+
+                button.addEventListener("click", activate);
+                button.addEventListener("keydown", (event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                        activate(event);
+                    }
+                });
+            });
+        }
+
+        const initializeFavorites = () => {
+            bindFavoriteButtons();
+            renderFavoriteCards();
+        };
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", initializeFavorites);
+        } else {
+            initializeFavorites();
+        }
+    })();
+</script>
