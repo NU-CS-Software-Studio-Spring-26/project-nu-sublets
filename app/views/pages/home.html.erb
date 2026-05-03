@@ -498,7 +498,7 @@
                         <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
                         <a class="nav-link p-0" href="<%= search_results_path %>">Search</a>
                         <a class="nav-link p-0" href="<%= post_sublet_path %>">Post Sublet</a>
-                        <a class="nav-link p-0" href="<%= login_path %>">Log in</a>
+                        <%= render "auth_nav" %>
                     </nav>
                 </div>
             </header>
@@ -659,7 +659,11 @@
                             <div class="cta-copy">
                                 <h2 class="cta-title">Looking For Someone to Sublet Your Room?</h2>
                                 <p class="cta-subtitle">List your sublet here</p>
-                                <a class="cta-button btn btn-primary" href="#" data-login-trigger>Create a Posting</a>
+                                <% if user_signed_in? %>
+                                    <a class="cta-button btn btn-primary" href="<%= post_sublet_path %>">Create a Posting</a>
+                                <% else %>
+                                    <a class="cta-button btn btn-primary" href="#" data-login-trigger>Create a Posting</a>
+                                <% end %>
                             </div>
                             <img class="cta-image" src="https://www.figma.com/api/mcp/asset/5f0bfc69-63af-460f-a9e9-eb92adb61a86" alt="Students relaxing on a couch" />
                         </div>

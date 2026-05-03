@@ -170,6 +170,49 @@
                 line-height: 1.7;
             }
 
+            .profile-meta,
+            .profile-stats {
+                width: 100%;
+                display: grid;
+                gap: 10px;
+            }
+
+            .profile-meta {
+                margin-top: 8px;
+            }
+
+            .profile-meta-item,
+            .profile-stat {
+                border: 1px solid var(--nu-border);
+                border-radius: 12px;
+                padding: 12px 14px;
+            }
+
+            .profile-meta-label,
+            .profile-stat-label {
+                margin: 0 0 4px;
+                font-family: "Rubik", sans-serif;
+                font-size: 12px;
+                font-weight: 600;
+                line-height: 1.2;
+                color: var(--nu-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+            }
+
+            .profile-meta-value,
+            .profile-stat-value {
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 16px;
+                line-height: 1.4;
+            }
+
+            .profile-stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                margin-top: 6px;
+            }
+
             .profile-content {
                 display: flex;
                 flex-direction: column;
@@ -192,6 +235,14 @@
                 font-size: 21px;
                 font-weight: 500;
                 line-height: 1.6;
+            }
+
+            .section-subtitle {
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 15px;
+                line-height: 1.5;
+                color: var(--nu-muted);
             }
 
             .listing-card {
@@ -319,6 +370,36 @@
                 line-height: 1.2;
             }
 
+            .empty-state {
+                border: 1px dashed var(--nu-border);
+                border-radius: 16px;
+                padding: 22px 20px;
+                background: #fff;
+            }
+
+            .empty-state-copy {
+                margin: 0 0 16px;
+                font-family: "Rubik", sans-serif;
+                font-size: 15px;
+                line-height: 1.6;
+                color: var(--nu-muted);
+            }
+
+            .empty-state-link {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 44px;
+                border-radius: 12px;
+                padding: 0 18px;
+                background: var(--nu-accent);
+                color: #fff;
+                font-family: "Rubik", sans-serif;
+                font-size: 15px;
+                font-weight: 600;
+                text-decoration: none;
+            }
+
             @media (max-width: 991.98px) {
                 .profile-grid {
                     grid-template-columns: minmax(0, 1fr);
@@ -364,6 +445,13 @@
                     font-size: 15px;
                 }
 
+                .profile-meta-value,
+                .profile-stat-value,
+                .section-subtitle,
+                .empty-state-copy {
+                    font-size: 14px;
+                }
+
                 .section-title {
                     font-size: 19px;
                 }
@@ -393,6 +481,10 @@
         </style>
     </head>
     <body>
+        <% user = current_user %>
+        <% listings = user.sublet_listings.order(created_at: :desc) %>
+        <% first_name = user.first_name.presence || user.display_name.split.first %>
+        <% initials = user.display_name.split.map { |part| part.first }.join.first(2).upcase.presence || "NU" %>
         <div class="page-shell">
             <header class="topbar">
                 <div class="topbar-inner">
@@ -401,7 +493,7 @@
                         <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
                         <a class="nav-link p-0" href="<%= search_results_path %>">Search</a>
                         <a class="nav-link p-0" href="<%= post_sublet_path %>">Post Sublet</a>
-                        <a class="nav-link p-0" href="<%= login_path %>">Log in</a>
+                        <%= render "auth_nav" %>
                     </nav>
                 </div>
             </header>
@@ -410,7 +502,7 @@
                 <div class="profile-shell">
                     <div class="profile-grid">
                         <section class="profile-card" aria-label="Profile summary">
-                            <img class="profile-avatar" src="https://www.figma.com/api/mcp/asset/dd9cc3a5-bc19-4416-af63-b122bb13efb4" alt="Jane Doe profile photo" />
+                            <img class="profile-avatar" src="https://ui-avatars.com/api/?name=<%= ERB::Util.url_encode(initials) %>&background=F4EFF8&color=3E1B4B&size=248&bold=true" alt="<%= user.display_name %> profile avatar" />
 
                             <div class="verified-row">
                                 <svg class="verified-icon" viewBox="0 0 32 32" aria-hidden="true">
@@ -420,46 +512,67 @@
                                 <p class="verified-copy">Verified Student</p>
                             </div>
 
-                            <div class="rating-row" aria-label="User rating 4.97 out of 5">
-                                <div class="star-row" aria-hidden="true">
-                                    <img class="star-icon" src="https://www.figma.com/api/mcp/asset/633fd2b5-a67c-4719-9e55-e0ebefc13d3c" alt="" />
-                                    <img class="star-icon" src="https://www.figma.com/api/mcp/asset/633fd2b5-a67c-4719-9e55-e0ebefc13d3c" alt="" />
-                                    <img class="star-icon" src="https://www.figma.com/api/mcp/asset/633fd2b5-a67c-4719-9e55-e0ebefc13d3c" alt="" />
-                                    <img class="star-icon" src="https://www.figma.com/api/mcp/asset/633fd2b5-a67c-4719-9e55-e0ebefc13d3c" alt="" />
-                                    <img class="star-icon" src="https://www.figma.com/api/mcp/asset/5eec44bd-6932-46a1-9547-f5b50e562366" alt="" />
+                            <p class="bio-copy">
+                                Hi <%= first_name %>, this is your NU Sublets profile. You&rsquo;re signed in with your Northwestern account and can manage your listings, contact details, and posting activity from here.
+                            </p>
+
+                            <div class="profile-meta" aria-label="Profile details">
+                                <div class="profile-meta-item">
+                                    <p class="profile-meta-label">Northwestern Email</p>
+                                    <p class="profile-meta-value"><%= user.email %></p>
                                 </div>
-                                <p class="rating-copy">4.97</p>
+                                <div class="profile-meta-item">
+                                    <p class="profile-meta-label">Display Name</p>
+                                    <p class="profile-meta-value"><%= user.display_name %></p>
+                                </div>
                             </div>
 
-                            <p class="bio-copy">
-                                Hi! I&rsquo;m Jane, a junior at Northwestern University studying Psychology with a minor in Data Science. I&rsquo;ll be in New York City this summer for an internship, so I&rsquo;m looking to sublet my room in Evanston. I&rsquo;m very organized and respectful of shared spaces, and I&rsquo;ve made sure the apartment stays clean and comfortable.
-                            </p>
+                            <div class="profile-stats" aria-label="Profile stats">
+                                <div class="profile-stat">
+                                    <p class="profile-stat-label">Listings</p>
+                                    <p class="profile-stat-value"><%= listings.count %></p>
+                                </div>
+                                <div class="profile-stat">
+                                    <p class="profile-stat-label">Status</p>
+                                    <p class="profile-stat-value"><%= user.active? ? "Active" : "Inactive" %></p>
+                                </div>
+                            </div>
                         </section>
 
                         <section class="profile-content" aria-label="Profile listings">
-                            <h1 class="profile-name">Jane Doe</h1>
+                            <h1 class="profile-name"><%= user.display_name %></h1>
                             <h2 class="section-title">Current Listings</h2>
+                            <p class="section-subtitle"><%= listings.any? ? "Your live sublet posts appear here." : "You have not posted a sublet yet." %></p>
 
-                            <a class="listing-card" href="<%= listing_path %>">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/60d2304b-8c7b-4325-9d1f-6e46979c0f62" alt="Jane Doe's apartment listing" />
-                                    <img class="listing-avatar" src="https://www.figma.com/api/mcp/asset/fc9b3617-2b88-4595-8cf9-b6d7242fdb75" alt="Jane Doe listing avatar" />
-                                    <span class="favorite-button" role="button" tabindex="0" aria-pressed="false" aria-label="Save to favorite listings">
-                                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                            <path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"></path>
-                                        </svg>
-                                    </span>
+                            <% if listings.any? %>
+                                <% listings.each do |listing| %>
+                                    <a class="listing-card" href="<%= listing_path %>">
+                                        <div class="listing-media">
+                                            <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/60d2304b-8c7b-4325-9d1f-6e46979c0f62" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+                                            <img class="listing-avatar" src="https://ui-avatars.com/api/?name=<%= ERB::Util.url_encode(initials) %>&background=F4EFF8&color=3E1B4B&size=100&bold=true" alt="<%= user.display_name %> listing avatar" />
+                                            <span class="favorite-button" role="button" tabindex="0" aria-pressed="false" aria-label="Save to favorite listings">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                    <path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"></path>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="listing-body">
+                                            <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
+                                            <div class="listing-meta">
+                                                <span><%= pluralize(listing.bedrooms || 0, "bedroom") %></span>
+                                                <span><%= pluralize(listing.bathrooms || 0, "bathroom") %></span>
+                                                <span><%= listing.furnished? ? "Furnished" : "Unfurnished" %></span>
+                                            </div>
+                                            <p class="listing-address"><%= listing.address.presence || "Address coming soon" %></p>
+                                        </div>
+                                    </a>
+                                <% end %>
+                            <% else %>
+                                <div class="empty-state">
+                                    <p class="empty-state-copy">Create your first listing to start receiving interest from other Northwestern students.</p>
+                                    <a class="empty-state-link" href="<%= post_sublet_path %>">Post a Sublet</a>
                                 </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$850/month</p>
-                                    <div class="listing-meta">
-                                        <span>Female Roommates</span>
-                                        <span>1 bathroom</span>
-                                        <span>Laundry</span>
-                                    </div>
-                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
-                                </div>
-                            </a>
+                            <% end %>
                         </section>
                     </div>
                 </div>
