@@ -94,7 +94,7 @@ class SubletListingTest < ActiveSupport::TestCase
     )
 
     assert_includes results, covers_full_stay
-    assert_equal [covers_full_stay], results.to_a
+    assert_equal [ covers_full_stay ], results.to_a
   end
 
   test "search_listings filters by price amenities and preferences" do
@@ -102,8 +102,8 @@ class SubletListingTest < ActiveSupport::TestCase
       valid_listing_params.merge(
         title: "Filtered Match",
         price: 950,
-        amenities: ["Laundry", "Gym", "Utilities included"],
-        preferences: ["Graduate student", "Quiet"],
+        amenities: [ "Laundry", "Gym", "Utilities included" ],
+        preferences: [ "Graduate student", "Quiet" ],
         utilities_included: true
       )
     )
@@ -111,8 +111,8 @@ class SubletListingTest < ActiveSupport::TestCase
       valid_listing_params.merge(
         title: "Wrong Amenities",
         price: 900,
-        amenities: ["Parking"],
-        preferences: ["Social"],
+        amenities: [ "Parking" ],
+        preferences: [ "Social" ],
         utilities_included: false
       )
     )
@@ -120,8 +120,8 @@ class SubletListingTest < ActiveSupport::TestCase
       valid_listing_params.merge(
         title: "Too Expensive",
         price: 1800,
-        amenities: ["Laundry", "Gym", "Utilities included"],
-        preferences: ["Graduate student", "Quiet"],
+        amenities: [ "Laundry", "Gym", "Utilities included" ],
+        preferences: [ "Graduate student", "Quiet" ],
         utilities_included: true
       )
     )
@@ -129,29 +129,29 @@ class SubletListingTest < ActiveSupport::TestCase
     results = SubletListing.search_listings(
       min_price: "800",
       max_price: "1200",
-      amenities: ["Laundry", "Utilities included"],
-      preferences: ["Graduate student"]
+      amenities: [ "Laundry", "Utilities included" ],
+      preferences: [ "Graduate student" ]
     )
 
-    assert_equal [matching_listing], results.to_a
+    assert_equal [ matching_listing ], results.to_a
   end
 
   test "search_listings matches preference labels exactly" do
     female_listing = @user.sublet_listings.create!(
       valid_listing_params.merge(
         title: "Female Roommate Match",
-        preferences: ["Female", "Clean"]
+        preferences: [ "Female", "Clean" ]
       )
     )
     male_listing = @user.sublet_listings.create!(
       valid_listing_params.merge(
         title: "Male Roommate Match",
-        preferences: ["Male", "Clean"]
+        preferences: [ "Male", "Clean" ]
       )
     )
 
-    female_results = SubletListing.search_listings(preferences: ["Female"])
-    male_results = SubletListing.search_listings(preferences: ["Male"])
+    female_results = SubletListing.search_listings(preferences: [ "Female" ])
+    male_results = SubletListing.search_listings(preferences: [ "Male" ])
 
     assert_includes female_results, female_listing
     assert_not_includes female_results, male_listing

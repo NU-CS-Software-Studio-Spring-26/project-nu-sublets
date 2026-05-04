@@ -56,7 +56,7 @@ class BackfillListingFilterMetadata < ActiveRecord::Migration[8.1]
 
   def inferred_preferences(listing)
     text = "#{listing.title} #{listing.description}".downcase
-    labels = ["Female", "Clean", "LGBTQ+ friendly"]
+    labels = [ "Female", "Clean", "LGBTQ+ friendly" ]
     labels << "Student preferred" if text.include?("student") || text.include?("campus") || text.include?("northwestern")
     labels << "Graduate student" if text.include?("grad")
     labels << "Young professional" if text.include?("professional")

@@ -199,7 +199,7 @@ end
 
 def seed_preferences(listing_attrs)
   text = "#{listing_attrs[:title]} #{listing_attrs[:description]}".downcase
-  labels = ["Female", "Clean", "LGBTQ+ friendly"]
+  labels = [ "Female", "Clean", "LGBTQ+ friendly" ]
   labels << "Student preferred" if text.include?("student") || text.include?("campus") || text.include?("northwestern")
   labels << "Graduate student" if text.include?("grad")
   labels << "Young professional" if text.include?("professional")
@@ -216,7 +216,7 @@ listings_data.each_with_index do |listing_attrs, index|
   user = created_users[index]
   listing_attrs[:amenities] ||= seed_amenities(listing_attrs)
   listing_attrs[:preferences] ||= seed_preferences(listing_attrs)
-  
+
   listing = SubletListing.find_or_create_by(
     title: listing_attrs[:title],
     user: user
@@ -225,7 +225,7 @@ listings_data.each_with_index do |listing_attrs, index|
       l.send("#{key}=", value) unless key == :title
     end
   end
-  
+
   if listing.persisted?
     puts "  ✅ Created listing: #{listing.title} (by #{user.name})"
   else
