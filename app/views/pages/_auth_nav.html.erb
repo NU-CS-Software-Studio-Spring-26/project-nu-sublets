@@ -2,5 +2,5 @@
     <a class="nav-link p-0" href="<%= profile_path %>">Profile</a>
     <%= button_to "Log out", session_path, method: :delete, class: "nav-link p-0", form: { style: "display: inline" }, style: "border: 0; background: transparent; font: inherit; cursor: pointer;" %>
 <% else %>
-    <a class="nav-link p-0" href="<%= login_path %>">Log in</a>
+    <a class="btn btn-primary" href="<%= login_path %>" style="background: #4E2A84; border: #4E2A84; color: white; font-weight: 600; padding: 0.5rem 1rem;">Log in</a>
 <% end %>
