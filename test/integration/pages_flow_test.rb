@@ -105,6 +105,19 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet/
   end
 
+  test "search results toolbar includes date filter controls" do
+    get search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
+
+    assert_select "form[action='#{search_results_path}'][method='get'][data-search-filter-form]"
+    assert_select "input[name='move-in'][value='06/12/2026']"
+    assert_select "input[name='move-out'][value='09/11/2026']"
+    assert_select "[data-date-toggle]", text: "Jun 12 2026"
+    assert_select "[data-date-toggle]", text: "Sep 11 2026"
+    assert_includes response.body, "Please enter a move-in date"
+    assert_includes response.body, "Please enter a move-out date"
+    assert_includes response.body, "Please enter a move-in and a move-out date"
+  end
+
   test "search results only include listings covering the requested dates" do
     user = User.create!(
       name: "Search Owner",
@@ -204,6 +217,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "May 24, 2026"
     assert_includes response.body, "October 3, 2026"
     assert_includes response.body, "Detail Date Match"
+    assert_select "a[href='#{search_results_path}']", text: /Back to search results/
   end
 
   test "post sublet page uses the submit endpoint" do
