@@ -20,8 +20,8 @@
                 --nu-surface: #f2f2f2;
                 --nu-muted-border: rgba(255, 255, 255, 0.28);
                 --nu-card-bg: rgba(58, 58, 58, 0.25);
-                --nu-button: #9c51b6;
-                --nu-button-soft: rgba(130, 46, 227, 0.4);
+                --nu-button: #4E2A84;
+                --nu-button-soft: rgba(78, 42, 132, 0.4);
                 --nu-shadow: 3.682px 3.682px 3.682px rgba(166, 166, 166, 0.25);
             }
 
@@ -81,7 +81,7 @@
 
             .hero {
                 min-height: 450px;
-                background: url("<%= asset_path('northwestern-photo.jpg') %>") center 75% / cover no-repeat;
+                background: url("<%= asset_path('nu-evanston.jpg') %>") center center / cover no-repeat;
                 padding: 28px 24px 40px;
             }
 
@@ -106,7 +106,7 @@
                 font-size: clamp(3.6rem, 6vw, 6rem);
                 font-weight: 600;
                 line-height: 1.05;
-                text-shadow: 4px 8px 20.5px rgba(0, 0, 0, 0.9);
+                text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.6);
             }
 
             .search-card {
@@ -665,7 +665,7 @@
                             <div class="listing-track" id="recommendations-track" data-carousel-track>
                             <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Bedroom listing" />
+                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(0) %>" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Listing host" />
                                 </div>
                                 <div class="listing-body">
@@ -681,7 +681,7 @@
 
                             <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Bedroom listing" />
+                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(1) %>" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Listing host" />
                                 </div>
                                 <div class="listing-body">
@@ -697,7 +697,7 @@
 
                             <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Bedroom listing" />
+                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(2) %>" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Listing host" />
                                 </div>
                                 <div class="listing-body">
@@ -713,7 +713,7 @@
 
                             <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Apartment with sunny bedroom" />
+                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(3) %>" alt="Apartment with sunny bedroom" />
                                     <img class="listing-avatar" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Listing host" />
                                 </div>
                                 <div class="listing-body">
@@ -729,7 +729,7 @@
 
                             <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Cozy student apartment" />
+                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(4) %>" alt="Cozy student apartment" />
                                     <img class="listing-avatar" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Listing host" />
                                 </div>
                                 <div class="listing-body">
@@ -745,7 +745,7 @@
 
                             <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Shared apartment near campus" />
+                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(5) %>" alt="Shared apartment near campus" />
                                     <img class="listing-avatar" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Listing host" />
                                 </div>
                                 <div class="listing-body">
@@ -776,7 +776,7 @@
                                     <a class="cta-button btn btn-primary" href="#" data-login-trigger>Create a Posting</a>
                                 <% end %>
                             </div>
-                            <img class="cta-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Students relaxing on a couch" />
+                            <img class="cta-image" src="<%= apartment_listing_image_path(1) %>" alt="Sunny Evanston apartment living room" />
                         </div>
                     </div>
                 </section>
@@ -789,7 +789,7 @@
                             <div class="listing-track" id="newest-track" data-carousel-track>
                             <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Bedroom listing" />
+                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(6) %>" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Listing host" />
                                 </div>
                                 <div class="listing-body">
@@ -805,7 +805,7 @@
 
                             <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Bedroom listing" />
+                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(7) %>" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Listing host" />
                                 </div>
                                 <div class="listing-body">
@@ -821,7 +821,7 @@
 
                             <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Bedroom listing" />
+                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(8) %>" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Listing host" />
                                 </div>
                                 <div class="listing-body">
@@ -837,7 +837,7 @@
 
                             <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Newly listed apartment bedroom" />
+                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(9) %>" alt="Newly listed apartment bedroom" />
                                     <img class="listing-avatar" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Listing host" />
                                 </div>
                                 <div class="listing-body">
@@ -853,7 +853,7 @@
 
                             <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Apartment available for summer sublet" />
+                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(10) %>" alt="Apartment available for summer sublet" />
                                     <img class="listing-avatar" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Listing host" />
                                 </div>
                                 <div class="listing-body">
@@ -869,7 +869,7 @@
 
                             <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Bedroom in shared sublet" />
+                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(11) %>" alt="Bedroom in shared sublet" />
                                     <img class="listing-avatar" src="<%= asset_path("northwestern-photo.jpg") %>" alt="Listing host" />
                                 </div>
                                 <div class="listing-body">

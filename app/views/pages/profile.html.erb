@@ -19,7 +19,7 @@
                 --nu-surface: #ffffff;
                 --nu-border: #d9d9d9;
                 --nu-muted: #5b5b5b;
-                --nu-accent: #9c51b6;
+                --nu-accent: #4E2A84;
                 --nu-shadow-soft: 0 0 25px rgba(217, 217, 217, 0.5);
                 --nu-card-shadow: 3.682px 3.682px 3.682px rgba(166, 166, 166, 0.25);
                 --nu-verified: #3B82F6;
@@ -549,7 +549,7 @@
                                 <% listings.each do |listing| %>
                                     <a class="listing-card" href="<%= listing_path %>">
                                         <div class="listing-media">
-                                            <img class="listing-main-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+                                            <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
                                             <img class="listing-avatar" src="https://ui-avatars.com/api/?name=<%= ERB::Util.url_encode(initials) %>&background=F4EFF8&color=3E1B4B&size=100&bold=true" alt="<%= user.display_name %> listing avatar" />
                                             <span class="favorite-button" role="button" tabindex="0" aria-pressed="false" aria-label="Save to favorite listings">
                                                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">

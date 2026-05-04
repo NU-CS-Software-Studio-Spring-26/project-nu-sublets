@@ -1,13 +1,42 @@
 require "digest"
 
 module ApplicationHelper
+  APARTMENT_IMAGE_ASSETS = [
+    "apartment-bedroom.png",
+    "apartment-living-room.png",
+    "apartment-kitchen.png",
+    "apartment-exterior.png"
+  ].freeze
+
   def listing_map_groups(listings)
     listings.group_by { |listing| normalized_listing_address(listing.address) }
             .values
             .map { |group| listing_map_group(group) }
   end
 
+  def apartment_listing_image_path(listing_or_index = nil, offset: 0)
+    asset_path(APARTMENT_IMAGE_ASSETS[apartment_image_index(listing_or_index, offset)])
+  end
+
+  def apartment_gallery_image_paths(listing = nil)
+    APARTMENT_IMAGE_ASSETS.each_with_index.map do |_asset, index|
+      apartment_listing_image_path(listing, offset: index)
+    end
+  end
+
   private
+
+  def apartment_image_index(listing_or_index, offset)
+    base = if listing_or_index.respond_to?(:id) && listing_or_index.id.present?
+             listing_or_index.id
+           elsif listing_or_index.is_a?(Integer)
+             listing_or_index
+           else
+             listing_or_index.to_s.sum
+           end
+
+    (base.to_i + offset) % APARTMENT_IMAGE_ASSETS.length
+  end
 
   def normalized_listing_address(address)
     map_address(address).downcase.gsub(/[^a-z0-9]+/, " ").squeeze(" ").strip

@@ -19,7 +19,7 @@
                 --nu-surface: #ffffff;
                 --nu-border: #d9d9d9;
                 --nu-muted: #5b5b5b;
-                --nu-accent: #9c51b6;
+                --nu-accent: #4E2A84;
                 --nu-card-shadow: 0 0 25px rgba(217, 217, 217, 0.5);
                 --nu-gallery-fill: #bcbcbc;
             }
@@ -517,11 +517,11 @@
     <body>
         <% host_name = @listing_host.display_name || @listing_host.name || "Listing Host" %>
         <% host_email = @listing_host.email.presence || "janedoe@u.northwestern.edu" %>
-        <% amenities = [] %>
-        <% amenities << "Furnished" if @listing.furnished %>
-        <% amenities << "Utilities included" if @listing.utilities_included %>
-        <% amenities << "Pets allowed" if @listing.pets_allowed %>
+        <% amenities = @listing.displayed_amenities %>
         <% amenities = ["Ask host for amenity details"] if amenities.empty? %>
+        <% preferences = @listing.displayed_preferences %>
+        <% preferences = ["Ask host for roommate preferences"] if preferences.empty? %>
+        <% gallery_images = apartment_gallery_image_paths(@listing) %>
         <div class="page-shell">
             <header class="topbar">
                 <div class="topbar-inner">
@@ -551,7 +551,7 @@
                         <div class="col-lg-6">
                             <div class="gallery-main">
                                 <button class="gallery-button" type="button" data-image-popup-trigger>
-                                    <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Main view of the sublet near Northwestern University" />
+                                    <img class="gallery-photo" src="<%= gallery_images[0] %>" alt="Main view of the sublet near Northwestern University" />
                                 </button>
                             </div>
                         </div>
@@ -559,22 +559,22 @@
                             <div class="gallery-grid">
                                 <div class="gallery-tile">
                                     <button class="gallery-button" type="button" data-image-popup-trigger>
-                                        <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Living space view of the sublet" />
+                                        <img class="gallery-photo" src="<%= gallery_images[1] %>" alt="Living space view of the sublet" />
                                     </button>
                                 </div>
                                 <div class="gallery-tile">
                                     <button class="gallery-button" type="button" data-image-popup-trigger>
-                                        <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Kitchen view of the apartment" />
+                                        <img class="gallery-photo" src="<%= gallery_images[2] %>" alt="Kitchen view of the apartment" />
                                     </button>
                                 </div>
                                 <div class="gallery-tile">
                                     <button class="gallery-button" type="button" data-image-popup-trigger>
-                                        <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Bedroom area in the apartment" />
+                                        <img class="gallery-photo" src="<%= gallery_images[3] %>" alt="Bedroom area in the apartment" />
                                     </button>
                                 </div>
                                 <div class="gallery-tile">
                                     <button class="gallery-button" type="button" data-image-popup-trigger>
-                                        <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Exterior neighborhood photo near the sublet" />
+                                        <img class="gallery-photo" src="<%= gallery_images[0] %>" alt="Exterior neighborhood photo near the sublet" />
                                     </button>
                                 </div>
                             </div>
@@ -700,36 +700,23 @@
                     <section class="pt-4 pt-lg-2 listing-offset-section">
                         <h2 class="section-title">Amenities</h2>
                         <div class="amenities-row">
-                            <div class="amenity">
-                                <svg class="amenity-icon" viewBox="0 0 32 32" aria-hidden="true">
-                                    <path d="M6 8h20v16H6zM10 8V5m12 3V5M10 16h12" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
-                                </svg>
-                                <span>Kitchen</span>
-                            </div>
-                            <div class="amenity">
-                                <svg class="amenity-icon" viewBox="0 0 32 32" aria-hidden="true">
-                                    <path d="M9 6h14l2 4v12a4 4 0 0 1-4 4H11a4 4 0 0 1-4-4V10l2-4Z" fill="none" stroke="#000" stroke-linejoin="round" stroke-width="1.8" />
-                                    <circle cx="16" cy="17" r="4" fill="none" stroke="#000" stroke-width="1.8" />
-                                    <path d="M13 6V3.8M19 6V3.8" fill="none" stroke="#000" stroke-linecap="round" stroke-width="1.8" />
-                                </svg>
-                                <span>Laundry</span>
-                            </div>
-                            <div class="amenity">
-                                <svg class="amenity-icon" viewBox="0 0 32 32" aria-hidden="true">
-                                    <path d="M16 4c-5 0-8 4.2-8 8.4 0 3.7 2.1 6.3 4.4 7.6L10 28h12l-2.3-8c2.2-1.3 4.3-3.9 4.3-7.6C24 8.2 21 4 16 4Z" fill="none" stroke="#000" stroke-linejoin="round" stroke-width="1.8" />
-                                    <path d="M16 28V16" fill="none" stroke="#000" stroke-linecap="round" stroke-width="1.8" />
-                                </svg>
-                                <span>Backyard</span>
-                            </div>
+                            <% amenities.first(6).each do |amenity| %>
+                                <div class="amenity">
+                                    <svg class="amenity-icon" viewBox="0 0 32 32" aria-hidden="true">
+                                        <path d="M6 8h20v16H6zM10 8V5m12 3V5M10 16h12" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
+                                    </svg>
+                                    <span><%= amenity %></span>
+                                </div>
+                            <% end %>
                         </div>
                     </section>
 
                     <section class="pt-5 listing-offset-section">
                         <h2 class="section-title">Preferences</h2>
                         <div class="preferences-row">
-                            <div class="preference">Female</div>
-                            <div class="preference">Cleanly</div>
-                            <div class="preference">LGBTQ+ Friendly</div>
+                            <% preferences.each do |preference| %>
+                                <div class="preference"><%= preference %></div>
+                            <% end %>
                         </div>
                     </section>
                 </div>

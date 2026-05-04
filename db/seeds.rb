@@ -172,9 +172,50 @@ listings_data = [
   }
 ]
 
+def seed_amenities(listing_attrs)
+  text = "#{listing_attrs[:title]} #{listing_attrs[:description]}".downcase
+  labels = []
+  labels << "Furnished" if listing_attrs[:furnished]
+  labels << "Utilities included" if listing_attrs[:utilities_included] || text.include?("heat included")
+  labels << "Pet-friendly" if listing_attrs[:pets_allowed] || text.include?("pet")
+  labels << "Laundry" if text.include?("laundry") || text.include?("washer")
+  labels << "Parking" if text.include?("parking")
+  labels << "Natural light" if text.include?("natural light")
+  labels << "Hardwood floors" if text.include?("hardwood")
+  labels << "Updated kitchen" if text.include?("updated kitchen") || text.include?("modern appliances")
+  labels << "Balcony / Patio" if text.include?("balcony") || text.include?("garden") || text.include?("backyard")
+  labels << "Rooftop" if text.include?("rooftop")
+  labels << "Gym" if text.include?("fitness center") || text.include?("gym")
+  labels << "Study rooms" if text.include?("study lounge") || text.include?("study room")
+  labels << "Transit access" if text.include?("public transportation") || text.include?("purple line") || text.include?("commute")
+  labels << "Near Northwestern University" if text.include?("campus") || text.include?("northwestern")
+  labels << "Downtown Evanston" if text.include?("downtown")
+  labels << "Lakefront (Lake Michigan)" if text.include?("lake") || text.include?("beach")
+  labels << "Flexible lease" if text.include?("flexible lease")
+  labels << "Quiet / Social" if text.include?("quiet") || text.include?("social")
+  labels << "Clean space" if text.include?("clean") || text.include?("recently renovated")
+  labels.uniq
+end
+
+def seed_preferences(listing_attrs)
+  text = "#{listing_attrs[:title]} #{listing_attrs[:description]}".downcase
+  labels = ["Female", "Clean", "LGBTQ+ friendly"]
+  labels << "Student preferred" if text.include?("student") || text.include?("campus") || text.include?("northwestern")
+  labels << "Graduate student" if text.include?("grad")
+  labels << "Young professional" if text.include?("professional")
+  labels << "Quiet" if text.include?("quiet")
+  labels << "Social" if text.include?("social") || text.include?("friendly roommate")
+  labels << "Responsible" if text.include?("serious student")
+  labels << "Pet-friendly" if listing_attrs[:pets_allowed]
+  labels << "No pets" unless listing_attrs[:pets_allowed]
+  labels.uniq
+end
+
 listings_data.each_with_index do |listing_attrs, index|
   # Assign each listing to a different user
   user = created_users[index]
+  listing_attrs[:amenities] ||= seed_amenities(listing_attrs)
+  listing_attrs[:preferences] ||= seed_preferences(listing_attrs)
   
   listing = SubletListing.find_or_create_by(
     title: listing_attrs[:title],

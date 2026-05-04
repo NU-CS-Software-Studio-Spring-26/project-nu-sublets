@@ -136,6 +136,29 @@ class SubletListingTest < ActiveSupport::TestCase
     assert_equal [matching_listing], results.to_a
   end
 
+  test "search_listings matches preference labels exactly" do
+    female_listing = @user.sublet_listings.create!(
+      valid_listing_params.merge(
+        title: "Female Roommate Match",
+        preferences: ["Female", "Clean"]
+      )
+    )
+    male_listing = @user.sublet_listings.create!(
+      valid_listing_params.merge(
+        title: "Male Roommate Match",
+        preferences: ["Male", "Clean"]
+      )
+    )
+
+    female_results = SubletListing.search_listings(preferences: ["Female"])
+    male_results = SubletListing.search_listings(preferences: ["Male"])
+
+    assert_includes female_results, female_listing
+    assert_not_includes female_results, male_listing
+    assert_includes male_results, male_listing
+    assert_not_includes male_results, female_listing
+  end
+
   private
 
   def valid_listing_params

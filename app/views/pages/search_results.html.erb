@@ -19,7 +19,7 @@
                 --nu-surface: #ffffff;
                 --nu-border: #d9d9d9;
                 --nu-muted: #5b5b5b;
-                --nu-accent: #9c51b6;
+                --nu-accent: #4E2A84;
                 --nu-card-shadow: 3.682px 3.682px 3.682px rgba(166, 166, 166, 0.25);
                 --nu-toolbar-bg: #ffffff;
             }
@@ -1114,10 +1114,6 @@
                     <div class="results-grid">
                         <section class="cards-grid" aria-label="Search result listings">
                             <% if @listings.any? %>
-                                <% listing_images = [
-                                    asset_path("northwestern-photo.jpg"),
-                                    asset_path("northwestern-photo.jpg")
-                                ] %>
                                 <% avatar_images = [
                                     asset_path("northwestern-photo.jpg"),
                                     asset_path("northwestern-photo.jpg")
@@ -1125,7 +1121,7 @@
                                 <% @listings.each_with_index do |listing, index| %>
                                     <a class="listing-card" href="<%= sublet_listing_path(listing) %>">
                                         <div class="listing-media">
-                                            <img class="listing-main-image" src="<%= listing_images[index % listing_images.length] %>" alt="<%= listing.title %>" />
+                                            <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title %>" />
                                             <img class="listing-avatar" src="<%= avatar_images[index % avatar_images.length] %>" alt="Listing host" />
                                         </div>
                                         <div class="listing-body">

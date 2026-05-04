@@ -118,6 +118,18 @@ class SubletListing < ApplicationRecord
   def short_address
     address.split(',').first
   end
+
+  def displayed_amenities
+    labels = Array(amenities)
+    labels << "Furnished" if furnished
+    labels << "Utilities included" if utilities_included
+    labels << "Pet-friendly" if pets_allowed
+    labels.uniq
+  end
+
+  def displayed_preferences
+    Array(preferences).uniq
+  end
   
   # Class Methods (CRUD Operations)
   def self.create_listing(user, params)
@@ -174,14 +186,14 @@ class SubletListing < ApplicationRecord
       when "Utilities included"
         relation.utilities_included_only
       else
-        relation.matching_serialized_label(:amenities, label)
+        matching_serialized_label(relation, :amenities, label)
       end
     end
   end
 
   def self.matching_preferences(labels)
     Array(labels).reject(&:blank?).reduce(all) do |relation, label|
-      relation.matching_serialized_label(:preferences, label)
+      matching_serialized_label(relation, :preferences, label)
     end
   end
   
@@ -243,11 +255,15 @@ class SubletListing < ApplicationRecord
     nil
   end
 
-  def self.matching_serialized_label(column, label)
+  def self.matching_serialized_label(relation, column, label)
     raise ArgumentError, "Unsupported filter column" unless %i[amenities preferences].include?(column)
 
-    pattern = "%#{sanitize_sql_like(label.downcase)}%"
-    where("LOWER(COALESCE(#{column}, '')) LIKE ?", pattern)
+    normalized_label = label.to_s.downcase
+    matching_ids = relation.select do |listing|
+      Array(listing.public_send(column)).any? { |value| value.to_s.downcase == normalized_label }
+    end.map(&:id)
+
+    relation.where(id: matching_ids)
   end
   
   def available_until_after_available_from
