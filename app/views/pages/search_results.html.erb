@@ -170,6 +170,160 @@
                 display: none;
             }
 
+            .filter-menu {
+                position: relative;
+            }
+
+            .filter-menu summary {
+                list-style: none;
+            }
+
+            .filter-menu summary::-webkit-details-marker {
+                display: none;
+            }
+
+            .filter-menu-toggle {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                min-height: 36px;
+                padding: 5px 14px;
+                border: 1px solid var(--nu-border);
+                border-radius: 4px;
+                background: #fff;
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 15px;
+                line-height: 1.15;
+                cursor: pointer;
+            }
+
+            .filter-menu[open] .filter-menu-toggle,
+            .filter-menu-toggle:hover,
+            .filter-menu-toggle:focus-visible {
+                border-color: var(--nu-accent);
+                outline: 0;
+            }
+
+            .filter-menu-panel {
+                position: absolute;
+                top: calc(100% + 8px);
+                left: 0;
+                z-index: 1020;
+                width: min(720px, calc(100vw - 64px));
+                max-height: min(650px, calc(100vh - 170px));
+                overflow: auto;
+                padding: 18px;
+                border: 1px solid rgba(0, 0, 0, 0.12);
+                border-radius: 8px;
+                background: #fff;
+                box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
+            }
+
+            .filter-panel-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 18px;
+            }
+
+            .filter-group {
+                min-width: 0;
+            }
+
+            .filter-group.is-wide {
+                grid-column: 1 / -1;
+            }
+
+            .filter-group-title {
+                margin: 0 0 9px;
+                font-family: "Rubik", sans-serif;
+                font-size: 13px;
+                font-weight: 700;
+                line-height: 1.2;
+            }
+
+            .filter-input-row {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .filter-field,
+            .filter-select {
+                width: 100%;
+                min-height: 38px;
+                border: 1px solid var(--nu-border);
+                border-radius: 4px;
+                background: #fff;
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                line-height: 1.2;
+            }
+
+            .filter-field {
+                padding: 7px 10px;
+            }
+
+            .filter-select {
+                padding: 7px 8px;
+            }
+
+            .filter-chip-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .filter-chip {
+                display: inline-flex;
+                align-items: center;
+                min-height: 32px;
+                padding: 6px 11px;
+                border: 1px solid var(--nu-border);
+                border-radius: 999px;
+                background: #fff;
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 13px;
+                line-height: 1.1;
+                cursor: pointer;
+                user-select: none;
+            }
+
+            .filter-chip input {
+                position: absolute;
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .filter-chip:has(input:checked) {
+                border-color: var(--nu-accent);
+                background: rgba(156, 81, 182, 0.1);
+                color: #5c2c6d;
+                font-weight: 600;
+            }
+
+            .filter-panel-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-top: 16px;
+                padding-top: 14px;
+                border-top: 1px solid var(--nu-border);
+            }
+
+            .clear-filters-link {
+                display: inline-flex;
+                align-items: center;
+                min-height: 36px;
+                padding: 5px 10px;
+                color: var(--nu-muted);
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                text-decoration: none;
+            }
+
             .filter-button {
                 display: inline-flex;
                 align-items: center;
@@ -781,6 +935,21 @@
                     width: 100%;
                 }
 
+                .filter-menu {
+                    position: static;
+                }
+
+                .filter-menu-panel {
+                    left: 16px;
+                    right: 16px;
+                    width: auto;
+                    max-height: calc(100vh - 160px);
+                }
+
+                .filter-panel-grid {
+                    grid-template-columns: 1fr;
+                }
+
                 .date-range {
                     width: 100%;
                 }
@@ -857,6 +1026,74 @@
                                 <div class="date-picker-popover" id="search-move-out-picker" role="dialog" aria-label="Move out calendar" hidden data-date-popover></div>
                             </div>
                         </div>
+
+                        <details class="filter-menu" data-filter-menu>
+                            <summary class="filter-menu-toggle">
+                                <svg class="filter-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                </svg>
+                                <span>More filters</span>
+                            </summary>
+
+                            <div class="filter-menu-panel">
+                                <div class="filter-panel-grid">
+                                    <div class="filter-group">
+                                        <p class="filter-group-title">Monthly rent</p>
+                                        <div class="filter-input-row">
+                                            <input class="filter-field" type="number" name="min_price" min="0" step="50" value="<%= @min_price %>" placeholder="Min $" aria-label="Minimum monthly rent" data-filter-control />
+                                            <input class="filter-field" type="number" name="max_price" min="0" step="50" value="<%= @max_price %>" placeholder="Max $" aria-label="Maximum monthly rent" data-filter-control />
+                                        </div>
+                                    </div>
+
+                                    <div class="filter-group">
+                                        <p class="filter-group-title">Space</p>
+                                        <div class="filter-input-row">
+                                            <select class="filter-select" name="bedrooms" aria-label="Bedrooms" data-filter-control>
+                                                <option value="">Any bedrooms</option>
+                                                <% (0..4).each do |count| %>
+                                                    <option value="<%= count %>" <%= "selected" if @bedrooms == count.to_s %>><%= count.zero? ? "Studio" : pluralize(count, "bedroom") %></option>
+                                                <% end %>
+                                            </select>
+
+                                            <select class="filter-select" name="bathrooms" aria-label="Bathrooms" data-filter-control>
+                                                <option value="">Any bathrooms</option>
+                                                <% (1..4).each do |count| %>
+                                                    <option value="<%= count %>" <%= "selected" if @bathrooms == count.to_s %>><%= pluralize(count, "bathroom") %></option>
+                                                <% end %>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="filter-group is-wide">
+                                        <p class="filter-group-title">Amenities</p>
+                                        <div class="filter-chip-grid">
+                                            <% SubletListing::AMENITY_OPTIONS.each do |amenity| %>
+                                                <label class="filter-chip">
+                                                    <input type="checkbox" name="amenities[]" value="<%= amenity %>" <%= "checked" if @selected_amenities.include?(amenity) %> data-filter-control />
+                                                    <span><%= amenity %></span>
+                                                </label>
+                                            <% end %>
+                                        </div>
+                                    </div>
+
+                                    <div class="filter-group is-wide">
+                                        <p class="filter-group-title">Preferences</p>
+                                        <div class="filter-chip-grid">
+                                            <% SubletListing::PREFERENCE_OPTIONS.each do |preference| %>
+                                                <label class="filter-chip">
+                                                    <input type="checkbox" name="preferences[]" value="<%= preference %>" <%= "checked" if @selected_preferences.include?(preference) %> data-filter-control />
+                                                    <span><%= preference %></span>
+                                                </label>
+                                            <% end %>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="filter-panel-actions">
+                                    <a class="clear-filters-link" href="<%= search_results_path %>">Clear all</a>
+                                </div>
+                            </div>
+                        </details>
 
                         <button class="filter-button" type="submit">
                             <svg class="filter-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -1206,12 +1443,21 @@
                     const moveInInput = filterForm.querySelector('input[name="move-in"]');
                     const moveOutInput = filterForm.querySelector('input[name="move-out"]');
                     const error = filterForm.querySelector("[data-filter-error]");
+                    const additionalControls = Array.from(filterForm.querySelectorAll("[data-filter-control]"));
+
+                    const hasAdditionalFilter = () => additionalControls.some((control) => {
+                        if (control.type === "checkbox") {
+                            return control.checked;
+                        }
+
+                        return control.value.trim().length > 0;
+                    });
 
                     filterForm.addEventListener("submit", (event) => {
                         const hasMoveIn = moveInInput.value.trim().length > 0;
                         const hasMoveOut = moveOutInput.value.trim().length > 0;
 
-                        if (hasMoveIn && hasMoveOut) {
+                        if ((hasMoveIn && hasMoveOut) || (!hasMoveIn && !hasMoveOut && hasAdditionalFilter())) {
                             error.hidden = true;
                             error.textContent = "";
                             return;

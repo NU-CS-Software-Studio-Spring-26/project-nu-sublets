@@ -97,6 +97,45 @@ class SubletListingTest < ActiveSupport::TestCase
     assert_equal [covers_full_stay], results.to_a
   end
 
+  test "search_listings filters by price amenities and preferences" do
+    matching_listing = @user.sublet_listings.create!(
+      valid_listing_params.merge(
+        title: "Filtered Match",
+        price: 950,
+        amenities: ["Laundry", "Gym", "Utilities included"],
+        preferences: ["Graduate student", "Quiet"],
+        utilities_included: true
+      )
+    )
+    @user.sublet_listings.create!(
+      valid_listing_params.merge(
+        title: "Wrong Amenities",
+        price: 900,
+        amenities: ["Parking"],
+        preferences: ["Social"],
+        utilities_included: false
+      )
+    )
+    @user.sublet_listings.create!(
+      valid_listing_params.merge(
+        title: "Too Expensive",
+        price: 1800,
+        amenities: ["Laundry", "Gym", "Utilities included"],
+        preferences: ["Graduate student", "Quiet"],
+        utilities_included: true
+      )
+    )
+
+    results = SubletListing.search_listings(
+      min_price: "800",
+      max_price: "1200",
+      amenities: ["Laundry", "Utilities included"],
+      preferences: ["Graduate student"]
+    )
+
+    assert_equal [matching_listing], results.to_a
+  end
+
   private
 
   def valid_listing_params

@@ -1,6 +1,75 @@
 class SubletListing < ApplicationRecord
+  AMENITY_OPTIONS = [
+    "Furnished",
+    "Laundry",
+    "AC / Heat",
+    "WiFi",
+    "TV",
+    "Hardwood floors",
+    "Natural light",
+    "Storage",
+    "Private bath / Shared bath",
+    "Updated kitchen",
+    "Dishwasher",
+    "Microwave",
+    "Balcony / Patio",
+    "Elevator",
+    "Secure entry",
+    "Doorman",
+    "Package room",
+    "Bike storage",
+    "Gym",
+    "Rooftop",
+    "Study rooms",
+    "Parking",
+    "Pet-friendly",
+    "Near Northwestern University",
+    "Downtown Evanston",
+    "Transit access",
+    "Lakefront (Lake Michigan)",
+    "Grocery nearby",
+    "Restaurants",
+    "Safe area",
+    "Utilities included",
+    "Flexible lease",
+    "Lease option",
+    "Clean space",
+    "Stocked kitchen",
+    "Work setup",
+    "Quiet / Social"
+  ].freeze
+
+  PREFERENCE_OPTIONS = [
+    "Student preferred",
+    "Graduate student",
+    "Young professional",
+    "Male",
+    "Female",
+    "Non-smoker",
+    "No pets",
+    "Pet-friendly",
+    "Clean",
+    "Quiet",
+    "Respectful",
+    "Responsible",
+    "Organized",
+    "Easygoing",
+    "Social",
+    "Independent",
+    "No overnight guests",
+    "No parties",
+    "Light cooking",
+    "Good hygiene",
+    "Communicative",
+    "Reliable",
+    "LGBTQ+ friendly"
+  ].freeze
+
   # Associations
   belongs_to :user
+
+  serialize :amenities, coder: JSON, type: Array
+  serialize :preferences, coder: JSON, type: Array
   
   # Validations
   validates :title, presence: true, length: { minimum: 5, maximum: 100 }
@@ -18,10 +87,14 @@ class SubletListing < ApplicationRecord
   
   # Scopes
   scope :available, -> { where('available_until >= ?', Date.current) }
-  scope :by_price_range, ->(min, max) { where(price: min..max) }
+  scope :minimum_price, ->(min) { where("price >= ?", min) }
+  scope :maximum_price, ->(max) { where("price <= ?", max) }
+  scope :by_price_range, ->(min, max) { minimum_price(min).maximum_price(max) }
   scope :by_bedrooms, ->(count) { where(bedrooms: count) }
+  scope :by_bathrooms, ->(count) { where(bathrooms: count) }
   scope :furnished_only, -> { where(furnished: true) }
   scope :pets_allowed_only, -> { where(pets_allowed: true) }
+  scope :utilities_included_only, -> { where(utilities_included: true) }
   scope :covering_date_range, ->(move_in, move_out) { where('available_from <= ? AND available_until >= ?', move_in, move_out) }
   
   # Methods
@@ -62,10 +135,16 @@ class SubletListing < ApplicationRecord
     listings = listings.where('title ILIKE ? OR description ILIKE ? OR address ILIKE ?', 
                              "%#{filters[:query]}%", "%#{filters[:query]}%", "%#{filters[:query]}%") if filters[:query].present?
     
-    listings = listings.by_price_range(filters[:min_price], filters[:max_price]) if filters[:min_price] && filters[:max_price]
+    min_price = normalize_numeric_filter(filters[:min_price])
+    max_price = normalize_numeric_filter(filters[:max_price])
+
+    listings = listings.minimum_price(min_price) if min_price
+    listings = listings.maximum_price(max_price) if max_price
     listings = listings.by_bedrooms(filters[:bedrooms]) if filters[:bedrooms].present?
+    listings = listings.by_bathrooms(filters[:bathrooms]) if filters[:bathrooms].present?
     listings = listings.furnished_only if filters[:furnished] == true
     listings = listings.pets_allowed_only if filters[:pets_allowed] == true
+    listings = listings.utilities_included_only if filters[:utilities_included] == true
     listings = listings.available if filters[:available_only] == true
 
     move_in = normalize_filter_date(filters[:move_in] || filters["move-in"])
@@ -78,8 +157,32 @@ class SubletListing < ApplicationRecord
     elsif move_out
       listings = listings.where('available_from <= ?', move_out)
     end
+
+    listings = listings.matching_amenities(filters[:amenities])
+    listings = listings.matching_preferences(filters[:preferences])
     
     listings
+  end
+
+  def self.matching_amenities(labels)
+    Array(labels).reject(&:blank?).reduce(all) do |relation, label|
+      case label
+      when "Furnished"
+        relation.furnished_only
+      when "Pet-friendly"
+        relation.pets_allowed_only
+      when "Utilities included"
+        relation.utilities_included_only
+      else
+        relation.matching_serialized_label(:amenities, label)
+      end
+    end
+  end
+
+  def self.matching_preferences(labels)
+    Array(labels).reject(&:blank?).reduce(all) do |relation, label|
+      relation.matching_serialized_label(:preferences, label)
+    end
   end
   
   def self.find_available_listings
@@ -130,6 +233,21 @@ class SubletListing < ApplicationRecord
     end
   rescue Date::Error
     nil
+  end
+
+  def self.normalize_numeric_filter(value)
+    return if value.blank?
+
+    BigDecimal(value.to_s)
+  rescue ArgumentError
+    nil
+  end
+
+  def self.matching_serialized_label(column, label)
+    raise ArgumentError, "Unsupported filter column" unless %i[amenities preferences].include?(column)
+
+    pattern = "%#{sanitize_sql_like(label.downcase)}%"
+    where("LOWER(COALESCE(#{column}, '')) LIKE ?", pattern)
   end
   
   def available_until_after_available_from

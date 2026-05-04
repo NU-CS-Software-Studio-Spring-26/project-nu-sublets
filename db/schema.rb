@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_21_232239) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_03_000000) do
   create_table "sublet_listings", force: :cascade do |t|
     t.text "address"
+    t.text "amenities"
     t.date "available_from"
     t.date "available_until"
     t.integer "bathrooms"
@@ -21,6 +22,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_21_232239) do
     t.text "description"
     t.boolean "furnished"
     t.boolean "pets_allowed"
+    t.text "preferences"
     t.decimal "price"
     t.string "title"
     t.datetime "updated_at", null: false

@@ -18,9 +18,25 @@ class PagesController < ApplicationController
   def search_results
     @move_in = search_date_param("move-in")
     @move_out = search_date_param("move-out")
+    @min_price = params[:min_price].to_s
+    @max_price = params[:max_price].to_s
+    @bedrooms = params[:bedrooms].to_s
+    @bathrooms = params[:bathrooms].to_s
+    @selected_amenities = Array(params[:amenities]).reject(&:blank?)
+    @selected_preferences = Array(params[:preferences]).reject(&:blank?)
+
     @listings = SubletListing.search_listings(
       move_in: @move_in,
       move_out: @move_out,
+      min_price: @min_price,
+      max_price: @max_price,
+      bedrooms: @bedrooms,
+      bathrooms: @bathrooms,
+      furnished: @selected_amenities.include?("Furnished"),
+      pets_allowed: @selected_amenities.include?("Pet-friendly"),
+      utilities_included: @selected_amenities.include?("Utilities included"),
+      amenities: @selected_amenities,
+      preferences: @selected_preferences,
       available_only: true
     ).order(:price)
   end
@@ -70,9 +86,15 @@ class PagesController < ApplicationController
       furnished: params[:furnished] == "1",
       pets_allowed: params[:pets_allowed] == "1",
       utilities_included: params[:utilities_included] == "1",
+      amenities: selected_listing_labels(:amenities, SubletListing::AMENITY_OPTIONS),
+      preferences: selected_listing_labels(:preferences, SubletListing::PREFERENCE_OPTIONS),
       available_from: search_date_param("start-date"),
       available_until: search_date_param("end-date")
     }
+  end
+
+  def selected_listing_labels(key, allowed_labels)
+    Array(params[key]).select { |label| allowed_labels.include?(label) }
   end
 
   def default_listing_title

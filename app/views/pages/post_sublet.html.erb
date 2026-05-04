@@ -929,71 +929,8 @@
                     renderPhotoPreview();
                 });
 
-                const amenities = [
-                    "Furnished",
-                    "Laundry",
-                    "AC / Heat",
-                    "WiFi",
-                    "TV",
-                    "Hardwood floors",
-                    "Natural light",
-                    "Storage",
-                    "Private bath / Shared bath",
-                    "Updated kitchen",
-                    "Dishwasher",
-                    "Microwave",
-                    "Balcony / Patio",
-                    "Elevator",
-                    "Secure entry",
-                    "Doorman",
-                    "Package room",
-                    "Bike storage",
-                    "Gym",
-                    "Rooftop",
-                    "Study rooms",
-                    "Parking",
-                    "Pet-friendly",
-                    "Near Northwestern University",
-                    "Downtown Evanston",
-                    "Transit access",
-                    "Lakefront (Lake Michigan)",
-                    "Grocery nearby",
-                    "Restaurants",
-                    "Safe area",
-                    "Utilities included",
-                    "Flexible lease",
-                    "Lease option",
-                    "Clean space",
-                    "Stocked kitchen",
-                    "Work setup",
-                    "Quiet / Social"
-                ];
-
-                const preferences = [
-                    "Student preferred",
-                    "Graduate student",
-                    "Young professional",
-                    "Male",
-                    "Female",
-                    "Non-smoker",
-                    "No pets",
-                    "Pet-friendly",
-                    "Clean",
-                    "Quiet",
-                    "Respectful",
-                    "Responsible",
-                    "Organized",
-                    "Easygoing",
-                    "Social",
-                    "Independent",
-                    "No overnight guests",
-                    "No parties",
-                    "Light cooking",
-                    "Good hygiene",
-                    "Communicative",
-                    "Reliable",
-                    "LGBTQ+ friendly"
-                ];
+                const amenities = <%= raw SubletListing::AMENITY_OPTIONS.to_json %>;
+                const preferences = <%= raw SubletListing::PREFERENCE_OPTIONS.to_json %>;
 
                 const normalize = (value) => value.toLowerCase().trim();
 

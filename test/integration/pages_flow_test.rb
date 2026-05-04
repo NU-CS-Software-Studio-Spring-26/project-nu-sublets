@@ -68,6 +68,8 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
 
     assert_equal Date.new(2026, 6, 12), listing.available_from
     assert_equal Date.new(2026, 9, 11), listing.available_until
+    assert_equal ["Laundry", "Gym"], listing.amenities
+    assert_equal ["Graduate student", "Quiet"], listing.preferences
     assert_redirected_to search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
   end
 
@@ -132,9 +134,77 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "input[name='move-out'][value='09/11/2026']"
     assert_select "[data-date-toggle]", text: "Jun 12 2026"
     assert_select "[data-date-toggle]", text: "Sep 11 2026"
+    assert_select "input[name='min_price']"
+    assert_select "input[name='max_price']"
+    assert_select "select[name='bedrooms']"
+    assert_select "select[name='bathrooms']"
+    assert_select "input[name='amenities[]'][value='Laundry']"
+    assert_select "input[name='preferences[]'][value='Graduate student']"
     assert_includes response.body, "Please enter a move-in date"
     assert_includes response.body, "Please enter a move-out date"
     assert_includes response.body, "Please enter a move-in and a move-out date"
+  end
+
+  test "search results filters by price space amenities and preferences" do
+    user = User.create!(
+      name: "Filter Owner",
+      email: "filter.owner@u.northwestern.edu",
+      active: true
+    )
+    matching_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Amenity Rich Match",
+        price: 950,
+        bedrooms: 1,
+        bathrooms: 1,
+        utilities_included: true,
+        amenities: ["Laundry", "Gym", "Utilities included"],
+        preferences: ["Graduate student", "Quiet"],
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Missing Gym",
+        price: 900,
+        bedrooms: 1,
+        bathrooms: 1,
+        amenities: ["Laundry"],
+        preferences: ["Graduate student", "Quiet"],
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Too Expensive Filter",
+        price: 1500,
+        bedrooms: 1,
+        bathrooms: 1,
+        amenities: ["Laundry", "Gym", "Utilities included"],
+        preferences: ["Graduate student", "Quiet"],
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    get search_results_path(
+      "move-in": "06/12/2026",
+      "move-out": "09/11/2026",
+      min_price: "800",
+      max_price: "1200",
+      bedrooms: "1",
+      bathrooms: "1",
+      amenities: ["Laundry", "Gym"],
+      preferences: ["Graduate student"]
+    )
+
+    assert_select "a[href='#{sublet_listing_path(matching_listing)}']", text: /Amenity Rich Match/
+    assert_no_match "Missing Gym", response.body
+    assert_no_match "Too Expensive Filter", response.body
+    assert_select "input[name='amenities[]'][value='Gym'][checked]"
+    assert_select "input[name='preferences[]'][value='Graduate student'][checked]"
   end
 
   test "search results only include listings covering the requested dates" do
@@ -261,7 +331,9 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
       "end-date" => "09/11/2026",
       price: "850",
       furnished: "1",
-      utilities_included: "1"
+      utilities_included: "1",
+      amenities: ["Laundry", "Gym"],
+      preferences: ["Graduate student", "Quiet"]
     }
   end
 
