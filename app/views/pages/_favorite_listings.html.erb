@@ -33,8 +33,8 @@
     }
 
     .favorite-button.is-favorite path {
-        fill: #fff;
-        stroke: #fff;
+        fill: #ed4956;
+        stroke: #ed4956;
     }
 
     .favorite-button:hover path,
@@ -94,6 +94,7 @@
             avatarSrc: card.querySelector(".listing-avatar")?.getAttribute("src") || "",
             avatarAlt: card.querySelector(".listing-avatar")?.getAttribute("alt") || "Listing host",
             price: card.querySelector(".listing-price")?.textContent.trim() || "",
+            title: card.querySelector(".listing-card-title")?.textContent.trim() || "",
             meta: Array.from(card.querySelectorAll(".listing-meta span")).map((item) => item.textContent.trim()),
             address: card.querySelector(".listing-address")?.textContent.trim() || ""
         });
@@ -125,6 +126,7 @@
                     </div>
                     <div class="listing-body">
                         <p class="listing-price">${escapeHtml(listing.price)}</p>
+                        ${listing.title ? `<p class="listing-card-title">${escapeHtml(listing.title)}</p>` : ""}
                         <div class="listing-meta">
                             ${(listing.meta || []).map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
                         </div>

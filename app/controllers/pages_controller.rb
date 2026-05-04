@@ -25,6 +25,8 @@ class PagesController < ApplicationController
     ).order(:price)
   end
 
+  def saved; end
+
   def post_sublet; end
 
   def profile; end

@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <title>Saved Sublets | NU Sublets</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;500;600&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+        />
+        <style>
+            :root {
+                --nu-text: #000000;
+                --nu-surface: #ffffff;
+                --nu-border: #d9d9d9;
+                --nu-muted: #5b5b5b;
+                --nu-accent: #9c51b6;
+                --nu-card-shadow: 3.682px 3.682px 3.682px rgba(166, 166, 166, 0.25);
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                background: var(--nu-surface);
+                color: var(--nu-text);
+                font-family: "Fustat", sans-serif;
+            }
+
+            a {
+                color: inherit;
+            }
+
+            img {
+                display: block;
+                max-width: 100%;
+            }
+
+            .page-shell {
+                min-height: 100vh;
+            }
+
+            .topbar {
+                background: #fff;
+                border-bottom: 1px solid var(--nu-border);
+                font-family: "Rubik", sans-serif;
+                padding: 0 24px;
+                min-height: 60px;
+                display: flex;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+            }
+
+            .topbar-inner {
+                max-width: 1200px;
+                width: 100%;
+                margin: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .topbar-nav {
+                gap: 28px;
+            }
+
+            .brand,
+            .nav-link {
+                color: var(--nu-text);
+                font-size: 16px;
+                line-height: 1.2;
+                text-decoration: none;
+            }
+
+            .saved-page {
+                padding: 36px 24px 64px;
+            }
+
+            .saved-shell {
+                max-width: 1120px;
+                margin: 0 auto;
+            }
+
+            .saved-title {
+                margin: 0 0 8px;
+                font-family: "Rubik", sans-serif;
+                font-size: clamp(2rem, 4vw, 2.5rem);
+                font-weight: 700;
+                line-height: 1.15;
+            }
+
+            .saved-subtitle {
+                margin: 0 0 24px;
+                color: var(--nu-muted);
+                font-size: 16px;
+                line-height: 1.4;
+            }
+
+            .cards-grid {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 24px;
+            }
+
+            .listing-card {
+                display: block;
+                background: #fff;
+                border-radius: 7px;
+                overflow: hidden;
+                box-shadow: var(--nu-card-shadow);
+                text-decoration: none;
+                color: inherit;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .listing-card:hover,
+            .listing-card:focus-visible {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            }
+
+            .listing-card:focus-visible {
+                outline: 3px solid rgba(156, 81, 182, 0.45);
+                outline-offset: 4px;
+            }
+
+            .listing-media {
+                position: relative;
+                height: 190px;
+                overflow: visible;
+            }
+
+            .listing-main-image {
+                width: 100%;
+                height: 180px;
+                object-fit: cover;
+            }
+
+            .listing-avatar {
+                position: absolute;
+                left: 12px;
+                bottom: -8px;
+                width: 50px;
+                height: 50px;
+                border: 2px solid #fff;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .listing-body {
+                padding: 8px 10px 12px;
+            }
+
+            .listing-price {
+                margin: 0 0 3px;
+                font-family: "Rubik", sans-serif;
+                font-size: 21px;
+                font-weight: 800;
+                line-height: 1.05;
+            }
+
+            .listing-card-title {
+                margin: 0 0 3px;
+                font-family: "Rubik", sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+                line-height: 1.2;
+            }
+
+            .listing-meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                margin-bottom: 3px;
+                font-family: "Rubik", sans-serif;
+                font-size: 10px;
+                font-weight: 500;
+                line-height: 1.2;
+            }
+
+            .listing-address {
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 10px;
+                line-height: 1.2;
+            }
+
+            .empty-state {
+                max-width: 620px;
+                padding: 28px;
+                border: 1px solid var(--nu-border);
+                border-radius: 8px;
+                background: #fff;
+            }
+
+            .empty-state[hidden] {
+                display: none;
+            }
+
+            .empty-state-title {
+                margin: 0 0 8px;
+                font-family: "Rubik", sans-serif;
+                font-size: 20px;
+                font-weight: 700;
+            }
+
+            .empty-state-copy {
+                margin: 0 0 16px;
+                color: var(--nu-muted);
+                font-size: 15px;
+                line-height: 1.45;
+            }
+
+            .empty-state-link {
+                display: inline-flex;
+                align-items: center;
+                min-height: 36px;
+                padding: 7px 14px;
+                border-radius: 4px;
+                background: var(--nu-accent);
+                color: #fff;
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                text-decoration: none;
+            }
+
+            @media (max-width: 991.98px) {
+                .cards-grid {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
+
+            @media (max-width: 767.98px) {
+                .topbar {
+                    padding-inline: 16px;
+                }
+
+                .topbar-nav {
+                    gap: 20px;
+                }
+
+                .brand,
+                .nav-link {
+                    font-size: 14px;
+                }
+
+                .saved-page {
+                    padding: 28px 16px 48px;
+                }
+
+                .cards-grid {
+                    grid-template-columns: 1fr;
+                    gap: 20px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="page-shell">
+            <header class="topbar">
+                <div class="topbar-inner">
+                    <a class="brand" href="<%= root_path %>">NU-Sublets</a>
+                    <nav class="d-flex align-items-center topbar-nav">
+                        <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
+                        <a class="nav-link p-0" href="<%= search_results_path %>">Search</a>
+                        <a class="nav-link p-0" href="<%= saved_path %>">Saved</a>
+                        <a class="nav-link p-0" href="<%= post_sublet_path %>">Post Sublet</a>
+                        <%= render "auth_nav" %>
+                    </nav>
+                </div>
+            </header>
+
+            <main class="saved-page">
+                <div class="saved-shell">
+                    <h1 class="saved-title">Saved Sublets</h1>
+                    <p class="saved-subtitle">Sublets you heart on the search page appear here.</p>
+
+                    <section class="cards-grid" aria-label="Saved sublet listings" data-favorite-listings></section>
+
+                    <div class="empty-state" data-favorites-empty>
+                        <p class="empty-state-title">No saved sublets yet.</p>
+                        <p class="empty-state-copy">Heart listings on the search page to build your shortlist.</p>
+                        <a class="empty-state-link" href="<%= search_results_path %>">Browse sublets</a>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"
+        ></script>
+        <%= render "login_modal" %>
+        <%= render "favorite_listings" %>
+    </body>
+</html>

@@ -19,6 +19,12 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "saved page is reachable" do
+    get saved_path
+
+    assert_response :success
+  end
+
   test "post sublet page is reachable" do
     get post_sublet_path
 
@@ -69,6 +75,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_select "a[href='#{search_results_path}']", text: /Search/
+    assert_select "a[href='#{saved_path}']", text: /Saved/
     assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet|Create a Posting/
     assert_select "a[href='#{login_path}']", text: /Log in/
     assert_select "a[href='#{listing_path}']"
@@ -102,7 +109,19 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     get search_results_path
 
     assert_select "a[href='#{root_path}']", text: /NU-Sublets/
+    assert_select "a[href='#{saved_path}']", text: /Saved/
     assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet/
+  end
+
+  test "saved page renders the saved listings shell" do
+    get saved_path
+
+    assert_select "h1", text: "Saved Sublets"
+    assert_select "[data-favorite-listings]"
+    assert_select "[data-favorites-empty]", text: /No saved sublets yet/
+    assert_select "a[href='#{search_results_path}']", text: /Browse sublets/
+    assert_includes response.body, "nuSublets.favoriteListings"
+    assert_includes response.body, "#ed4956"
   end
 
   test "search results toolbar includes date filter controls" do
