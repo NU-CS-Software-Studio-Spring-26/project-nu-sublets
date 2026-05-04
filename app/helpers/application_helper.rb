@@ -29,11 +29,11 @@ module ApplicationHelper
   def apartment_image_index(listing_or_index, offset)
     base = if listing_or_index.respond_to?(:id) && listing_or_index.id.present?
              listing_or_index.id
-           elsif listing_or_index.is_a?(Integer)
+    elsif listing_or_index.is_a?(Integer)
              listing_or_index
-           else
+    else
              listing_or_index.to_s.sum
-           end
+    end
 
     (base.to_i + offset) % APARTMENT_IMAGE_ASSETS.length
   end

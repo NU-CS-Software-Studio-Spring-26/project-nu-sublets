@@ -7,9 +7,9 @@ class PagesController < ApplicationController
   def listing
     @listing = if params[:id].present?
                  SubletListing.find(params[:id])
-               else
+    else
                  SubletListing.find_available_listings.first
-               end
+    end
 
     @listing ||= fallback_listing
     @listing_host = @listing.user || fallback_host

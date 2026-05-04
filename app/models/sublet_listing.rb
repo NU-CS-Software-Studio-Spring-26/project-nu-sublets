@@ -70,7 +70,7 @@ class SubletListing < ApplicationRecord
 
   serialize :amenities, coder: JSON, type: Array
   serialize :preferences, coder: JSON, type: Array
-  
+
   # Validations
   validates :title, presence: true, length: { minimum: 5, maximum: 100 }
   validates :description, presence: true, length: { minimum: 10, maximum: 1000 }
@@ -80,13 +80,13 @@ class SubletListing < ApplicationRecord
   validates :available_until, presence: true
   validates :bedrooms, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :bathrooms, presence: true, numericality: { greater_than_or_equal_to: 0 }
-  
+
   # Custom validations
   validate :available_until_after_available_from
   validate :available_from_not_in_past
-  
+
   # Scopes
-  scope :available, -> { where('available_until >= ?', Date.current) }
+  scope :available, -> { where("available_until >= ?", Date.current) }
   scope :minimum_price, ->(min) { where("price >= ?", min) }
   scope :maximum_price, ->(max) { where("price <= ?", max) }
   scope :by_price_range, ->(min, max) { minimum_price(min).maximum_price(max) }
@@ -95,28 +95,28 @@ class SubletListing < ApplicationRecord
   scope :furnished_only, -> { where(furnished: true) }
   scope :pets_allowed_only, -> { where(pets_allowed: true) }
   scope :utilities_included_only, -> { where(utilities_included: true) }
-  scope :covering_date_range, ->(move_in, move_out) { where('available_from <= ? AND available_until >= ?', move_in, move_out) }
-  
+  scope :covering_date_range, ->(move_in, move_out) { where("available_from <= ? AND available_until >= ?", move_in, move_out) }
+
   # Methods
   def available_duration_days
     (available_until - available_from).to_i
   end
-  
+
   def available_months
     available_duration_days / 30.0
   end
-  
+
   def price_per_bedroom
     return price if bedrooms.zero?
     price / bedrooms
   end
-  
+
   def currently_available?
     Date.current.between?(available_from, available_until)
   end
-  
+
   def short_address
-    address.split(',').first
+    address.split(",").first
   end
 
   def displayed_amenities
@@ -130,7 +130,7 @@ class SubletListing < ApplicationRecord
   def displayed_preferences
     Array(preferences).uniq
   end
-  
+
   # Class Methods (CRUD Operations)
   def self.create_listing(user, params)
     listing = user.sublet_listings.new(params)
@@ -140,13 +140,13 @@ class SubletListing < ApplicationRecord
       { success: false, errors: listing.errors.full_messages }
     end
   end
-  
+
   def self.search_listings(filters = {})
     listings = all
-    
-    listings = listings.where('title ILIKE ? OR description ILIKE ? OR address ILIKE ?', 
+
+    listings = listings.where("title ILIKE ? OR description ILIKE ? OR address ILIKE ?",
                              "%#{filters[:query]}%", "%#{filters[:query]}%", "%#{filters[:query]}%") if filters[:query].present?
-    
+
     min_price = normalize_numeric_filter(filters[:min_price])
     max_price = normalize_numeric_filter(filters[:max_price])
 
@@ -165,14 +165,14 @@ class SubletListing < ApplicationRecord
     if move_in && move_out
       listings = listings.covering_date_range(move_in, move_out)
     elsif move_in
-      listings = listings.where('available_until >= ?', move_in)
+      listings = listings.where("available_until >= ?", move_in)
     elsif move_out
-      listings = listings.where('available_from <= ?', move_out)
+      listings = listings.where("available_from <= ?", move_out)
     end
 
     listings = listings.matching_amenities(filters[:amenities])
     listings = listings.matching_preferences(filters[:preferences])
-    
+
     listings
   end
 
@@ -196,11 +196,11 @@ class SubletListing < ApplicationRecord
       matching_serialized_label(relation, :preferences, label)
     end
   end
-  
+
   def self.find_available_listings
     available.order(:price)
   end
-  
+
   # Instance Methods
   def update_listing(params)
     if update(params)
@@ -209,11 +209,11 @@ class SubletListing < ApplicationRecord
       { success: false, errors: errors.full_messages }
     end
   end
-  
+
   def mark_unavailable
     update(available_until: Date.current - 1.day)
   end
-  
+
   def extend_availability(new_end_date)
     if new_end_date > available_until
       update(available_until: new_end_date)
@@ -222,18 +222,18 @@ class SubletListing < ApplicationRecord
       { success: false, message: "New date must be after current end date" }
     end
   end
-  
+
   def delete_listing
     destroy
   end
-  
+
   def duplicate_listing
-    attributes_to_copy = attributes.except('id', 'created_at', 'updated_at')
+    attributes_to_copy = attributes.except("id", "created_at", "updated_at")
     new_listing = self.class.new(attributes_to_copy)
     new_listing.title = "#{title} (Copy)"
     new_listing
   end
-  
+
   private
 
   def self.normalize_filter_date(value)
@@ -265,18 +265,18 @@ class SubletListing < ApplicationRecord
 
     relation.where(id: matching_ids)
   end
-  
+
   def available_until_after_available_from
     return unless available_from && available_until
-    
+
     if available_until <= available_from
       errors.add(:available_until, "must be after the available from date")
     end
   end
-  
+
   def available_from_not_in_past
     return unless available_from
-    
+
     if available_from < Date.current
       errors.add(:available_from, "cannot be in the past")
     end
