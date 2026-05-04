@@ -123,6 +123,61 @@
                 object-fit: cover;
             }
 
+            .gallery-button {
+                display: block;
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                border: 0;
+                background: transparent;
+            }
+
+            .gallery-button:focus-visible {
+                outline: 3px solid var(--nu-accent);
+                outline-offset: 3px;
+            }
+
+            .image-popup {
+                position: fixed;
+                inset: 0;
+                z-index: 2000;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 24px;
+            }
+
+            .image-popup.is-open {
+                display: flex;
+            }
+
+            .image-popup__backdrop {
+                position: absolute;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.78);
+            }
+
+            .image-popup__dialog {
+                position: relative;
+                max-width: min(1080px, 92vw);
+                max-height: 88vh;
+                border-radius: 8px;
+                background: #fff;
+                box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+                overflow: hidden;
+            }
+
+            .image-popup__image {
+                display: block;
+                max-width: 100%;
+                max-height: 88vh;
+                object-fit: contain;
+            }
+
+            body.image-popup-open {
+                overflow: hidden;
+            }
+
             .listing-title {
                 margin: 0;
                 font-family: "Rubik", sans-serif;
@@ -375,6 +430,15 @@
                     height: 132px;
                 }
 
+                .image-popup {
+                    padding: 16px;
+                }
+
+                .image-popup__dialog,
+                .image-popup__image {
+                    max-height: 82vh;
+                }
+
                 .host-row {
                     align-items: flex-start;
                     flex-wrap: wrap;
@@ -438,22 +502,32 @@
                     <section class="row g-3 g-lg-4 align-items-stretch">
                         <div class="col-lg-6">
                             <div class="gallery-main">
-                                <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Main view of the sublet near Northwestern University" />
+                                <button class="gallery-button" type="button" data-image-popup-trigger>
+                                    <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Main view of the sublet near Northwestern University" />
+                                </button>
                             </div>
                         </div>
                         <div class="col-lg-6">
                             <div class="gallery-grid">
                                 <div class="gallery-tile">
-                                    <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Living space view of the sublet" />
+                                    <button class="gallery-button" type="button" data-image-popup-trigger>
+                                        <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Living space view of the sublet" />
+                                    </button>
                                 </div>
                                 <div class="gallery-tile">
-                                    <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Kitchen view of the apartment" />
+                                    <button class="gallery-button" type="button" data-image-popup-trigger>
+                                        <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Kitchen view of the apartment" />
+                                    </button>
                                 </div>
                                 <div class="gallery-tile">
-                                    <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Bedroom area in the apartment" />
+                                    <button class="gallery-button" type="button" data-image-popup-trigger>
+                                        <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Bedroom area in the apartment" />
+                                    </button>
                                 </div>
                                 <div class="gallery-tile">
-                                    <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Exterior neighborhood photo near the sublet" />
+                                    <button class="gallery-button" type="button" data-image-popup-trigger>
+                                        <img class="gallery-photo" src="<%= asset_path('northwestern-photo.jpg') %>" alt="Exterior neighborhood photo near the sublet" />
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -471,12 +545,12 @@
                                     <path
                                         d="M24 3.75 9.75 9v12.49c0 10.23 6.07 19.8 14.25 22.76 8.18-2.96 14.25-12.53 14.25-22.76V9L24 3.75Z"
                                         fill="none"
-                                        stroke="#000"
+                                        stroke="#3B82F6"
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
                                         stroke-width="2.5"
                                     />
-                                    <path d="m16.5 24.38 5.25 5.25L31.5 18.38" fill="none" stroke="#9c51b6" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" />
+                                    <path d="m16.5 24.38 5.25 5.25L31.5 18.38" fill="none" stroke="#3B82F6" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" />
                                 </svg>
                             </div>
 
@@ -614,11 +688,66 @@
             </main>
         </div>
 
+        <div class="image-popup" data-image-popup aria-hidden="true">
+            <div class="image-popup__backdrop" data-image-popup-close></div>
+            <div class="image-popup__dialog" role="dialog" aria-modal="true" aria-label="Enlarged listing image">
+                <img class="image-popup__image" src="" alt="" data-image-popup-image />
+            </div>
+        </div>
+
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"
         ></script>
+        <script>
+            (() => {
+                const popup = document.querySelector("[data-image-popup]");
+                const popupImage = document.querySelector("[data-image-popup-image]");
+                const closeButtons = document.querySelectorAll("[data-image-popup-close]");
+                const triggers = document.querySelectorAll("[data-image-popup-trigger]");
+
+                if (!popup || !popupImage || triggers.length === 0) {
+                    return;
+                }
+
+                const openPopup = (image) => {
+                    popupImage.src = image.currentSrc || image.src;
+                    popupImage.alt = image.alt || "Enlarged listing image";
+                    popup.classList.add("is-open");
+                    popup.setAttribute("aria-hidden", "false");
+                    document.body.classList.add("image-popup-open");
+                };
+
+                const closePopup = () => {
+                    popup.classList.remove("is-open");
+                    popup.setAttribute("aria-hidden", "true");
+                    document.body.classList.remove("image-popup-open");
+                    popupImage.src = "";
+                    popupImage.alt = "";
+                };
+
+                triggers.forEach((trigger) => {
+                    trigger.addEventListener("click", () => {
+                        const image = trigger.querySelector(".gallery-photo");
+
+                        if (image) {
+                            openPopup(image);
+                        }
+                    });
+                });
+
+                closeButtons.forEach((button) => {
+                    button.addEventListener("click", closePopup);
+                });
+
+                document.addEventListener("keydown", (event) => {
+                    if (event.key === "Escape" && popup.classList.contains("is-open")) {
+                        closePopup();
+                    }
+                });
+            })();
+        </script>
         <%= render "login_modal" %>
     </body>
 </html>
