@@ -154,6 +154,30 @@
                 padding-left: 18px;
             }
 
+            .form-errors {
+                background: #fef2f2;
+                border: 1px solid #fecaca;
+                border-radius: 8px;
+                padding: 16px;
+                margin: 0 0 24px;
+            }
+
+            .form-errors p {
+                color: #dc2626;
+                font-weight: 600;
+                margin: 0 0 12px;
+            }
+
+            .form-errors ul {
+                margin: 0;
+                padding-left: 20px;
+                color: #dc2626;
+            }
+
+            .form-errors li {
+                margin-bottom: 4px;
+            }
+
             .field-stack {
                 display: flex;
                 flex-direction: column;
@@ -722,6 +746,17 @@
             <main class="post-page">
                 <div class="post-shell">
                     <h1 class="page-title">List your apartment</h1>
+
+                    <% if defined?(@listing_errors) && @listing_errors&.any? %>
+                        <div class="form-errors">
+                            <p><strong>Please fix the following errors:</strong></p>
+                            <ul>
+                                <% @listing_errors.each do |error| %>
+                                    <li><%= error %></li>
+                                <% end %>
+                            </ul>
+                        </div>
+                    <% end %>
 
                     <%= form_with url: submit_sublet_path, method: :post, local: true, class: "post-card" do %>
                         <section class="section-block field-stack">

@@ -25,20 +25,26 @@ class PagesController < ApplicationController
     @selected_amenities = Array(params[:amenities]).reject(&:blank?)
     @selected_preferences = Array(params[:preferences]).reject(&:blank?)
 
-    @listings = SubletListing.search_listings(
-      move_in: @move_in,
-      move_out: @move_out,
-      min_price: @min_price,
-      max_price: @max_price,
-      bedrooms: @bedrooms,
-      bathrooms: @bathrooms,
-      furnished: @selected_amenities.include?("Furnished"),
-      pets_allowed: @selected_amenities.include?("Pet-friendly"),
-      utilities_included: @selected_amenities.include?("Utilities included"),
-      amenities: @selected_amenities,
-      preferences: @selected_preferences,
-      available_only: true
-    ).order(:price)
+    # Validate that move-out date is after move-in date
+    if @move_in && @move_out && @move_out < @move_in
+      flash.now[:error] = "Move-out date must be after move-in date."
+      @listings = SubletListing.none  # Return empty results for invalid date range
+    else
+      @listings = SubletListing.search_listings(
+        move_in: @move_in,
+        move_out: @move_out,
+        min_price: @min_price,
+        max_price: @max_price,
+        bedrooms: @bedrooms,
+        bathrooms: @bathrooms,
+        furnished: @selected_amenities.include?("Furnished"),
+        pets_allowed: @selected_amenities.include?("Pet-friendly"),
+        utilities_included: @selected_amenities.include?("Utilities included"),
+        amenities: @selected_amenities,
+        preferences: @selected_preferences,
+        available_only: true
+      ).order(:price)
+    end
   end
 
   def saved; end
@@ -72,6 +78,7 @@ class PagesController < ApplicationController
 
     Date.strptime(params[key], "%m/%d/%Y")
   rescue Date::Error
+    flash.now[:error] = "Invalid date format for #{key.humanize}. Please use MM/DD/YYYY format."
     nil
   end
 
