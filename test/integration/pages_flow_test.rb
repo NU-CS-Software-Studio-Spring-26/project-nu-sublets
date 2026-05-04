@@ -110,7 +110,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
   test "search results page links into listing and home" do
     get search_results_path
 
-    assert_select "a[href='#{root_path}']", text: /NU-Sublets/
+    assert_select "a[href='#{root_path}']", text: /NU[- ]Sublets/
     assert_select "a[href='#{saved_path}']", text: /Saved/
     assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet/
   end
@@ -143,6 +143,14 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Please enter a move-in date"
     assert_includes response.body, "Please enter a move-out date"
     assert_includes response.body, "Please enter a move-in and a move-out date"
+  end
+
+  test "search results shows invalid date order in the inline filter error" do
+    get search_results_path("move-in": "09/11/2026", "move-out": "06/12/2026")
+
+    assert_select "[data-filter-error]", text: "Move-out date must be after move-in date."
+    assert_select "[data-filter-error][hidden]", count: 0
+    assert_select ".flash-error", count: 0
   end
 
   test "search results filters by price space amenities and preferences" do

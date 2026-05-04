@@ -25,10 +25,9 @@ class PagesController < ApplicationController
     @selected_amenities = Array(params[:amenities]).reject(&:blank?)
     @selected_preferences = Array(params[:preferences]).reject(&:blank?)
 
-    # Validate that move-out date is after move-in date
     if @move_in && @move_out && @move_out < @move_in
-      flash.now[:error] = "Move-out date must be after move-in date."
-      @listings = SubletListing.none  # Return empty results for invalid date range
+      @filter_error = "Move-out date must be after move-in date."
+      @listings = SubletListing.none
     else
       @listings = SubletListing.search_listings(
         move_in: @move_in,
@@ -78,7 +77,7 @@ class PagesController < ApplicationController
 
     Date.strptime(params[key], "%m/%d/%Y")
   rescue Date::Error
-    flash.now[:error] = "Invalid date format for #{key.humanize}. Please use MM/DD/YYYY format."
+    @filter_error = "Invalid date format for #{key.humanize}. Please use MM/DD/YYYY format."
     nil
   end
 
