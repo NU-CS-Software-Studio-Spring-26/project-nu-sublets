@@ -427,7 +427,9 @@
                     </div>
 
                     <button class="filter-button" type="button">
-                        <img class="filter-icon" src="https://www.figma.com/api/mcp/asset/dc027e89-3614-42d6-aa48-8176b45f4178" alt="" />
+                        <svg class="filter-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
                         <span>Filter</span>
                     </button>
                 </div>
@@ -441,12 +443,12 @@
                         <section class="cards-grid" aria-label="Search result listings">
                             <% if @listings.any? %>
                                 <% listing_images = [
-                                    "https://www.figma.com/api/mcp/asset/292d844d-3128-4c9e-b783-a114916048ef",
-                                    "https://www.figma.com/api/mcp/asset/860abfa8-2aeb-493d-a41d-980dbc230735"
+                                    asset_path("northwestern-photo.jpg"),
+                                    asset_path("northwestern-photo.jpg")
                                 ] %>
                                 <% avatar_images = [
-                                    "https://www.figma.com/api/mcp/asset/f79ba84c-703f-457e-ac99-6a89882a658c",
-                                    "https://www.figma.com/api/mcp/asset/cf418c90-840d-4479-8153-336ff47009a1"
+                                    asset_path("northwestern-photo.jpg"),
+                                    asset_path("northwestern-photo.jpg")
                                 ] %>
                                 <% @listings.each_with_index do |listing, index| %>
                                     <a class="listing-card" href="<%= sublet_listing_path(listing) %>">

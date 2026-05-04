@@ -539,7 +539,7 @@
                             <p class="listing-price"><%= number_to_currency(@listing.price, precision: 0) %>/month</p>
                             <p class="listing-address"><%= @listing.address %></p>
                             <div class="host-row">
-                                <img class="host-avatar" src="https://www.figma.com/api/mcp/asset/a18cff4f-a0e2-4375-9568-69b422c15407" alt="<%= host_name %> profile photo" />
+                                <img class="host-avatar" src="<%= asset_path("northwestern-photo.jpg") %>" alt="<%= host_name %> profile photo" />
                                 <div class="host-name"><%= host_name %></div>
                                 <svg class="verified-badge" viewBox="0 0 48 48" aria-label="Verified listing badge" role="img">
                                     <path

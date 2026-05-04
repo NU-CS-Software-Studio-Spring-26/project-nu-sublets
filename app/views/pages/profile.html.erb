@@ -548,7 +548,7 @@
                                 <% listings.each do |listing| %>
                                     <a class="listing-card" href="<%= listing_path %>">
                                         <div class="listing-media">
-                                            <img class="listing-main-image" src="https://www.figma.com/api/mcp/asset/60d2304b-8c7b-4325-9d1f-6e46979c0f62" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+                                            <img class="listing-main-image" src="<%= asset_path("northwestern-photo.jpg") %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
                                             <img class="listing-avatar" src="https://ui-avatars.com/api/?name=<%= ERB::Util.url_encode(initials) %>&background=F4EFF8&color=3E1B4B&size=100&bold=true" alt="<%= user.display_name %> listing avatar" />
                                             <span class="favorite-button" role="button" tabindex="0" aria-pressed="false" aria-label="Save to favorite listings">
                                                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
