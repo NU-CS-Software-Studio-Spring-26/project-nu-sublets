@@ -140,6 +140,50 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_no_match "Starts Too Late", response.body
   end
 
+  test "search results map shows price pins and grouped count pins" do
+    user = User.create!(
+      name: "Map Owner",
+      email: "map.owner@u.northwestern.edu",
+      active: true
+    )
+    single_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Single Address Listing",
+        address: "820 Noyes St, Evanston, IL 60201",
+        price: 850,
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    grouped_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Apartment Option A",
+        address: "1570 Oak Ave, Apt 1, Evanston, IL 60201",
+        price: 1100,
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Apartment Option B",
+        address: "1570 Oak Ave, Apt 2, Evanston, IL 60201",
+        price: 1200,
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    get search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
+
+    assert_select "[data-map-stage]"
+    assert_select "[data-map-pin]", count: 2
+    assert_select "[data-map-pin]", text: "$850"
+    assert_select "[data-map-pin].count-pin", text: "2"
+    assert_select "[data-map-popup] a[href='#{sublet_listing_path(single_listing)}']", text: /Single Address Listing/
+    assert_select "[data-map-popup] a[href='#{sublet_listing_path(grouped_listing)}']", text: /Apartment Option A/
+  end
+
   test "listing page shows the selected listing dates" do
     user = User.create!(
       name: "Detail Owner",

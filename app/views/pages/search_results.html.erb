@@ -295,14 +295,287 @@
                 position: sticky;
                 top: 24px;
                 background: #fff;
+                max-width: 520px;
             }
 
-            .map-embed {
+            .map-stage {
+                position: relative;
                 width: 100%;
-                max-width: 447px;
-                height: 950px;
+                min-height: 760px;
+                border: 1px solid var(--nu-border);
+                border-radius: 8px;
+                overflow: hidden;
+                background:
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.72) 49%, transparent 49% 51%, rgba(255, 255, 255, 0.72) 51%),
+                    linear-gradient(0deg, rgba(255, 255, 255, 0.6) 49%, transparent 49% 51%, rgba(255, 255, 255, 0.6) 51%),
+                    #dfe9dc;
+                background-size: 110px 110px, 92px 92px, auto;
+            }
+
+            .map-canvas {
+                position: absolute;
+                inset: 0;
+                transform-origin: center;
+                transition: transform 0.2s ease;
+            }
+
+            .map-stage[data-zoom="2"] .map-canvas {
+                transform: scale(1.08);
+            }
+
+            .map-stage[data-zoom="3"] .map-canvas {
+                transform: scale(1.16);
+            }
+
+            .map-water {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 23%;
+                height: 100%;
+                background: linear-gradient(180deg, #bed8ed, #9fc8e8);
+                border-left: 2px solid rgba(45, 94, 126, 0.2);
+            }
+
+            .map-campus {
+                position: absolute;
+                top: 22%;
+                right: 24%;
+                width: 30%;
+                height: 18%;
+                border: 1px solid rgba(62, 27, 75, 0.16);
+                border-radius: 14px;
+                background: rgba(156, 81, 182, 0.12);
+            }
+
+            .map-road {
+                position: absolute;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.9);
+                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
+            }
+
+            .map-road.horizontal {
+                left: 4%;
+                right: 22%;
+                height: 9px;
+            }
+
+            .map-road.vertical {
+                top: 3%;
+                bottom: 3%;
+                width: 9px;
+            }
+
+            .map-road.diagonal {
+                left: 16%;
+                top: 12%;
+                width: 10px;
+                height: 76%;
+                transform: rotate(16deg);
+                transform-origin: center;
+            }
+
+            .map-label {
+                position: absolute;
+                color: rgba(0, 0, 0, 0.48);
+                font-family: "Rubik", sans-serif;
+                font-size: 12px;
+                font-weight: 600;
+                line-height: 1;
+                pointer-events: none;
+            }
+
+            .map-controls {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                z-index: 4;
+                display: grid;
+                overflow: hidden;
+                border: 1px solid rgba(0, 0, 0, 0.12);
+                border-radius: 6px;
+                background: #fff;
+                box-shadow: 0 5px 14px rgba(0, 0, 0, 0.16);
+            }
+
+            .map-zoom-button {
+                width: 36px;
+                height: 36px;
                 border: 0;
+                background: #fff;
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 22px;
+                line-height: 1;
+            }
+
+            .map-zoom-button + .map-zoom-button {
+                border-top: 1px solid var(--nu-border);
+            }
+
+            .map-zoom-button:hover,
+            .map-zoom-button:focus-visible {
+                background: #f5f1f7;
+                outline: 0;
+            }
+
+            .map-pin {
+                position: absolute;
+                z-index: 3;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 54px;
+                min-height: 32px;
+                padding: 6px 10px;
+                border: 2px solid #fff;
+                border-radius: 999px;
+                background: #d93025;
+                color: #fff;
+                box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                font-weight: 800;
+                line-height: 1;
+                transform: translate(-50%, -100%);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .map-pin::after {
+                content: "";
+                position: absolute;
+                left: 50%;
+                bottom: -8px;
+                width: 13px;
+                height: 13px;
+                background: #d93025;
+                border-right: 2px solid #fff;
+                border-bottom: 2px solid #fff;
+                transform: translateX(-50%) rotate(45deg);
+            }
+
+            .map-pin.count-pin {
+                background: var(--nu-accent);
+            }
+
+            .map-pin.count-pin::after {
+                background: var(--nu-accent);
+            }
+
+            .map-pin:hover,
+            .map-pin:focus-visible,
+            .map-pin[aria-expanded="true"] {
+                z-index: 5;
+                outline: 0;
+                transform: translate(-50%, -100%) scale(1.08);
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.28);
+            }
+
+            .map-stage[data-zoom="2"] .map-pin {
+                min-width: 62px;
+                min-height: 36px;
+                font-size: 16px;
+            }
+
+            .map-stage[data-zoom="3"] .map-pin {
+                min-width: 72px;
+                min-height: 42px;
+                font-size: 18px;
+            }
+
+            .map-popup {
+                position: absolute;
+                z-index: 6;
+                width: min(320px, calc(100% - 24px));
+                max-height: 360px;
+                overflow: auto;
+                padding: 12px;
+                border: 1px solid rgba(0, 0, 0, 0.12);
+                border-radius: 8px;
+                background: #fff;
+                box-shadow: 0 18px 38px rgba(0, 0, 0, 0.22);
+                transform: translate(-50%, 14px);
+            }
+
+            .map-popup[hidden] {
+                display: none;
+            }
+
+            .map-popup-title {
+                margin: 0 24px 8px 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                font-weight: 700;
+                line-height: 1.25;
+            }
+
+            .map-popup-close {
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                width: 24px;
+                height: 24px;
+                border: 0;
+                border-radius: 4px;
+                background: transparent;
+                color: var(--nu-text);
+                font-size: 20px;
+                line-height: 1;
+            }
+
+            .map-popup-close:hover,
+            .map-popup-close:focus-visible {
+                background: #f5f1f7;
+                outline: 0;
+            }
+
+            .map-popup-listing {
                 display: block;
+                padding: 10px 0;
+                color: inherit;
+                text-decoration: none;
+            }
+
+            .map-popup-listing + .map-popup-listing {
+                border-top: 1px solid var(--nu-border);
+            }
+
+            .map-popup-price {
+                margin: 0 0 4px;
+                font-family: "Rubik", sans-serif;
+                font-size: 16px;
+                font-weight: 800;
+                line-height: 1.1;
+            }
+
+            .map-popup-name,
+            .map-popup-meta,
+            .map-popup-address {
+                margin: 0;
+                font-size: 12px;
+                line-height: 1.35;
+            }
+
+            .map-popup-name {
+                font-family: "Rubik", sans-serif;
+                font-weight: 600;
+            }
+
+            .map-popup-meta,
+            .map-popup-address {
+                color: var(--nu-muted);
+            }
+
+            .map-empty {
+                position: absolute;
+                inset: 0;
+                display: grid;
+                place-items: center;
+                padding: 24px;
+                color: var(--nu-muted);
+                font-family: "Rubik", sans-serif;
+                text-align: center;
             }
 
             @media (max-width: 1199.98px) {
@@ -315,9 +588,13 @@
                     position: static;
                 }
 
-                .map-embed {
-                    max-width: 100%;
+                .map-card {
+                    max-width: none;
+                }
+
+                .map-stage {
                     height: 420px;
+                    min-height: 420px;
                 }
             }
 
@@ -477,13 +754,72 @@
                         </section>
 
                         <aside class="map-card" aria-label="Map of listings">
-                            <iframe
-                                class="map-embed"
-                                title="Google Map of Evanston near Northwestern University"
-                                src="https://maps.google.com/maps?q=Northwestern%20University%2C%20Evanston%2C%20IL&z=14&output=embed"
-                                loading="lazy"
-                                referrerpolicy="no-referrer-when-downgrade"
-                            ></iframe>
+                            <% map_groups = listing_map_groups(@listings) %>
+                            <div class="map-stage" data-map-stage data-zoom="1" aria-label="Sublet map">
+                                <div class="map-canvas" data-map-canvas>
+                                    <div class="map-water" aria-hidden="true"></div>
+                                    <div class="map-campus" aria-hidden="true"></div>
+                                    <div class="map-road horizontal" style="top: 18%" aria-hidden="true"></div>
+                                    <div class="map-road horizontal" style="top: 36%" aria-hidden="true"></div>
+                                    <div class="map-road horizontal" style="top: 54%" aria-hidden="true"></div>
+                                    <div class="map-road horizontal" style="top: 72%" aria-hidden="true"></div>
+                                    <div class="map-road vertical" style="left: 18%" aria-hidden="true"></div>
+                                    <div class="map-road vertical" style="left: 36%" aria-hidden="true"></div>
+                                    <div class="map-road vertical" style="left: 54%" aria-hidden="true"></div>
+                                    <div class="map-road diagonal" aria-hidden="true"></div>
+                                    <span class="map-label" style="top: 24%; right: 31%">Northwestern</span>
+                                    <span class="map-label" style="top: 48%; right: 5%">Lake Michigan</span>
+                                    <span class="map-label" style="bottom: 18%; left: 10%">Evanston</span>
+
+                                    <% map_groups.each_with_index do |group, index| %>
+                                        <% listings = group[:listings] %>
+                                        <% single_listing = listings.one? %>
+                                        <% pin_label = single_listing ? number_to_currency(listings.first.price, precision: 0) : listings.count.to_s %>
+                                        <% pin_aria_label = single_listing ? "#{pin_label} sublet at #{group[:address]}" : "#{pluralize(listings.count, 'listing')} at #{group[:address]}" %>
+                                        <% popup_id = "map-popup-#{index}" %>
+                                        <button
+                                            class="map-pin <%= "count-pin" unless single_listing %>"
+                                            type="button"
+                                            style="left: <%= group[:x] %>%; top: <%= group[:y] %>%"
+                                            aria-label="<%= pin_aria_label %>"
+                                            aria-expanded="false"
+                                            aria-controls="<%= popup_id %>"
+                                            data-map-pin
+                                            data-popup-id="<%= popup_id %>"
+                                        >
+                                            <%= single_listing ? pin_label : listings.count %>
+                                        </button>
+
+                                        <div
+                                            class="map-popup"
+                                            id="<%= popup_id %>"
+                                            style="left: <%= group[:x] %>%; top: <%= group[:y] %>%"
+                                            hidden
+                                            data-map-popup
+                                        >
+                                            <button class="map-popup-close" type="button" aria-label="Close listing popup" data-map-popup-close>&times;</button>
+                                            <p class="map-popup-title"><%= group[:address] %></p>
+                                            <% listings.each do |listing| %>
+                                                <a class="map-popup-listing" href="<%= sublet_listing_path(listing) %>">
+                                                    <p class="map-popup-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
+                                                    <p class="map-popup-name"><%= listing.title %></p>
+                                                    <p class="map-popup-meta"><%= pluralize(listing.bedrooms, "bedroom") %> · <%= pluralize(listing.bathrooms, "bathroom") %> · <%= listing.available_from.strftime("%b %-d") %> - <%= listing.available_until.strftime("%b %-d") %></p>
+                                                    <p class="map-popup-address"><%= listing.address %></p>
+                                                </a>
+                                            <% end %>
+                                        </div>
+                                    <% end %>
+
+                                    <% if map_groups.empty? %>
+                                        <div class="map-empty">Search results with addresses will appear on the map.</div>
+                                    <% end %>
+                                </div>
+
+                                <div class="map-controls" aria-label="Map zoom controls">
+                                    <button class="map-zoom-button" type="button" aria-label="Zoom in" data-map-zoom-in>+</button>
+                                    <button class="map-zoom-button" type="button" aria-label="Zoom out" data-map-zoom-out>&minus;</button>
+                                </div>
+                            </div>
                         </aside>
                     </div>
                 </div>
@@ -497,5 +833,74 @@
         ></script>
         <%= render "login_modal" %>
         <%= render "favorite_listings" %>
+        <script>
+            (() => {
+                const stage = document.querySelector("[data-map-stage]");
+
+                if (!stage) {
+                    return;
+                }
+
+                let zoom = Number.parseInt(stage.dataset.zoom || "1", 10);
+                const pins = Array.from(stage.querySelectorAll("[data-map-pin]"));
+                const popups = Array.from(stage.querySelectorAll("[data-map-popup]"));
+
+                const closePopups = () => {
+                    pins.forEach((pin) => pin.setAttribute("aria-expanded", "false"));
+                    popups.forEach((popup) => {
+                        popup.hidden = true;
+                    });
+                };
+
+                const setZoom = (nextZoom) => {
+                    zoom = Math.min(3, Math.max(1, nextZoom));
+                    stage.dataset.zoom = String(zoom);
+                };
+
+                stage.querySelector("[data-map-zoom-in]")?.addEventListener("click", () => {
+                    setZoom(zoom + 1);
+                });
+
+                stage.querySelector("[data-map-zoom-out]")?.addEventListener("click", () => {
+                    setZoom(zoom - 1);
+                });
+
+                pins.forEach((pin) => {
+                    pin.addEventListener("click", (event) => {
+                        event.stopPropagation();
+                        const popup = document.getElementById(pin.dataset.popupId);
+                        const shouldOpen = popup?.hidden;
+
+                        closePopups();
+
+                        if (popup && shouldOpen) {
+                            popup.hidden = false;
+                            pin.setAttribute("aria-expanded", "true");
+                        }
+                    });
+                });
+
+                stage.querySelectorAll("[data-map-popup-close]").forEach((button) => {
+                    button.addEventListener("click", (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        closePopups();
+                    });
+                });
+
+                popups.forEach((popup) => {
+                    popup.addEventListener("click", (event) => {
+                        event.stopPropagation();
+                    });
+                });
+
+                document.addEventListener("click", closePopups);
+                document.addEventListener("keydown", (event) => {
+                    if (event.key === "Escape") {
+                        closePopups();
+                    }
+                });
+            })();
+        </script>
     </body>
 </html>
