@@ -27,6 +27,7 @@ module ApplicationHelper
   private
 
   def apartment_image_index(listing_or_index, offset)
+    # Keep demo images stable between renders without storing image records.
     base = if listing_or_index.respond_to?(:id) && listing_or_index.id.present?
              listing_or_index.id
     elsif listing_or_index.is_a?(Integer)
@@ -54,6 +55,7 @@ module ApplicationHelper
   end
 
   def map_coordinate(address, offset)
+    # Deterministic pseudo-coordinates keep pins grouped until real geocoding is added.
     digest = Digest::MD5.hexdigest(normalized_listing_address(address))
     value = digest[offset * 4, 4].to_i(16)
 

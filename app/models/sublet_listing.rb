@@ -258,6 +258,7 @@ class SubletListing < ApplicationRecord
   def self.matching_serialized_label(relation, column, label)
     raise ArgumentError, "Unsupported filter column" unless %i[amenities preferences].include?(column)
 
+    # Match stored labels exactly so "Male" does not accidentally match "Female".
     normalized_label = label.to_s.downcase
     matching_ids = relation.select do |listing|
       Array(listing.public_send(column)).any? { |value| value.to_s.downcase == normalized_label }

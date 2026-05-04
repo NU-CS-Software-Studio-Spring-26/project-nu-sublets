@@ -4,7 +4,7 @@
 
 puts "🌱 Starting to seed the database..."
 
-# Clear existing data (optional - remove if you want to keep existing data)
+# Demo seeds rebuild the sample user and listing set from scratch.
 puts "Clearing existing data..."
 SubletListing.destroy_all
 User.destroy_all
