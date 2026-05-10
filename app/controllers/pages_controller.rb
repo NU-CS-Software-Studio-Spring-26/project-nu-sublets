@@ -52,6 +52,8 @@ class PagesController < ApplicationController
 
   def profile; end
 
+  def privacy_policy; end
+
   def login
     redirect_to profile_path if user_signed_in?
   end
