@@ -1,237 +1,176 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
+# This file should ensure the existence of records required to run the application in every environment.
+# The data can be loaded with bin/rails db:seed or created alongside the database with db:setup.
 
-puts "🌱 Starting to seed the database..."
+puts "Starting NU Sublets seed data..."
 
-# Demo seeds rebuild the sample user and listing set from scratch.
-puts "Clearing existing data..."
 SubletListing.destroy_all
 User.destroy_all
 
-# Create 10 Users
-puts "Creating 10 users..."
+USER_COUNT = ENV.fetch("NU_SUBLETS_SEED_USERS", 1000).to_i
+LISTING_COUNT = ENV.fetch("NU_SUBLETS_SEED_LISTINGS", 1200).to_i
 
-users_data = [
-  { name: "Emma Johnson", email: "emma.johnson@u.northwestern.edu", first_name: "Emma", last_name: "Johnson" },
-  { name: "Michael Chen", email: "michael.chen@u.northwestern.edu", first_name: "Michael", last_name: "Chen" },
-  { name: "Sarah Williams", email: "sarah.williams@u.northwestern.edu", first_name: "Sarah", last_name: "Williams" },
-  { name: "David Martinez", email: "david.martinez@u.northwestern.edu", first_name: "David", last_name: "Martinez" },
-  { name: "Jessica Taylor", email: "jessica.taylor@u.northwestern.edu", first_name: "Jessica", last_name: "Taylor" },
-  { name: "Ryan Anderson", email: "ryan.anderson@u.northwestern.edu", first_name: "Ryan", last_name: "Anderson" },
-  { name: "Amanda Brown", email: "amanda.brown@u.northwestern.edu", first_name: "Amanda", last_name: "Brown" },
-  { name: "Kevin Liu", email: "kevin.liu@u.northwestern.edu", first_name: "Kevin", last_name: "Liu" },
-  { name: "Olivia Davis", email: "olivia.davis@u.northwestern.edu", first_name: "Olivia", last_name: "Davis" },
-  { name: "James Wilson", email: "james.wilson@u.northwestern.edu", first_name: "James", last_name: "Wilson" }
-]
+FIRST_NAMES = %w[
+  Alex Avery Blake Cameron Casey Charlie Dakota Drew Emerson Finley Harper
+  Jamie Jordan Kai Kendall Logan Morgan Parker Quinn Reese Riley Rowan Sam
+  Skyler Taylor
+].freeze
 
-created_users = users_data.map do |user_attrs|
-  user = User.find_or_create_by(email: user_attrs[:email]) do |u|
-    u.name = user_attrs[:name]
-    u.first_name = user_attrs[:first_name]
-    u.last_name = user_attrs[:last_name]
-    u.active = true
-  end
-  puts "  ✅ Created user: #{user.name}"
-  user
-end
+LAST_NAMES = %w[
+  Anderson Brown Campbell Chen Davis Evans Garcia Green Harris Johnson Kim Lee
+  Martinez Miller Nguyen Patel Robinson Smith Taylor Thompson Walker Williams
+  Wilson Young
+].freeze
 
-# Create 10 Sublet Listings
-puts "Creating 10 sublet listings..."
+STREETS = [
+  "Sherman Ave",
+  "Davis St",
+  "Orrington Ave",
+  "Ridge Ave",
+  "Oak Ave",
+  "Clark St",
+  "Hinman Ave",
+  "Judson Ave",
+  "Central St",
+  "Noyes St",
+  "Foster St",
+  "Emerson St",
+  "Maple Ave",
+  "Chicago Ave",
+  "Garnett Pl"
+].freeze
 
-listings_data = [
+TITLE_PREFIXES = [
+  "Sunny",
+  "Furnished",
+  "Quiet",
+  "Modern",
+  "Budget-Friendly",
+  "Lakefront",
+  "Campus",
+  "Spacious",
+  "Pet-Friendly",
+  "Updated"
+].freeze
+
+HOME_TYPES = [
+  "Studio",
+  "1BR Apartment",
+  "2BR Apartment",
+  "Room in Shared House",
+  "Garden Unit",
+  "Graduate Student Sublet"
+].freeze
+
+DESCRIPTION_DETAILS = [
+  "close to Northwestern classes, groceries, transit, and downtown Evanston",
+  "with natural light, hardwood floors, and a practical study setup",
+  "near the Purple Line with an easy commute to campus and Chicago",
+  "with laundry access, a stocked kitchen, and flexible lease timing",
+  "on a quieter street with simple access to restaurants and the lakefront",
+  "with responsive roommates and space for focused graduate work"
+].freeze
+
+def generated_name(index)
+  first_name = FIRST_NAMES[index % FIRST_NAMES.length]
+  last_name = LAST_NAMES[(index / FIRST_NAMES.length) % LAST_NAMES.length]
+  suffix = index + 1
+
   {
-    title: "Cozy 1BR Near Campus",
-    description: "Charming one-bedroom apartment just a 5-minute walk from Northwestern campus. Recently renovated with modern appliances and plenty of natural light. Perfect for graduate students or young professionals.",
-    price: 1200,
-    address: "1845 Sherman Ave, Evanston, IL 60201",
-    bedrooms: 1,
-    bathrooms: 1,
-    furnished: true,
-    pets_allowed: false,
-    utilities_included: true,
-    available_from: Date.current + 1.week,
-    available_until: Date.current + 4.months
-  },
-  {
-    title: "Spacious 2BR Apartment with Parking",
-    description: "Large two-bedroom apartment with dedicated parking space. Great for roommates! Located in a quiet neighborhood with easy access to public transportation.",
-    price: 1800,
-    address: "621 Davis St, Evanston, IL 60201",
-    bedrooms: 2,
-    bathrooms: 1,
-    furnished: false,
-    pets_allowed: true,
-    utilities_included: false,
-    available_from: Date.current + 2.weeks,
-    available_until: Date.current + 6.months
-  },
-  {
-    title: "Studio in Historic Building",
-    description: "Charming studio apartment in a historic Evanston building. High ceilings, hardwood floors, and vintage details. Walking distance to campus and downtown.",
-    price: 950,
-    address: "1603 Orrington Ave, Evanston, IL 60201",
-    bedrooms: 0,
-    bathrooms: 1,
-    furnished: true,
-    pets_allowed: false,
-    utilities_included: true,
-    available_from: Date.current + 1.month,
-    available_until: Date.current + 3.months
-  },
-  {
-    title: "Modern 3BR House Share",
-    description: "Beautiful room in a modern 3-bedroom house. Shared kitchen and living areas. Great housemates who are also Northwestern students. Backyard and laundry included.",
-    price: 800,
-    address: "2157 Ridge Ave, Evanston, IL 60201",
-    bedrooms: 1,
-    bathrooms: 1,
-    furnished: false,
-    pets_allowed: true,
-    utilities_included: false,
-    available_from: Date.current + 3.weeks,
-    available_until: Date.current + 5.months
-  },
-  {
-    title: "Luxury 2BR with Lake View",
-    description: "Stunning two-bedroom apartment with partial Lake Michigan views. Modern amenities, in-unit washer/dryer, and rooftop terrace access. Perfect for professionals or grad students.",
-    price: 2200,
-    address: "1570 Oak Ave, Evanston, IL 60201",
-    bedrooms: 2,
-    bathrooms: 2,
-    furnished: true,
-    pets_allowed: false,
-    utilities_included: true,
-    available_from: Date.current + 5.days,
-    available_until: Date.current + 8.months
-  },
-  {
-    title: "Budget-Friendly Room Near El",
-    description: "Affordable room in shared apartment. Great location near the Purple Line for easy commute to campus or Chicago. Friendly roommates and flexible lease terms.",
-    price: 650,
-    address: "816 Clark St, Evanston, IL 60201",
-    bedrooms: 1,
-    bathrooms: 1,
-    furnished: true,
-    pets_allowed: false,
-    utilities_included: true,
-    available_from: Date.current + 10.days,
-    available_until: Date.current + 4.months
-  },
-  {
-    title: "Pet-Friendly 1BR Garden Apartment",
-    description: "Ground-floor apartment with private garden access. Perfect for pet owners! Quiet street but close to campus. Recently updated kitchen and bathroom.",
-    price: 1350,
-    address: "1401 Hinman Ave, Evanston, IL 60201",
-    bedrooms: 1,
-    bathrooms: 1,
-    furnished: false,
-    pets_allowed: true,
-    utilities_included: false,
-    available_from: Date.current + 2.months,
-    available_until: Date.current + 7.months
-  },
-  {
-    title: "Furnished Studio - Summer Sublet",
-    description: "Perfect for summer internship! Fully furnished studio with everything you need. Short-term lease available. Walking distance to campus and beach.",
-    price: 1100,
-    address: "933 Judson Ave, Evanston, IL 60202",
-    bedrooms: 0,
-    bathrooms: 1,
-    furnished: true,
-    pets_allowed: false,
-    utilities_included: true,
-    available_from: Date.current + 6.weeks,
-    available_until: Date.current + 3.months
-  },
-  {
-    title: "Large 2BR in Vintage Building",
-    description: "Spacious two-bedroom in charming vintage building. Original hardwood floors, high ceilings, and lots of character. Heat included in rent.",
-    price: 1650,
-    address: "1890 Sherman Ave, Evanston, IL 60201",
-    bedrooms: 2,
-    bathrooms: 1,
-    furnished: false,
-    pets_allowed: true,
-    utilities_included: true,
-    available_from: Date.current + 3.days,
-    available_until: Date.current + 6.months
-  },
-  {
-    title: "Modern 1BR with Balcony",
-    description: "Brand new one-bedroom apartment with private balcony and modern appliances. Building amenities include fitness center and study lounge. Perfect for serious students.",
-    price: 1550,
-    address: "1717 Central St, Evanston, IL 60201",
-    bedrooms: 1,
-    bathrooms: 1,
-    furnished: true,
-    pets_allowed: false,
-    utilities_included: false,
-    available_from: Date.current + 1.week,
-    available_until: Date.current + 10.months
+    first_name: first_name,
+    last_name: "#{last_name} #{suffix}",
+    name: "#{first_name} #{last_name} #{suffix}"
   }
-]
+end
 
-def seed_amenities(listing_attrs)
-  text = "#{listing_attrs[:title]} #{listing_attrs[:description]}".downcase
+def generated_address(index)
+  street_number = 600 + ((index * 37) % 1700)
+  street = STREETS[index % STREETS.length]
+  zip = index.even? ? "60201" : "60202"
+  "#{street_number} #{street}, Evanston, IL #{zip}"
+end
+
+def generated_amenities(index, furnished:, utilities_included:, pets_allowed:)
   labels = []
-  labels << "Furnished" if listing_attrs[:furnished]
-  labels << "Utilities included" if listing_attrs[:utilities_included] || text.include?("heat included")
-  labels << "Pet-friendly" if listing_attrs[:pets_allowed] || text.include?("pet")
-  labels << "Laundry" if text.include?("laundry") || text.include?("washer")
-  labels << "Parking" if text.include?("parking")
-  labels << "Natural light" if text.include?("natural light")
-  labels << "Hardwood floors" if text.include?("hardwood")
-  labels << "Updated kitchen" if text.include?("updated kitchen") || text.include?("modern appliances")
-  labels << "Balcony / Patio" if text.include?("balcony") || text.include?("garden") || text.include?("backyard")
-  labels << "Rooftop" if text.include?("rooftop")
-  labels << "Gym" if text.include?("fitness center") || text.include?("gym")
-  labels << "Study rooms" if text.include?("study lounge") || text.include?("study room")
-  labels << "Transit access" if text.include?("public transportation") || text.include?("purple line") || text.include?("commute")
-  labels << "Near Northwestern University" if text.include?("campus") || text.include?("northwestern")
-  labels << "Downtown Evanston" if text.include?("downtown")
-  labels << "Lakefront (Lake Michigan)" if text.include?("lake") || text.include?("beach")
-  labels << "Flexible lease" if text.include?("flexible lease")
-  labels << "Quiet / Social" if text.include?("quiet") || text.include?("social")
-  labels << "Clean space" if text.include?("clean") || text.include?("recently renovated")
+  labels << "Furnished" if furnished
+  labels << "Utilities included" if utilities_included
+  labels << "Pet-friendly" if pets_allowed
+
+  rotating = [
+    "Laundry",
+    "Parking",
+    "Natural light",
+    "Hardwood floors",
+    "Updated kitchen",
+    "Balcony / Patio",
+    "Gym",
+    "Study rooms",
+    "Transit access",
+    "Near Northwestern University",
+    "Downtown Evanston",
+    "Lakefront (Lake Michigan)",
+    "Grocery nearby",
+    "Restaurants",
+    "Safe area",
+    "Clean space",
+    "Work setup",
+    "Quiet / Social"
+  ]
+
+  4.times { |offset| labels << rotating[(index + offset * 3) % rotating.length] }
   labels.uniq
 end
 
-def seed_preferences(listing_attrs)
-  text = "#{listing_attrs[:title]} #{listing_attrs[:description]}".downcase
-  labels = [ "Female", "Clean", "LGBTQ+ friendly" ]
-  labels << "Student preferred" if text.include?("student") || text.include?("campus") || text.include?("northwestern")
-  labels << "Graduate student" if text.include?("grad")
-  labels << "Young professional" if text.include?("professional")
-  labels << "Quiet" if text.include?("quiet")
-  labels << "Social" if text.include?("social") || text.include?("friendly roommate")
-  labels << "Responsible" if text.include?("serious student")
-  labels << "Pet-friendly" if listing_attrs[:pets_allowed]
-  labels << "No pets" unless listing_attrs[:pets_allowed]
+def generated_preferences(index, pets_allowed:)
+  labels = [ "Student preferred", "Clean", "Respectful", "LGBTQ+ friendly" ]
+  labels << (index.even? ? "Graduate student" : "Young professional")
+  labels << ((index % 3).zero? ? "Quiet" : "Social")
+  labels << (pets_allowed ? "Pet-friendly" : "No pets")
   labels.uniq
 end
 
-listings_data.each_with_index do |listing_attrs, index|
-  # Assign each listing to a different user
-  user = created_users[index]
-  listing_attrs[:amenities] ||= seed_amenities(listing_attrs)
-  listing_attrs[:preferences] ||= seed_preferences(listing_attrs)
+puts "Creating #{USER_COUNT} users..."
 
-  listing = SubletListing.find_or_create_by(
-    title: listing_attrs[:title],
-    user: user
-  ) do |l|
-    listing_attrs.each do |key, value|
-      l.send("#{key}=", value) unless key == :title
-    end
-  end
-
-  if listing.persisted?
-    puts "  ✅ Created listing: #{listing.title} (by #{user.name})"
-  else
-    puts "  ❌ Failed to create listing: #{listing.title} - #{listing.errors.full_messages.join(', ')}"
-  end
+users = USER_COUNT.times.map do |index|
+  name = generated_name(index)
+  User.create!(
+    name: name[:name],
+    first_name: name[:first_name],
+    last_name: name[:last_name],
+    email: "student#{index + 1}@u.northwestern.edu",
+    active: true
+  )
 end
 
-puts "🎉 Database seeding completed!"
-puts "📊 Created #{User.count} users and #{SubletListing.count} sublet listings"
+puts "Creating #{LISTING_COUNT} sublet listings..."
+
+LISTING_COUNT.times do |index|
+  bedrooms = index % 6
+  bathrooms = bedrooms.zero? ? 1 : 1 + (index % 2)
+  furnished = index.even?
+  pets_allowed = (index % 4).zero?
+  utilities_included = (index % 3).zero?
+  available_from = Date.current + ((index % 90) + 1).days
+  available_until = available_from + (60 + (index % 240)).days
+  home_type = HOME_TYPES[index % HOME_TYPES.length]
+  title = "#{TITLE_PREFIXES[index % TITLE_PREFIXES.length]} #{home_type} Near Campus ##{index + 1}"
+
+  SubletListing.create!(
+    user: users[index % users.length],
+    title: title,
+    description: "#{title} is #{DESCRIPTION_DETAILS[index % DESCRIPTION_DETAILS.length]}. Monthly rent, dates, amenities, and roommate preferences vary across this generated development dataset so search, filtering, maps, and pagination can be tested realistically.",
+    price: 650 + ((index * 37) % 1900),
+    address: generated_address(index),
+    bedrooms: bedrooms,
+    bathrooms: bathrooms,
+    furnished: furnished,
+    pets_allowed: pets_allowed,
+    utilities_included: utilities_included,
+    amenities: generated_amenities(index, furnished: furnished, utilities_included: utilities_included, pets_allowed: pets_allowed),
+    preferences: generated_preferences(index, pets_allowed: pets_allowed),
+    available_from: available_from,
+    available_until: available_until
+  )
+end
+
+puts "Database seeding completed."
+puts "Created #{User.count} users and #{SubletListing.count} sublet listings."
