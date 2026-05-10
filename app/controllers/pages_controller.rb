@@ -27,9 +27,9 @@ class PagesController < ApplicationController
 
     if @move_in && @move_out && @move_out < @move_in
       @filter_error = "Move-out date must be after move-in date."
-      @listings = SubletListing.none
+      listings = SubletListing.none
     else
-      @listings = SubletListing.search_listings(
+      listings = SubletListing.search_listings(
         move_in: @move_in,
         move_out: @move_out,
         min_price: @min_price,
@@ -44,6 +44,10 @@ class PagesController < ApplicationController
         available_only: true
       ).order(:price)
     end
+
+    @total_listings_count = listings.count
+    @pagy, @listings = pagy(:offset, listings, limit: 12)
+    @map_listings = listings.limit(150)
   end
 
   def saved; end
