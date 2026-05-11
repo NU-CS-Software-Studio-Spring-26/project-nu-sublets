@@ -499,7 +499,6 @@
                 border-radius: 7px;
                 overflow: hidden;
                 box-shadow: var(--nu-card-shadow);
-                text-decoration: none;
                 color: inherit;
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
@@ -527,10 +526,21 @@
                 object-fit: cover;
             }
 
-            .listing-avatar {
+            .listing-image-link,
+            .listing-card-link {
+                color: inherit;
+                text-decoration: none;
+            }
+
+            .listing-avatar-link {
                 position: absolute;
                 left: 12px;
                 bottom: -8px;
+                border-radius: 50%;
+                text-decoration: none;
+            }
+
+            .listing-avatar {
                 width: 50px;
                 height: 50px;
                 border: 2px solid #fff;
@@ -1242,22 +1252,32 @@
                                         "https://randomuser.me/api/portraits/women/24.jpg"
                                     ] %>
                                     <% @listings.each_with_index do |listing, index| %>
-                                        <a class="listing-card" href="<%= sublet_listing_path(listing) %>">
+                                        <article class="listing-card">
                                             <div class="listing-media">
-                                                <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title %>" />
-                                                <img class="listing-avatar" src="<%= avatar_images[index % avatar_images.length] %>" alt="Listing host" />
+                                                <a class="listing-image-link" href="<%= sublet_listing_path(listing) %>" aria-label="View <%= listing.title %> listing">
+                                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title %>" />
+                                                </a>
+                                                <% if listing.user %>
+                                                    <a class="listing-avatar-link" href="<%= user_profile_path(listing.user) %>" aria-label="View <%= listing.user.display_name %> profile">
+                                                        <img class="listing-avatar" src="<%= avatar_images[index % avatar_images.length] %>" alt="<%= listing.user.display_name %> profile photo" />
+                                                    </a>
+                                                <% else %>
+                                                    <img class="listing-avatar" src="<%= avatar_images[index % avatar_images.length] %>" alt="Listing host" />
+                                                <% end %>
                                             </div>
                                             <div class="listing-body">
                                                 <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
-                                                <p class="listing-card-title"><%= listing.title %></p>
-                                                <div class="listing-meta">
-                                                    <span><%= pluralize(listing.bedrooms, "bedroom") %></span>
-                                                    <span><%= pluralize(listing.bathrooms, "bathroom") %></span>
-                                                    <span><%= listing.available_from.strftime("%b %-d") %> - <%= listing.available_until.strftime("%b %-d") %></span>
-                                                </div>
-                                                <p class="listing-address"><%= listing.address %></p>
+                                                <a class="listing-card-link" href="<%= sublet_listing_path(listing) %>">
+                                                    <p class="listing-card-title"><%= listing.title %></p>
+                                                    <div class="listing-meta">
+                                                        <span><%= pluralize(listing.bedrooms, "bedroom") %></span>
+                                                        <span><%= pluralize(listing.bathrooms, "bathroom") %></span>
+                                                        <span><%= listing.available_from.strftime("%b %-d") %> - <%= listing.available_until.strftime("%b %-d") %></span>
+                                                    </div>
+                                                    <p class="listing-address"><%= listing.address %></p>
+                                                </a>
                                             </div>
-                                        </a>
+                                        </article>
                                     <% end %>
                                 <% else %>
                                     <div class="empty-results">

@@ -482,8 +482,8 @@
         <%= render "focus_styles" %>
     </head>
     <body>
-        <% user = current_user %>
-        <% listings = user.sublet_listings.order(created_at: :desc) %>
+        <% user = @profile_user || current_user %>
+        <% listings = user.persisted? ? user.sublet_listings.order(created_at: :desc) : SubletListing.none %>
         <% first_name = user.first_name.presence || user.display_name.split.first %>
         <% initials = user.display_name.split.map { |part| part.first }.join.first(2).upcase.presence || "NU" %>
         <div class="page-shell">
@@ -535,7 +535,7 @@
                                     <path d="M16 2 6 5.68v8.77C6 21.64 10.26 28.35 16 30.43c5.74-2.08 10-8.79 10-15.98V5.68L16 2Z" fill="none" stroke="#3B82F6" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
                                     <path d="m11 16.25 3.68 3.68L21 13.61" fill="none" stroke="#3B82F6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" />
                                 </svg>
-                                <p class="verified-copy">Verified Student</p>
+                                <p class="verified-copy">Verified Northwestern student</p>
                             </div>
 
                             <p class="bio-copy">
