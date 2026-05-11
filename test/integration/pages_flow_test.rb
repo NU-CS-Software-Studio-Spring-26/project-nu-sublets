@@ -107,6 +107,18 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{post_sublet_path}']", text: "Post a Sublet"
   end
 
+  test "another user account page keeps the previous profile layout" do
+    sign_in_with_firebase_email("student@u.northwestern.edu")
+
+    get another_user_account_path
+
+    assert_response :success
+    assert_select "h1", text: "Test Student"
+    assert_select ".profile-card"
+    assert_select ".section-title", text: "Current Listings"
+    assert_includes response.body, "student@u.northwestern.edu"
+  end
+
   test "search results page links into listing and home" do
     get search_results_path
 

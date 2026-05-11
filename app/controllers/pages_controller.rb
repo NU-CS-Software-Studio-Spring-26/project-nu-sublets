@@ -1,6 +1,6 @@
 class PagesController < ApplicationController
   layout false
-  before_action :authenticate_user!, only: %i[profile submit_sublet]
+  before_action :authenticate_user!, only: %i[profile anotheruseraccount submit_sublet]
 
   def home; end
 
@@ -51,6 +51,8 @@ class PagesController < ApplicationController
   def post_sublet; end
 
   def profile; end
+
+  def anotheruseraccount; end
 
   def privacy_policy; end
 
