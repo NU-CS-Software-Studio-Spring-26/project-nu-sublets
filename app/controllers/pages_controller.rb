@@ -69,6 +69,16 @@ class PagesController < ApplicationController
 
   def anotheruseraccount; end
 
+  def user_profile
+    @profile_user = User.find(params[:id])
+    render :profile
+  end
+
+  def another_user_account
+    @profile_user = User.where.not(id: current_user&.id).first || current_user || fallback_host
+    render :profile
+  end
+
   def privacy_policy; end
 
   def login

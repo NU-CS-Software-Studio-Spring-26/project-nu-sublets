@@ -499,7 +499,6 @@
                 border-radius: 7px;
                 overflow: hidden;
                 box-shadow: var(--nu-card-shadow);
-                text-decoration: none;
                 color: inherit;
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
@@ -538,10 +537,21 @@
                 object-fit: cover;
             }
 
+            .listing-image-link,
+            .listing-card-link {
+                color: inherit;
+                text-decoration: none;
+            }
+
             .listing-avatar-link {
                 position: absolute;
                 left: 12px;
                 bottom: -8px;
+                border-radius: 50%;
+                text-decoration: none;
+            }
+
+            .listing-avatar {
                 width: 50px;
                 height: 50px;
                 border: 2px solid #fff;
@@ -1102,6 +1112,7 @@
                 }
             }
         </style>
+        <%= render "focus_styles" %>
     </head>
     <body>
         <div class="page-shell">
@@ -1258,30 +1269,34 @@
                         <div>
                             <section class="cards-grid" aria-label="Search result listings">
                                 <% if @listings.any? %>
-                                    <% @listings.each do |listing| %>
-                                        <% listing_host = listing.user %>
-                                        <article class="listing-card">
-                                            <div class="listing-media">
-                                                <a class="listing-card-link listing-media-link" href="<%= sublet_listing_path(listing) %>">
-                                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title %>" />
-                                                </a>
-                                                <% if listing_host.present? %>
-                                                    <a class="listing-avatar-link" href="<%= user_profile_path(listing_host) %>" aria-label="View <%= listing_host.display_name %>'s profile">
-                                                        <img class="listing-avatar-image" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
-                                                    </a>
-                                                <% end %>
-                                            </div>
-                                            <a class="listing-card-link listing-body" href="<%= sublet_listing_path(listing) %>">
-                                                <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
-                                                <p class="listing-card-title"><%= listing.title %></p>
-                                                <div class="listing-meta">
-                                                    <span><%= pluralize(listing.bedrooms, "bedroom") %></span>
-                                                    <span><%= pluralize(listing.bathrooms, "bathroom") %></span>
-                                                    <span><%= listing.available_from.strftime("%b %-d") %> - <%= listing.available_until.strftime("%b %-d") %></span>
-                                                </div>
-                                                <p class="listing-address"><%= listing.address %></p>
-                                            </a>
-                                        </article>
+                                  <% @listings.each do |listing| %>
+                                      <% listing_host = listing.user %>
+                                      <article class="listing-card">
+                                          <div class="listing-media">
+                                              <a class="listing-card-link listing-media-link" href="<%= sublet_listing_path(listing) %>">
+                                                  <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title %>" />
+                                              </a>
+
+                                              <% if listing_host.present? %>
+                                                  <a class="listing-avatar-link" href="<%= user_profile_path(listing_host) %>" aria-label="View <%= listing_host.display_name %>'s profile">
+                                                      <img class="listing-avatar-image" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
+                                                  </a>
+                                              <% end %>
+                                          </div>
+
+                                          <a class="listing-card-link listing-body" href="<%= sublet_listing_path(listing) %>">
+                                              <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
+                                              <p class="listing-card-title"><%= listing.title %></p>
+                                              <div class="listing-meta">
+                                                  <span><%= pluralize(listing.bedrooms, "bedroom") %></span>
+                                                  <span><%= pluralize(listing.bathrooms, "bathroom") %></span>
+                                                  <span><%= listing.available_from.strftime("%b %-d") %> - <%= listing.available_until.strftime("%b %-d") %></span>
+                                              </div>
+                                              <p class="listing-address"><%= listing.address %></p>
+                                          </a>
+                                      </article>
+                                  <% end %> 
+                                          </article>
                                     <% end %>
                                 <% else %>
                                     <div class="empty-results">
