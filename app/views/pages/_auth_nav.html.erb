@@ -1,5 +1,7 @@
 <% if user_signed_in? %>
-    <a class="nav-link p-0" href="<%= profile_path %>">Profile</a>
+    <% if local_assigns.fetch(:show_profile, true) %>
+        <a class="nav-link p-0" href="<%= profile_path %>">Profile</a>
+    <% end %>
     <%= button_to "Log out", session_path, method: :delete, class: "nav-link p-0", form: { style: "display: inline" }, style: "border: 0; background: transparent; font: inherit; cursor: pointer;" %>
 <% else %>
     <a class="btn btn-primary" href="<%= login_path %>" style="background: #4E2A84; border: #4E2A84; color: white; font-weight: 600; padding: 0.5rem 1rem;">Log in</a>

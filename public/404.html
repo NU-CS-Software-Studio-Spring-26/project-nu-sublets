@@ -12,112 +12,225 @@
             --nu-text: #000000;
             --nu-surface: #ffffff;
             --nu-border: #d9d9d9;
-            --nu-muted: #5f5f5f;
-            --nu-accent: #4E2A84;
         }
 
         * {
             box-sizing: border-box;
         }
 
+        html,
+        body {
+            min-height: 100%;
+        }
+
         body {
             margin: 0;
-            padding: 0;
             background: var(--nu-surface);
             color: var(--nu-text);
-            font-family: "Fustat", sans-serif;
+            font-family: "Fustat", Arial, sans-serif;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .error-page {
             min-height: 100vh;
+            background: var(--nu-surface);
+        }
+
+        .topbar {
+            min-height: 60px;
+            border-bottom: 1px solid var(--nu-border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            background: var(--nu-surface);
+            font-family: "Rubik", Arial, sans-serif;
+        }
+
+        .topbar-inner {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            color: #4e2a84;
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .brand-mark {
+            width: 32px;
+            height: 32px;
+            margin-right: 8px;
+            border-radius: 6px;
+            background: #4e2a84;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .error-container {
-            max-width: 600px;
-            padding: 48px 32px;
-            text-align: center;
+        .topbar-nav {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 28px;
         }
 
-        .error-icon {
-            margin-bottom: 24px;
-        }
-
-        .error-title {
-            font-family: "Rubik", sans-serif;
-            font-size: 32px;
-            font-weight: 700;
+        .nav-link {
             color: var(--nu-text);
-            margin: 0 0 16px;
+            font-size: 16px;
+            line-height: 1.2;
+        }
+
+        .brand:focus-visible,
+        .nav-link:focus-visible {
+            outline: 3px solid #4e2a84;
+            outline-offset: 4px;
+        }
+
+        .error-content {
+            width: min(100%, 1440px);
+            margin: 0 auto;
+            padding: 128px 64px 72px;
         }
 
         .error-message {
-            font-size: 18px;
-            color: var(--nu-muted);
-            line-height: 1.5;
-            margin: 0 0 32px;
+            width: 369px;
+            margin-left: clamp(0px, 16.5vw, 238px);
         }
 
-        .error-button {
-            display: inline-block;
-            padding: 12px 24px;
-            background: var(--nu-accent);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-family: "Rubik", sans-serif;
-            font-weight: 600;
-            transition: background-color 0.2s;
-        }
-
-        .error-button:hover {
-            background: #3d1f68;
-            color: white;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 32px;
-            color: var(--nu-accent);
-            font-family: "Rubik", sans-serif;
-            font-size: 20px;
+        .error-code {
+            margin: 0 0 4px;
+            font-size: 76px;
             font-weight: 700;
-            text-decoration: none;
+            line-height: 1.12;
+            letter-spacing: 0;
+            font-family: "Rubik", Arial, sans-serif;
+        }
+
+        .error-copy {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 400;
+            line-height: 1.12;
+            font-family: "Rubik", Arial, sans-serif;
+        }
+
+        @media (max-width: 900px) {
+            .topbar {
+                padding-inline: 20px;
+            }
+
+            .topbar-nav {
+                gap: 24px;
+            }
+
+            .error-content {
+                padding: 96px 32px 64px;
+            }
+
+            .error-message {
+                width: min(369px, 100%);
+                margin-left: clamp(0px, 10vw, 96px);
+            }
+
+            .error-code {
+                font-size: 68px;
+            }
+
+            .error-copy {
+                font-size: 26px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .topbar {
+                padding-inline: 16px;
+            }
+
+            .topbar-nav {
+                gap: 20px;
+            }
+
+            .brand,
+            .nav-link {
+                font-size: 14px;
+            }
+
+            .brand-mark {
+                width: 28px;
+                height: 28px;
+            }
+
+            .error-content {
+                padding: 72px 24px 48px;
+            }
+
+            .error-message {
+                margin-left: 0;
+            }
+
+            .error-code {
+                font-size: 56px;
+            }
+
+            .error-copy {
+                max-width: 320px;
+                font-size: 22px;
+                line-height: 1.18;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="error-container">
-        <a href="/" class="logo">
-            <div style="display: flex; gap: 4px;">
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                    <path d="M16 3L28 13v16H20v-8h-8v8H4V13L16 3z" fill="#4E2A84" stroke="#4E2A84" stroke-width="1.5"/>
-                </svg>
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                    <ellipse cx="16" cy="18" rx="12" ry="10" fill="#4E2A84"/>
-                    <ellipse cx="12" cy="14" rx="1.5" ry="2" fill="white"/>
-                    <ellipse cx="20" cy="14" rx="1.5" ry="2" fill="white"/>
-                    <path d="M14 20L13 21L17 21Z" fill="white"/>
-                    <line x1="8" y1="16" x2="11" y2="16" stroke="white" stroke-width="1"/>
-                    <line x1="21" y1="16" x2="24" y2="16" stroke="white" stroke-width="1"/>
-                </svg>
+    <div class="error-page">
+        <header class="topbar" aria-label="Site navigation">
+            <div class="topbar-inner">
+                <a class="brand" href="/">
+                    <span class="brand-mark" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 32 24" fill="none">
+                            <path d="M2 12L8 7L14 12V18C14 18.6 13.6 19 13 19H3C2.4 19 2 18.6 2 18V12Z" fill="white"/>
+                            <path d="M6 15H10V19H6V15Z" fill="#4E2A84"/>
+                            <ellipse cx="24" cy="12" rx="6" ry="5" fill="white"/>
+                            <path d="M20 8L21 6L22 8" fill="white" stroke="white" stroke-width="0.5"/>
+                            <path d="M26 8L27 6L28 8" fill="white" stroke="white" stroke-width="0.5"/>
+                            <ellipse cx="21.5" cy="11" rx="1" ry="1.2" fill="#4E2A84"/>
+                            <ellipse cx="26.5" cy="11" rx="1" ry="1.2" fill="#4E2A84"/>
+                            <path d="M24 13.5L23.3 14.2L24.7 14.2Z" fill="#4E2A84"/>
+                            <line x1="18" y1="11.5" x2="20" y2="11.5" stroke="#4E2A84" stroke-width="0.8"/>
+                            <line x1="28" y1="11.5" x2="30" y2="11.5" stroke="#4E2A84" stroke-width="0.8"/>
+                            <line x1="18.5" y1="13" x2="20" y2="13" stroke="#4E2A84" stroke-width="0.8"/>
+                            <line x1="28" y1="13" x2="29.5" y2="13" stroke="#4E2A84" stroke-width="0.8"/>
+                        </svg>
+                    </span>
+                    NU Sublets
+                </a>
+                <nav class="topbar-nav" aria-label="Primary navigation">
+                    <a class="nav-link" href="/#recommendations">Browse</a>
+                    <a class="nav-link" href="/search-results">Search</a>
+                    <a class="nav-link" href="/saved">Saved</a>
+                    <a class="nav-link" href="/post-sublet">Post Sublet</a>
+                    <a class="nav-link" href="/login">Log In</a>
+                </nav>
             </div>
-            NU Sublets
-        </a>
-        
-        <div class="error-icon">
-            <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="#4E2A84" stroke-width="2"/>
-                <path d="M16 8L8 16" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
-                <path d="M8 8l8 8" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-        </div>
-        
-        <h1 class="error-title">Page Not Found</h1>
-        <p class="error-message">Sorry, the page you're looking for doesn't exist. The listing may have been removed or the URL might be incorrect.</p>
-        <a href="/" class="error-button">Return to Home</a>
+        </header>
+
+        <main class="error-content">
+            <section class="error-message" aria-labelledby="error-title">
+                <h1 class="error-code" id="error-title">404</h1>
+                <p class="error-copy">Sorry we can't seem to find the page you're looking for</p>
+            </section>
+        </main>
     </div>
 </body>
 </html>

@@ -79,8 +79,30 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{search_results_path}']", text: /Search/
     assert_select "a[href='#{saved_path}']", text: /Saved/
     assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet|Create a Posting/
+    assert_select "a[href='#{profile_path}']", text: "Profile"
     assert_select "a[href='#{login_path}']", text: /Log in/
     assert_select "a[href='#{listing_path}']"
+  end
+
+  test "home browse cards use database listing owners and stored profile photos" do
+    user = User.create!(
+      name: "Ryan Anderson",
+      email: "ryan.anderson@u.northwestern.edu",
+      profile_photo_url: "https://example.com/ryan-anderson.jpg",
+      active: true
+    )
+    listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Ryan's Campus Sublet",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    get root_path
+
+    assert_response :success
+    assert_select "a[href='#{sublet_listing_path(listing)}'] img.listing-avatar[alt='Ryan Anderson profile photo'][src='https://example.com/ryan-anderson.jpg']"
   end
 
   test "signed in navigation shows the current user and logout" do
@@ -89,7 +111,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
-    assert_select "a[href='#{profile_path}']", text: "Profile"
+    assert_select "a[href='#{profile_path}']", text: "Profile", count: 1
     assert_select "form[action='#{session_path}'] button", text: "Log out"
     assert_select "a[data-login-trigger]", text: "Create a Posting", count: 0
     assert_select "a[href='#{post_sublet_path}']", text: "Create a Posting"
@@ -104,7 +126,24 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: "Test Student"
     assert_includes response.body, "student@u.northwestern.edu"
     assert_includes response.body, "Hi Test"
+    assert_includes response.body, "Verified Northwestern student"
+    assert_includes response.body, "Student / renter"
+    assert_includes response.body, "Preferred Contact"
+    assert_includes response.body, "Usually responds within 2 days"
+    assert_select "a", text: "Report profile"
     assert_select "a[href='#{post_sublet_path}']", text: "Post a Sublet"
+  end
+
+  test "another user account page keeps the previous profile layout" do
+    sign_in_with_firebase_email("student@u.northwestern.edu")
+
+    get another_user_account_path
+
+    assert_response :success
+    assert_select "h1", text: "Test Student"
+    assert_select ".profile-card"
+    assert_select ".section-title", text: "Current Listings"
+    assert_includes response.body, "student@u.northwestern.edu"
   end
 
   test "search results page links into listing and home" do
@@ -298,6 +337,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     user = User.create!(
       name: "Detail Owner",
       email: "detail.owner@u.northwestern.edu",
+      profile_photo_url: "https://example.com/detail-owner.jpg",
       active: true
     )
     listing = user.sublet_listings.create!(
@@ -315,6 +355,40 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "October 3, 2026"
     assert_includes response.body, "Detail Date Match"
     assert_select "a[href='#{search_results_path}']", text: /Back to search results/
+    assert_select "a[href='#{user_profile_path(user)}']", text: /Detail Owner/
+    assert_select "a[href='#{user_profile_path(user)}'] img.host-avatar[alt='Detail Owner profile photo'][src='https://example.com/detail-owner.jpg']"
+  end
+
+  test "browse listing avatar links to the listing owner's public profile" do
+    user = User.create!(
+      name: "Profile Owner",
+      email: "profile.owner@u.northwestern.edu",
+      profile_photo_url: "https://example.com/profile-owner.jpg",
+      active: true
+    )
+    listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Owner Profile Link",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    get search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
+
+    assert_response :success
+    assert_select "a[href='#{sublet_listing_path(listing)}']", text: /Owner Profile Link/
+    assert_select "a[href='#{user_profile_path(user)}'][aria-label=?]", "View Profile Owner's profile"
+    assert_select "a[href='#{user_profile_path(user)}'] img.listing-avatar-image[alt='Profile Owner profile photo'][src='https://example.com/profile-owner.jpg']"
+
+    get user_profile_path(user)
+
+    assert_response :success
+    assert_select "h1", text: "Profile Owner"
+    assert_select "img.profile-avatar[alt='Profile Owner profile avatar'][src='https://example.com/profile-owner.jpg']"
+    assert_includes response.body, "Verified Northwestern student"
+    assert_select "a[href='#{sublet_listing_path(listing)}']", text: /Owner Profile Link/
+    assert_select "a[href='#{sublet_listing_path(listing)}'] img.listing-avatar[alt='Profile Owner listing avatar'][src='https://example.com/profile-owner.jpg']"
   end
 
   test "post sublet page uses the submit endpoint" do

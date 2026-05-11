@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="en" data-bs-theme="light">
     <head>
-        <title>Account Settings | NU Sublets</title>
+        <title>Profile | NU Sublets</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Rubik:wght@300;400;600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;500;600&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
             rel="stylesheet"
@@ -18,10 +18,11 @@
                 --nu-text: #000000;
                 --nu-surface: #ffffff;
                 --nu-border: #d9d9d9;
-                --nu-muted: #495057;
+                --nu-muted: #5b5b5b;
                 --nu-accent: #4E2A84;
                 --nu-shadow-soft: 0 0 25px rgba(217, 217, 217, 0.5);
-                --nu-focus: rgba(78, 42, 132, 0.26);
+                --nu-card-shadow: 3.682px 3.682px 3.682px rgba(166, 166, 166, 0.25);
+                --nu-verified: #3B82F6;
             }
 
             * {
@@ -32,7 +33,7 @@
                 margin: 0;
                 background: var(--nu-surface);
                 color: var(--nu-text);
-                font-family: "Rubik", sans-serif;
+                font-family: "Fustat", sans-serif;
             }
 
             a {
@@ -44,42 +45,45 @@
                 max-width: 100%;
             }
 
-            .settings-page {
+            .page-shell {
                 min-height: 100vh;
-                background: #fff;
             }
 
-            .settings-topbar {
-                min-height: 74px;
+            .topbar {
+                background: #fff;
                 border-bottom: 1px solid var(--nu-border);
+                font-family: "Rubik", sans-serif;
+                padding: 0 24px;
+                min-height: 60px;
                 display: flex;
                 align-items: center;
-                padding: 24px 64px;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
             }
 
-            .settings-topbar-inner {
+            .topbar-inner {
+                max-width: 1200px;
                 width: 100%;
+                margin: 0 auto;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 32px;
             }
 
-            .settings-brand {
+            .topbar-nav {
+                gap: 28px;
+            }
+
+            .brand,
+            .nav-link {
                 color: var(--nu-text);
-                font-size: 24px;
-                font-weight: 600;
-                line-height: 1;
+                font-size: 16px;
+                line-height: 1.2;
                 text-decoration: none;
-                white-space: nowrap;
             }
 
-            .settings-nav {
-                display: flex;
-                align-items: center;
-                justify-content: flex-end;
-                gap: 64px;
-                font-size: 24px;
+            .brand {
                 font-weight: 400;
             }
 
@@ -170,9 +174,11 @@
             .profile-stats {
                 width: 100%;
                 display: grid;
-                gap: 16px;
-                font-size: 20px;
-                line-height: 1.25;
+                gap: 10px;
+            }
+
+            .profile-meta {
+                margin-top: 8px;
             }
 
             .profile-meta-item,
@@ -223,36 +229,115 @@
                 line-height: 1.2;
             }
 
-            .settings-form {
-                width: 100%;
-                display: grid;
-                gap: 16px;
-            }
-
-            .settings-field {
-                display: grid;
-                gap: 16px;
-            }
-
-            .settings-label {
+            .section-title {
                 margin: 0;
-                font-size: 20px;
-                font-weight: 400;
+                font-family: "Rubik", sans-serif;
+                font-size: 21px;
+                font-weight: 500;
+                line-height: 1.6;
+            }
+
+            .section-subtitle {
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 15px;
                 line-height: 1.5;
+                color: var(--nu-muted);
             }
 
-            .details-grid {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 12px;
+            .listing-card {
+                display: block;
+                background: #fff;
+                border-radius: 7px;
+                overflow: hidden;
+                box-shadow: var(--nu-card-shadow);
+                text-decoration: none;
+                color: inherit;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
 
-            .settings-avatar {
-                width: 160px;
-                height: 160px;
+            .listing-card:hover,
+            .listing-card:focus-visible {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            }
+
+            .listing-card:focus-visible {
+                outline: 3px solid rgba(156, 81, 182, 0.45);
+                outline-offset: 4px;
+            }
+
+            .listing-media {
+                position: relative;
+                height: 190px;
+                overflow: visible;
+            }
+
+            .favorite-button {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                z-index: 2;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 24px;
+                height: 24px;
+                border: 0;
+                padding: 0;
+                background: transparent;
+                cursor: pointer;
+                filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+            }
+
+            .favorite-button svg {
+                width: 24px;
+                height: 24px;
+                display: block;
+                pointer-events: none;
+            }
+
+            .favorite-button path {
+                fill: transparent;
+                stroke: #fff;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                transition: fill 0.16s ease, stroke 0.16s ease, transform 0.16s ease;
+            }
+
+            .favorite-button.is-favorite path {
+                fill: #ed4956;
+                stroke: #ed4956;
+            }
+
+            .favorite-button:hover path,
+            .favorite-button:focus-visible path {
+                transform: scale(1.04);
+                transform-origin: center;
+            }
+
+            .favorite-button:focus-visible {
+                outline: 3px solid rgba(156, 81, 182, 0.5);
+                outline-offset: 4px;
+                border-radius: 999px;
+            }
+
+            .listing-main-image {
+                width: 100%;
+                height: 180px;
+                object-fit: cover;
+            }
+
+            .listing-avatar {
+                position: absolute;
+                left: 12px;
+                bottom: -8px;
+                width: 50px;
+                height: 50px;
+                border: 2px solid #fff;
                 border-radius: 50%;
                 object-fit: cover;
-                background: #f4eff8;
             }
 
             .listing-body {
@@ -322,36 +407,31 @@
                     max-width: 480px;
                 }
 
-                .settings-sidebar {
-                    width: 260px;
-                    flex-basis: 260px;
-                    padding-inline: 32px;
-                }
-
-                .details-grid {
-                    grid-template-columns: minmax(0, 1fr);
+                .profile-content {
+                    gap: 12px;
                 }
             }
 
             @media (max-width: 767.98px) {
-                .settings-topbar {
-                    min-height: 64px;
-                    padding: 20px 20px;
+                .topbar {
+                    padding-inline: 16px;
                 }
 
-                .settings-brand {
-                    font-size: 20px;
+                .topbar-nav {
+                    gap: 20px;
                 }
 
-                .settings-nav {
-                    gap: 18px;
-                    font-size: 16px;
+                .brand,
+                .nav-link {
+                    font-size: 14px;
                 }
 
-                .settings-main {
-                    display: grid;
-                    gap: 24px;
-                    padding: 28px 20px 44px;
+                .profile-page {
+                    padding: 24px 24px 40px;
+                }
+
+                .profile-card {
+                    padding: 20px 18px;
                 }
 
                 .profile-avatar {
@@ -376,19 +456,26 @@
                     font-size: 19px;
                 }
 
-                .settings-sidebar-nav,
-                .settings-label {
-                    font-size: 18px;
+                .listing-media {
+                    height: 216px;
                 }
 
-                .settings-content {
-                    width: 100%;
-                    padding-top: 0;
+                .listing-main-image {
+                    height: 204px;
                 }
 
-                .settings-avatar {
-                    width: 136px;
-                    height: 136px;
+                .listing-avatar {
+                    width: 50px;
+                    height: 50px;
+                }
+
+                .listing-price {
+                    font-size: 22px;
+                }
+
+                .listing-meta,
+                .listing-address {
+                    font-size: 10px;
                 }
             }
         </style>
@@ -513,8 +600,90 @@
                             <% end %>
                         </section>
                     </div>
-                </section>
+                </div>
             </main>
+            <%= render "shared/footer" %>
         </div>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"
+        ></script>
+        <%= render "login_modal" %>
+        <script>
+            (() => {
+                const storageKey = "nuSublets.favoriteListings";
+
+                const readFavorites = () => {
+                    try {
+                        return JSON.parse(localStorage.getItem(storageKey)) || [];
+                    } catch (_error) {
+                        return [];
+                    }
+                };
+
+                const writeFavorites = (favorites) => {
+                    localStorage.setItem(storageKey, JSON.stringify(favorites));
+                };
+
+                const getCardId = (card) => {
+                    const address = card.querySelector(".listing-address")?.textContent.trim() || "";
+                    const price = card.querySelector(".listing-price")?.textContent.trim() || "";
+                    const image = card.querySelector(".listing-main-image")?.getAttribute("src") || "";
+                    return [address, price, image].join("|").toLowerCase();
+                };
+
+                const getCardData = (card) => ({
+                    id: getCardId(card),
+                    href: card.getAttribute("href") || "#",
+                    imageSrc: card.querySelector(".listing-main-image")?.getAttribute("src") || "",
+                    imageAlt: card.querySelector(".listing-main-image")?.getAttribute("alt") || "Favorite listing",
+                    avatarSrc: card.querySelector(".listing-avatar")?.getAttribute("src") || "",
+                    avatarAlt: card.querySelector(".listing-avatar")?.getAttribute("alt") || "Listing host",
+                    price: card.querySelector(".listing-price")?.textContent.trim() || "",
+                    meta: Array.from(card.querySelectorAll(".listing-meta span")).map((item) => item.textContent.trim()),
+                    address: card.querySelector(".listing-address")?.textContent.trim() || ""
+                });
+
+                document.querySelectorAll(".listing-card").forEach((card) => {
+                    const button = card.querySelector(".favorite-button");
+                    if (!button) {
+                        return;
+                    }
+
+                    const setButtonState = (favored) => {
+                        button.classList.toggle("is-favorite", favored);
+                        button.setAttribute("aria-pressed", favored ? "true" : "false");
+                        button.setAttribute("aria-label", favored ? "Remove from favorite listings" : "Save to favorite listings");
+                    };
+
+                    const id = getCardId(card);
+                    setButtonState(readFavorites().some((listing) => listing.id === id));
+
+                    const activate = (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const listing = getCardData(card);
+                        const favorites = readFavorites();
+                        const alreadySaved = favorites.some((item) => item.id === listing.id);
+                        const nextFavorites = alreadySaved
+                            ? favorites.filter((item) => item.id !== listing.id)
+                            : [listing, ...favorites];
+
+                        writeFavorites(nextFavorites);
+                        setButtonState(!alreadySaved);
+                    };
+
+                    button.addEventListener("click", activate);
+                    button.addEventListener("keydown", (event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                            activate(event);
+                        }
+                    });
+                });
+            })();
+        </script>
     </body>
 </html>
