@@ -7,13 +7,16 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       "email_verified" => true,
       "name" => "Test Student",
       "given_name" => "Test",
-      "family_name" => "Student"
+      "family_name" => "Student",
+      "picture" => "https://example.com/test-student.jpg"
     ) do
       post session_path, params: { id_token: "firebase-token" }, as: :json
     end
 
     assert_response :success
-    assert_equal "Test Student", User.find_by!(email: "student@u.northwestern.edu").name
+    user = User.find_by!(email: "student@u.northwestern.edu")
+    assert_equal "Test Student", user.name
+    assert_equal "https://example.com/test-student.jpg", user.profile_photo_url
   end
 
   test "rejects a verified non Northwestern Firebase token" do

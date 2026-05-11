@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_03_001000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_10_001000) do
   create_table "sublet_listings", force: :cascade do |t|
     t.text "address"
     t.text "amenities"
@@ -39,6 +39,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_001000) do
     t.string "first_name"
     t.string "last_name"
     t.string "name"
+    t.string "profile_photo_url"
     t.datetime "updated_at", null: false
   end
 

@@ -70,6 +70,21 @@ DESCRIPTION_DETAILS = [
   "with responsive roommates and space for focused graduate work"
 ].freeze
 
+PROFILE_PHOTO_URLS = [
+  "https://randomuser.me/api/portraits/women/65.jpg",
+  "https://randomuser.me/api/portraits/men/73.jpg",
+  "https://randomuser.me/api/portraits/women/27.jpg",
+  "https://randomuser.me/api/portraits/men/15.jpg",
+  "https://randomuser.me/api/portraits/women/32.jpg",
+  "https://randomuser.me/api/portraits/men/12.jpg",
+  "https://randomuser.me/api/portraits/women/18.jpg",
+  "https://randomuser.me/api/portraits/men/8.jpg",
+  "https://randomuser.me/api/portraits/women/12.jpg",
+  "https://randomuser.me/api/portraits/women/28.jpg",
+  "https://randomuser.me/api/portraits/men/18.jpg",
+  "https://randomuser.me/api/portraits/women/24.jpg"
+].freeze
+
 def generated_name(index)
   first_name = FIRST_NAMES[index % FIRST_NAMES.length]
   last_name = LAST_NAMES[(index / FIRST_NAMES.length) % LAST_NAMES.length]
@@ -137,6 +152,7 @@ users = USER_COUNT.times.map do |index|
     first_name: name[:first_name],
     last_name: name[:last_name],
     email: "student#{index + 1}@u.northwestern.edu",
+    profile_photo_url: PROFILE_PHOTO_URLS[index % PROFILE_PHOTO_URLS.length],
     active: true
   )
 end
