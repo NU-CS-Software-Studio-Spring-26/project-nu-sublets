@@ -1,0 +1,39 @@
+<style>
+    :root {
+        --nu-focus-ring: #f7c948;
+        --nu-focus-ring-outer: rgba(78, 42, 132, 0.42);
+    }
+
+    :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
+        outline: 3px solid var(--nu-focus-ring) !important;
+        outline-offset: 3px !important;
+        box-shadow: 0 0 0 6px var(--nu-focus-ring-outer) !important;
+        border-radius: 7px;
+    }
+
+    :where(input, select, textarea):focus-visible {
+        border-color: #4E2A84 !important;
+    }
+
+    :where(.date-input, .date-value, .date-filter-input, .date-filter-toggle, .date-picker-nav, .date-picker-day, .icon-button):focus-visible {
+        outline: 3px solid var(--nu-focus-ring) !important;
+        outline-offset: 3px !important;
+        box-shadow: 0 0 0 6px var(--nu-focus-ring-outer) !important;
+    }
+
+    :where(.carousel-button, .favorite-button, .gallery-button, .map-pin, .map-zoom-button, .map-popup-close):focus-visible {
+        outline: 3px solid var(--nu-focus-ring) !important;
+        outline-offset: 4px !important;
+        box-shadow: 0 0 0 7px var(--nu-focus-ring-outer) !important;
+    }
+
+    :where(.favorite-button, .carousel-button, .map-pin, .map-zoom-button, .map-popup-close):focus-visible {
+        border-radius: 999px;
+    }
+
+    :where(.listing-card):focus-visible {
+        outline: 3px solid var(--nu-focus-ring) !important;
+        outline-offset: 5px !important;
+        box-shadow: 0 0 0 7px var(--nu-focus-ring-outer), 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
