@@ -30,6 +30,7 @@ module ApplicationHelper
   end
 
   def user_avatar_url(user, size: 248)
+    return url_for(user.profile_photo) if user.respond_to?(:profile_photo) && user.profile_photo.attached?
     return user.profile_photo_url if user.respond_to?(:profile_photo_url) && user.profile_photo_url.present?
 
     "https://ui-avatars.com/api/?name=#{ERB::Util.url_encode(user_initials(user))}&background=F4EFF8&color=3E1B4B&size=#{size}&bold=true"

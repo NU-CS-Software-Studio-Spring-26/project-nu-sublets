@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Rubik:wght@300;400;600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;500;600&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
             rel="stylesheet"
@@ -18,6 +18,8 @@
                 --nu-text: #000000;
                 --nu-surface: #ffffff;
                 --nu-border: #d9d9d9;
+                --nu-muted: #5b5b5b;
+                --nu-accent: #4E2A84;
                 --nu-soft-purple: #e4c4f0;
                 --nu-danger: #e11d48;
                 --nu-shadow-soft: 0 0 25px rgba(217, 217, 217, 0.5);
@@ -32,7 +34,7 @@
                 margin: 0;
                 background: var(--nu-surface);
                 color: var(--nu-text);
-                font-family: "Rubik", sans-serif;
+                font-family: "Fustat", sans-serif;
             }
 
             a {
@@ -44,9 +46,44 @@
                 max-width: 100%;
             }
 
+            .page-shell,
             .settings-page {
                 min-height: 100vh;
                 background: #fff;
+            }
+
+            .topbar {
+                background: #fff;
+                border-bottom: 1px solid var(--nu-border);
+                font-family: "Rubik", sans-serif;
+                padding: 0 24px;
+                min-height: 60px;
+                display: flex;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+            }
+
+            .topbar-inner {
+                max-width: 1200px;
+                width: 100%;
+                margin: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .topbar-nav {
+                gap: 28px;
+            }
+
+            .brand,
+            .nav-link {
+                color: var(--nu-text);
+                font-size: 16px;
+                line-height: 1.2;
+                text-decoration: none;
             }
 
             .settings-topbar {
@@ -334,6 +371,19 @@
             }
 
             @media (max-width: 767.98px) {
+                .topbar {
+                    padding-inline: 16px;
+                }
+
+                .topbar-nav {
+                    gap: 20px;
+                }
+
+                .brand,
+                .nav-link {
+                    font-size: 14px;
+                }
+
                 .settings-topbar {
                     min-height: 64px;
                     padding: 20px 20px;
@@ -352,6 +402,10 @@
                     display: grid;
                     gap: 24px;
                     padding: 28px 20px 44px;
+                }
+
+                .profile-page {
+                    padding: 28px 16px 48px;
                 }
 
                 .profile-avatar {
@@ -391,6 +445,502 @@
                     height: 136px;
                 }
             }
+
+            .profile-page {
+                padding: 80px 72px 72px;
+            }
+
+            .profile-shell {
+                max-width: 1180px;
+                margin: 0 auto;
+            }
+
+            .profile-tabs-layout {
+                display: grid;
+                grid-template-columns: 324px minmax(0, 504px);
+                gap: 64px;
+                align-items: start;
+            }
+
+            .profile-tab-card {
+                min-height: 695px;
+                padding: 32px 48px;
+                border-radius: 16px;
+                background: #fff;
+                box-shadow: var(--nu-shadow-soft);
+                font-family: "Rubik", sans-serif;
+            }
+
+            .profile-tab-title {
+                margin: 0 0 24px;
+                text-align: center;
+                font-size: 24px;
+                font-weight: 700;
+                line-height: 1.2;
+            }
+
+            .profile-sidebar-summary {
+                display: grid;
+                justify-items: center;
+                gap: 4px;
+                margin-bottom: 24px;
+            }
+
+            .profile-sidebar-person {
+                display: grid;
+                justify-items: center;
+                gap: 6px;
+            }
+
+            .profile-sidebar-avatar {
+                width: 160px;
+                height: 160px;
+                border-radius: 50%;
+                object-fit: cover;
+                background: #f4eff8;
+            }
+
+            .profile-sidebar-name {
+                margin: 0;
+                font-size: 24px;
+                font-weight: 400;
+                line-height: 1.2;
+            }
+
+            .profile-sidebar-verified {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                color: #4285f4;
+                font-size: 15px;
+                line-height: 2;
+            }
+
+            .profile-sidebar-verified svg {
+                width: 24px;
+                height: 24px;
+                flex: 0 0 auto;
+            }
+
+            .profile-tab-list {
+                display: grid;
+                gap: 16px;
+            }
+
+            .profile-tab-button {
+                width: 100%;
+                border: 0;
+                padding: 0;
+                background: transparent;
+                color: var(--nu-text);
+                font: inherit;
+                font-size: 20px;
+                font-weight: 300;
+                line-height: 1.25;
+                text-align: left;
+                cursor: pointer;
+            }
+
+            .profile-tab-button[aria-selected="true"] {
+                color: #9c51b6;
+                font-weight: 400;
+            }
+
+            .profile-tab-button:focus-visible {
+                outline: 3px solid var(--nu-focus);
+                outline-offset: 4px;
+                border-radius: 4px;
+            }
+
+            .profile-side-signout {
+                display: block;
+                width: 100%;
+                border: 0;
+                padding: 0;
+                background: transparent;
+                color: var(--nu-text);
+                font: inherit;
+                font-size: 20px;
+                font-weight: 300;
+                line-height: 1.25;
+                text-align: left;
+                cursor: pointer;
+            }
+
+            .profile-side-signout:focus-visible {
+                outline: 3px solid var(--nu-focus);
+                outline-offset: 4px;
+                border-radius: 4px;
+            }
+
+            .profile-tab-panel {
+                width: 100%;
+                padding-top: 20px;
+            }
+
+            .profile-tab-panel[hidden] {
+                display: none;
+            }
+
+            .panel-title {
+                margin: 0 0 16px;
+                font-family: "Rubik", sans-serif;
+                font-size: 32px;
+                font-weight: 700;
+                line-height: 1.15;
+            }
+
+            .panel-section-title {
+                margin: 0 0 16px;
+                font-family: "Rubik", sans-serif;
+                font-size: 24px;
+                font-weight: 700;
+                line-height: 1.2;
+            }
+
+            .panel-section + .panel-section {
+                margin-top: 24px;
+            }
+
+            .profile-list-stack,
+            .favorite-list-stack {
+                display: grid;
+                gap: 24px;
+            }
+
+            .profile-tabs-layout .cards-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 24px;
+                width: min(100%, 400px);
+            }
+
+            .profile-tabs-layout .listing-card {
+                display: block;
+                width: min(100%, 400px);
+                border-radius: 7px;
+                overflow: hidden;
+                background: #fff;
+                color: inherit;
+                text-decoration: none;
+                box-shadow: 3.682px 3.682px 3.682px rgba(166, 166, 166, 0.25);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .profile-tabs-layout .listing-card:hover,
+            .profile-tabs-layout .listing-card:focus-visible {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            }
+
+            .profile-tabs-layout .listing-card:focus-visible {
+                outline: 3px solid rgba(156, 81, 182, 0.45);
+                outline-offset: 4px;
+            }
+
+            .listing-media {
+                position: relative;
+                height: 251px;
+                overflow: visible;
+            }
+
+            .listing-main-image {
+                width: 100%;
+                height: 240px;
+                object-fit: cover;
+            }
+
+            .listing-avatar {
+                position: absolute;
+                left: 13px;
+                bottom: 0;
+                width: 78px;
+                height: 78px;
+                border: 2px solid #fff;
+                border-radius: 50%;
+                object-fit: cover;
+                background: #fff;
+            }
+
+            .profile-tabs-layout .listing-body {
+                padding: 8px 8px 15px;
+            }
+
+            .profile-tabs-layout .listing-price {
+                margin-bottom: 4px;
+                font-size: 32px;
+                font-weight: 800;
+            }
+
+            .profile-tabs-layout .listing-meta {
+                gap: 24px;
+                margin-bottom: 4px;
+                font-size: 12px;
+                font-weight: 700;
+            }
+
+            .profile-tabs-layout .listing-address {
+                font-size: 12px;
+            }
+
+            .account-form {
+                display: grid;
+                gap: 16px;
+            }
+
+            .profile-alert {
+                width: min(100%, 504px);
+                margin: 0 0 16px;
+                border-radius: 8px;
+                padding: 12px 14px;
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                line-height: 1.4;
+            }
+
+            .profile-alert.success {
+                border: 1px solid #b7e4c7;
+                background: #f0fff4;
+                color: #176b38;
+            }
+
+            .profile-alert.error {
+                border: 1px solid #fecdd3;
+                background: #fff1f2;
+                color: #be123c;
+            }
+
+            .account-avatar {
+                width: 160px;
+                height: 160px;
+                border-radius: 50%;
+                object-fit: cover;
+                background: #f4eff8;
+            }
+
+            .account-avatar-picker {
+                position: relative;
+                width: 160px;
+                height: 160px;
+            }
+
+            .account-avatar-picker .account-avatar {
+                width: 100%;
+                height: 100%;
+            }
+
+            .avatar-edit-button {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 32px;
+                border: 0;
+                border-radius: 999px;
+                background: #7d7d7d;
+                color: #fff;
+                cursor: pointer;
+            }
+
+            .avatar-edit-button svg {
+                width: 18px;
+                height: 18px;
+                display: block;
+            }
+
+            .avatar-edit-button:hover,
+            .avatar-edit-button:focus-visible {
+                background: #6a6a6a;
+                outline: 3px solid var(--nu-focus);
+                outline-offset: 3px;
+            }
+
+            .avatar-file-input {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip: rect(0 0 0 0);
+                clip-path: inset(50%);
+                white-space: nowrap;
+            }
+
+            .avatar-file-name {
+                margin: 0;
+                color: var(--nu-muted);
+                font-family: "Rubik", sans-serif;
+                font-size: 13px;
+                line-height: 1.35;
+            }
+
+            .account-field {
+                display: grid;
+                gap: 10px;
+            }
+
+            .account-label {
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 20px;
+                line-height: 1.5;
+            }
+
+            .account-value {
+                min-height: 38px;
+                margin: 0;
+                padding: 8px 16px;
+                border: 1px solid var(--nu-border);
+                border-radius: 8px;
+                font-family: "Rubik", sans-serif;
+                font-size: 16px;
+                font-weight: 300;
+                line-height: 1.35;
+            }
+
+            .account-input {
+                width: 100%;
+                min-height: 38px;
+                border: 1px solid var(--nu-border);
+                border-radius: 8px;
+                padding: 8px 16px;
+                background: #fff;
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 16px;
+                font-weight: 300;
+                line-height: 1.35;
+            }
+
+            .account-input:focus-visible {
+                border-color: var(--nu-accent);
+                outline: 3px solid var(--nu-focus);
+            }
+
+            textarea.account-input {
+                min-height: 96px;
+                resize: vertical;
+            }
+
+            .account-actions {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .account-save-button {
+                border: 0;
+                border-radius: 4px;
+                padding: 9px 16px;
+                background: var(--nu-accent);
+                color: #fff;
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 1;
+                cursor: pointer;
+            }
+
+            .account-save-button:hover,
+            .account-save-button:focus-visible {
+                opacity: 0.92;
+            }
+
+            .account-action {
+                justify-self: start;
+                border: 0;
+                border-radius: 4px;
+                padding: 8px;
+                background: var(--nu-soft-purple);
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 12px;
+                line-height: 1;
+            }
+
+            .delete-account-button {
+                justify-self: start;
+                border: 0;
+                padding: 0;
+                background: transparent;
+                color: var(--nu-danger);
+                font-family: "Rubik", sans-serif;
+                font-size: 16px;
+                font-weight: 300;
+                text-decoration: underline;
+            }
+
+            .empty-state {
+                width: min(100%, 400px);
+                border-radius: 8px;
+            }
+
+            .empty-state[hidden] {
+                display: none;
+            }
+
+            .empty-state-title {
+                margin: 0 0 8px;
+                font-family: "Rubik", sans-serif;
+                font-size: 20px;
+                font-weight: 700;
+            }
+
+            @media (max-width: 991.98px) {
+                .profile-page {
+                    padding: 48px 24px 64px;
+                }
+
+                .profile-tabs-layout {
+                    grid-template-columns: minmax(0, 1fr);
+                    gap: 28px;
+                    max-width: 560px;
+                }
+
+                .profile-tab-card {
+                    min-height: auto;
+                }
+            }
+
+            @media (max-width: 767.98px) {
+                .profile-page {
+                    padding: 32px 16px 48px;
+                }
+
+                .profile-tab-card {
+                    padding: 24px;
+                }
+
+                .profile-tab-title,
+                .panel-title {
+                    font-size: 28px;
+                }
+
+                .profile-tab-title {
+                    font-size: 24px;
+                }
+
+                .profile-tab-button,
+                .profile-side-signout,
+                .account-label {
+                    font-size: 18px;
+                }
+
+                .listing-media {
+                    height: 216px;
+                }
+
+                .listing-main-image {
+                    height: 204px;
+                }
+
+                .profile-tabs-layout .listing-price {
+                    font-size: 26px;
+                }
+            }
         </style>
     </head>
     <body>
@@ -398,6 +948,7 @@
         <% listings = user.sublet_listings.order(created_at: :desc) %>
         <% first_name = user.first_name.presence || user.display_name.split.first %>
         <% initials = user.display_name.split.map { |part| part.first }.join.first(2).upcase.presence || "NU" %>
+        <% active_profile_tab = (@profile_errors.present? || params[:tab] == "settings") ? "settings" : "listings" %>
         <div class="page-shell">
             <header class="topbar">
                 <div class="topbar-inner">
@@ -438,83 +989,170 @@
 
             <main class="profile-page">
                 <div class="profile-shell">
-                    <div class="profile-grid">
-                        <section class="profile-card" aria-label="Profile summary">
-                            <img class="profile-avatar" src="https://ui-avatars.com/api/?name=<%= ERB::Util.url_encode(initials) %>&background=F4EFF8&color=3E1B4B&size=248&bold=true" alt="<%= user.display_name %> profile avatar" />
-
-                            <div class="verified-row">
-                                <svg class="verified-icon" viewBox="0 0 32 32" aria-hidden="true">
-                                    <path d="M16 2 6 5.68v8.77C6 21.64 10.26 28.35 16 30.43c5.74-2.08 10-8.79 10-15.98V5.68L16 2Z" fill="none" stroke="#3B82F6" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
-                                    <path d="m11 16.25 3.68 3.68L21 13.61" fill="none" stroke="#3B82F6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" />
-                                </svg>
-                                <p class="verified-copy">Verified Student</p>
-                            </div>
-
-                            <p class="bio-copy">
-                                Hi <%= first_name %>, this is your NU Sublets profile. You&rsquo;re signed in with your Northwestern account and can manage your listings, contact details, and posting activity from here.
-                            </p>
-
-                            <div class="profile-meta" aria-label="Profile details">
-                                <div class="profile-meta-item">
-                                    <p class="profile-meta-label">Northwestern Email</p>
-                                    <p class="profile-meta-value"><%= user.email %></p>
+                    <div class="profile-tabs-layout">
+                        <aside class="profile-tab-card" aria-label="Profile sections">
+                            <h1 class="profile-tab-title">Profile</h1>
+                            <div class="profile-sidebar-summary">
+                                <div class="profile-sidebar-person">
+                                    <img class="profile-sidebar-avatar" src="<%= user_avatar_url(user, size: 320) %>" alt="<%= user.display_name %> profile photo" />
+                                    <p class="profile-sidebar-name"><%= user.display_name %></p>
                                 </div>
-                                <div class="profile-meta-item">
-                                    <p class="profile-meta-label">Display Name</p>
-                                    <p class="profile-meta-value"><%= user.display_name %></p>
+                                <div class="profile-sidebar-verified">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M12 2.75 5 5.33v6.14c0 5.03 2.98 9.73 7 11.18 4.02-1.45 7-6.15 7-11.18V5.33L12 2.75Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" />
+                                        <path d="m8.75 12.15 2.2 2.2 4.3-4.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
+                                    </svg>
+                                    <span>Verified Student</span>
                                 </div>
                             </div>
+                            <div class="profile-tab-list" role="tablist" aria-label="Profile tabs">
+                                <button class="profile-tab-button" id="tab-listings" type="button" role="tab" aria-selected="<%= active_profile_tab == "listings" %>" aria-controls="panel-listings" data-profile-tab="listings">Your Listings</button>
+                                <button class="profile-tab-button" id="tab-settings" type="button" role="tab" aria-selected="<%= active_profile_tab == "settings" %>" aria-controls="panel-settings" data-profile-tab="settings">Account Settings</button>
+                                <%= button_to "Sign Out", session_path, method: :delete, class: "profile-side-signout", form: { style: "display: block; margin: 0;" } %>
+                            </div>
+                        </aside>
 
-                            <div class="profile-stats" aria-label="Profile stats">
-                                <div class="profile-stat">
-                                    <p class="profile-stat-label">Listings</p>
-                                    <p class="profile-stat-value"><%= listings.count %></p>
-                                </div>
-                                <div class="profile-stat">
-                                    <p class="profile-stat-label">Status</p>
-                                    <p class="profile-stat-value"><%= user.active? ? "Active" : "Inactive" %></p>
+                        <section class="profile-tab-panel" id="panel-listings" role="tabpanel" aria-labelledby="tab-listings" data-profile-panel="listings" <%= "hidden" unless active_profile_tab == "listings" %>>
+                            <h2 class="panel-title">Listings</h2>
+                            <div class="panel-section">
+                                <h3 class="panel-section-title">Your Listings</h3>
+                                <% if listings.any? %>
+                                    <div class="profile-list-stack">
+                                        <% listings.each do |listing| %>
+                                            <a class="listing-card" href="<%= sublet_listing_path(listing) %>">
+                                                <div class="listing-media">
+                                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+                                                    <img class="listing-avatar" src="<%= user_avatar_url(user, size: 100) %>" alt="<%= user.display_name %> profile photo" />
+                                                    <span class="favorite-button" role="button" tabindex="0" aria-pressed="false" aria-label="Save to favorite listings">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                            <path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"></path>
+                                                        </svg>
+                                                    </span>
+                                                </div>
+                                                <div class="listing-body">
+                                                    <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
+                                                    <div class="listing-meta">
+                                                        <span><%= pluralize(listing.bedrooms || 0, "bedroom") %></span>
+                                                        <span><%= pluralize(listing.bathrooms || 0, "bathroom") %></span>
+                                                        <span><%= listing.furnished? ? "Furnished" : "Unfurnished" %></span>
+                                                    </div>
+                                                    <p class="listing-address"><%= listing.address.presence || "Address coming soon" %></p>
+                                                </div>
+                                            </a>
+                                        <% end %>
+                                    </div>
+                                <% else %>
+                                    <div class="empty-state">
+                                        <p class="empty-state-copy">Create your first listing to start receiving interest from other Northwestern students.</p>
+                                        <a class="empty-state-link" href="<%= post_sublet_path %>">Post a Sublet</a>
+                                    </div>
+                                <% end %>
+                            </div>
+
+                            <div class="panel-section">
+                                <h3 class="panel-section-title">Saved Listings</h3>
+                                <section class="cards-grid favorite-list-stack" aria-label="Saved sublet listings" data-favorite-listings></section>
+                                <div class="empty-state" data-favorites-empty>
+                                    <p class="empty-state-title">No saved sublets yet.</p>
+                                    <p class="empty-state-copy">Heart listings on the search page to build your shortlist.</p>
+                                    <a class="empty-state-link" href="<%= search_results_path %>">Browse sublets</a>
                                 </div>
                             </div>
                         </section>
 
-                        <section class="profile-content" aria-label="Profile listings">
-                            <h1 class="profile-name"><%= user.display_name %></h1>
-                            <h2 class="section-title">Current Listings</h2>
-                            <p class="section-subtitle"><%= listings.any? ? "Your live sublet posts appear here." : "You have not posted a sublet yet." %></p>
+                        <section class="profile-tab-panel" id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" data-profile-panel="settings" <%= "hidden" unless active_profile_tab == "settings" %>>
+                            <h2 class="panel-title">Account Settings</h2>
+                            <% if params[:saved] == "1" %>
+                                <p class="profile-alert success">Profile updated.</p>
+                            <% end %>
+                            <% if @profile_errors.present? %>
+                                <div class="profile-alert error">
+                                    <%= @profile_errors.to_sentence %>
+                                </div>
+                            <% end %>
+                            <%= form_with model: user, url: profile_path, method: :patch, local: true, html: { multipart: true }, class: "account-form" do |form| %>
+                                <div class="account-field">
+                                    <p class="account-label">Profile Picture</p>
+                                    <div class="account-avatar-picker">
+                                        <img class="account-avatar" src="<%= user_avatar_url(user, size: 248) %>" alt="<%= user.display_name %> profile photo" data-avatar-preview />
+                                        <%= form.file_field :profile_photo, accept: "image/png,image/jpeg,image/webp,image/gif", class: "avatar-file-input", id: "profile-photo-upload", data: { avatar_input: true } %>
+                                        <label class="avatar-edit-button" for="profile-photo-upload" aria-label="Upload profile picture">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                <path d="M4 16.5V20h3.5L18.06 9.44l-3.5-3.5L4 16.5Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" />
+                                                <path d="m13.25 7.25 3.5 3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" />
+                                            </svg>
+                                        </label>
+                                    </div>
+                                    <p class="avatar-file-name" data-avatar-file-name>Choose an image, then save changes.</p>
+                                </div>
 
-                            <% if listings.any? %>
-                                <% listings.each do |listing| %>
-                                    <a class="listing-card" href="<%= listing_path %>">
-                                        <div class="listing-media">
-                                            <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
-                                            <img class="listing-avatar" src="https://ui-avatars.com/api/?name=<%= ERB::Util.url_encode(initials) %>&background=F4EFF8&color=3E1B4B&size=100&bold=true" alt="<%= user.display_name %> listing avatar" />
-                                            <span class="favorite-button" role="button" tabindex="0" aria-pressed="false" aria-label="Save to favorite listings">
-                                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                                    <path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"></path>
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="listing-body">
-                                            <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
-                                            <div class="listing-meta">
-                                                <span><%= pluralize(listing.bedrooms || 0, "bedroom") %></span>
-                                                <span><%= pluralize(listing.bathrooms || 0, "bathroom") %></span>
-                                                <span><%= listing.furnished? ? "Furnished" : "Unfurnished" %></span>
-                                            </div>
-                                            <p class="listing-address"><%= listing.address.presence || "Address coming soon" %></p>
-                                        </div>
-                                    </a>
-                                <% end %>
-                            <% else %>
-                                <div class="empty-state">
-                                    <p class="empty-state-copy">Create your first listing to start receiving interest from other Northwestern students.</p>
-                                    <a class="empty-state-link" href="<%= post_sublet_path %>">Post a Sublet</a>
+                                <div class="account-field">
+                                    <%= form.label :name, "Name", class: "account-label" %>
+                                    <%= form.text_field :name, class: "account-input", required: true %>
+                                </div>
+
+                                <div class="account-field">
+                                    <%= form.label :email, "Email", class: "account-label" %>
+                                    <%= form.email_field :email, class: "account-input", required: true %>
+                                </div>
+
+                                <button class="account-action" type="button">Change Password</button>
+
+                                <div class="account-field">
+                                    <%= form.label :bio, "Bio", class: "account-label" %>
+                                    <%= form.text_area :bio, class: "account-input", placeholder: "Tell other Northwestern students a little about yourself." %>
+                                </div>
+
+                                <div class="account-actions">
+                                    <%= form.submit "Save Changes", class: "account-save-button" %>
+                                    <button class="delete-account-button" type="button">Delete Account</button>
                                 </div>
                             <% end %>
                         </section>
                     </div>
-                </section>
+                </div>
             </main>
+            <%= render "favorite_listings" %>
+            <script>
+                (() => {
+                    const tabs = Array.from(document.querySelectorAll("[data-profile-tab]"));
+                    const panels = Array.from(document.querySelectorAll("[data-profile-panel]"));
+
+                    const activateTab = (name) => {
+                        tabs.forEach((tab) => {
+                            tab.setAttribute("aria-selected", tab.dataset.profileTab === name ? "true" : "false");
+                        });
+
+                        panels.forEach((panel) => {
+                            panel.hidden = panel.dataset.profilePanel !== name;
+                        });
+                    };
+
+                    tabs.forEach((tab) => {
+                        tab.addEventListener("click", () => activateTab(tab.dataset.profileTab));
+                    });
+
+                    const avatarInput = document.querySelector("[data-avatar-input]");
+                    const avatarPreview = document.querySelector("[data-avatar-preview]");
+                    const avatarFileName = document.querySelector("[data-avatar-file-name]");
+
+                    avatarInput?.addEventListener("change", () => {
+                        const file = avatarInput.files?.[0];
+
+                        if (!file) {
+                            return;
+                        }
+
+                        if (avatarFileName) {
+                            avatarFileName.textContent = file.name;
+                        }
+
+                        if (avatarPreview && file.type.startsWith("image/")) {
+                            avatarPreview.src = URL.createObjectURL(file);
+                        }
+                    });
+                })();
+            </script>
         </div>
     </body>
 </html>

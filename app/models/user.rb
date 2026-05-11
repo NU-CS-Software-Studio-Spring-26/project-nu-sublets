@@ -7,9 +7,11 @@ class User < ApplicationRecord
   # Validations
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :name, presence: true
+  validate :profile_photo_must_be_image
 
   # Associations
   has_many :sublet_listings, dependent: :destroy
+  has_one_attached :profile_photo
   # has_many :applications, dependent: :destroy
 
   # Scopes
@@ -75,5 +77,14 @@ class User < ApplicationRecord
 
   def total_listings_count
     sublet_listings.count
+  end
+
+  private
+
+  def profile_photo_must_be_image
+    return unless profile_photo.attached?
+    return if profile_photo.content_type.in?(%w[image/png image/jpeg image/webp image/gif])
+
+    errors.add(:profile_photo, "must be a PNG, JPG, WebP, or GIF image")
   end
 end

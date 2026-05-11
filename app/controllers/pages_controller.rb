@@ -1,6 +1,6 @@
 class PagesController < ApplicationController
   layout false
-  before_action :authenticate_user!, only: %i[profile anotheruseraccount submit_sublet]
+  before_action :authenticate_user!, only: %i[profile update_profile anotheruseraccount submit_sublet]
 
   def home
     @recommended_listings = SubletListing.includes(:user).find_available_listings.limit(6)
@@ -61,6 +61,25 @@ class PagesController < ApplicationController
     @profile_user = current_user
   end
 
+  def update_profile
+    @profile_user = current_user
+    current_user.assign_attributes(profile_params)
+
+    if current_user.email.present? && !User.northwestern_email?(current_user.email)
+      @profile_errors = ["Use your Northwestern email."]
+      render :profile, status: :unprocessable_entity
+      return
+    end
+
+    if current_user.save
+      sync_name_parts
+      redirect_to profile_path(tab: "settings", saved: "1")
+    else
+      @profile_errors = current_user.errors.full_messages
+      render :profile, status: :unprocessable_entity
+    end
+  end
+
   def public_profile
     @profile_user = User.find(params[:id])
 
@@ -116,6 +135,18 @@ class PagesController < ApplicationController
       available_from: search_date_param("start-date"),
       available_until: search_date_param("end-date")
     }
+  end
+
+  def profile_params
+    params.require(:user).permit(:name, :email, :profile_photo_url, :profile_photo, :bio)
+  end
+
+  def sync_name_parts
+    name_parts = current_user.name.to_s.split
+    current_user.update_columns(
+      first_name: name_parts.first,
+      last_name: name_parts.drop(1).join(" ").presence
+    )
   end
 
   def selected_listing_labels(key, allowed_labels)
