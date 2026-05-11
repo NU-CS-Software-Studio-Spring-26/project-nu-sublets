@@ -458,6 +458,27 @@
                 line-height: 1.15;
             }
 
+            .results-summary {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 16px;
+                margin-bottom: 16px;
+            }
+
+            .results-summary .results-title {
+                margin: 0;
+            }
+
+            .results-page-count {
+                margin: 0;
+                color: var(--nu-muted);
+                font-family: "Rubik", sans-serif;
+                font-size: 13px;
+                line-height: 1.35;
+                text-align: right;
+            }
+
             .results-grid {
                 display: grid;
                 grid-template-columns: minmax(0, 760px) minmax(300px, 1fr);
@@ -494,10 +515,21 @@
                 outline-offset: 4px;
             }
 
+            .listing-card-link {
+                display: block;
+                color: inherit;
+                text-decoration: none;
+            }
+
             .listing-media {
                 position: relative;
                 height: 190px;
                 overflow: visible;
+            }
+
+            .listing-media-link {
+                height: 180px;
+                overflow: hidden;
             }
 
             .listing-main-image {
@@ -506,7 +538,7 @@
                 object-fit: cover;
             }
 
-            .listing-avatar {
+            .listing-avatar-link {
                 position: absolute;
                 left: 12px;
                 bottom: -8px;
@@ -514,6 +546,23 @@
                 height: 50px;
                 border: 2px solid #fff;
                 border-radius: 50%;
+                background: #fff;
+                overflow: hidden;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .listing-avatar-link:hover,
+            .listing-avatar-link:focus-visible {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 18px rgba(78, 42, 132, 0.25);
+                outline: 3px solid rgba(78, 42, 132, 0.28);
+                outline-offset: 3px;
+            }
+
+            .listing-avatar-image {
+                width: 100%;
+                height: 100%;
                 object-fit: cover;
             }
 
@@ -575,6 +624,56 @@
                 color: var(--nu-muted);
                 font-size: 14px;
                 line-height: 1.45;
+            }
+
+            .pagination-wrap {
+                max-width: 720px;
+                margin-top: 24px;
+            }
+
+            .pagy {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                align-items: center;
+                font-family: "Rubik", sans-serif;
+            }
+
+            .pagy a,
+            .pagy span {
+                min-width: 36px;
+                min-height: 36px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 8px 10px;
+                border: 1px solid var(--nu-border);
+                border-radius: 7px;
+                background: #fff;
+                color: var(--nu-ink);
+                font-size: 13px;
+                font-weight: 600;
+                line-height: 1;
+                text-decoration: none;
+            }
+
+            .pagy a:hover,
+            .pagy a:focus-visible {
+                border-color: rgba(78, 42, 132, 0.42);
+                box-shadow: 0 0 0 3px rgba(78, 42, 132, 0.12);
+                outline: none;
+            }
+
+            .pagy .current {
+                border-color: var(--nu-purple);
+                background: var(--nu-purple);
+                color: #fff;
+            }
+
+            .pagy .gap,
+            .pagy .disabled {
+                color: var(--nu-muted);
+                background: #f6f4f0;
             }
 
             .map-card {
@@ -976,6 +1075,15 @@
                     font-size: 16px;
                 }
 
+                .results-summary {
+                    display: block;
+                }
+
+                .results-page-count {
+                    margin-top: 6px;
+                    text-align: left;
+                }
+
                 .cards-grid {
                     grid-template-columns: 1fr;
                     gap: 20px;
@@ -986,6 +1094,10 @@
                 }
 
                 .listing-main-image {
+                    height: 204px;
+                }
+
+                .listing-media-link {
                     height: 204px;
                 }
             }
@@ -1133,53 +1245,61 @@
 
             <main class="results-page">
                 <div class="results-shell">
-                    <h1 class="results-title"><%= pluralize(@listings.count, "Sublet") %> Available</h1>
+                    <div class="results-summary">
+                        <h1 class="results-title"><%= pluralize(@total_listings_count, "Sublet") %> Available</h1>
+                        <% if @total_listings_count.positive? %>
+                            <p class="results-page-count">
+                                Showing <%= @pagy.from %>-<%= @pagy.to %> of <%= @pagy.count %>
+                            </p>
+                        <% end %>
+                    </div>
 
                     <div class="results-grid">
-                        <section class="cards-grid" aria-label="Search result listings">
-                            <% if @listings.any? %>
-                                <% avatar_images = [
-                                    "https://randomuser.me/api/portraits/women/65.jpg",
-                                    "https://randomuser.me/api/portraits/men/73.jpg",
-                                    "https://randomuser.me/api/portraits/women/27.jpg",
-                                    "https://randomuser.me/api/portraits/men/15.jpg",
-                                    "https://randomuser.me/api/portraits/women/32.jpg",
-                                    "https://randomuser.me/api/portraits/men/12.jpg",
-                                    "https://randomuser.me/api/portraits/women/18.jpg",
-                                    "https://randomuser.me/api/portraits/men/8.jpg",
-                                    "https://randomuser.me/api/portraits/women/12.jpg",
-                                    "https://randomuser.me/api/portraits/women/28.jpg",
-                                    "https://randomuser.me/api/portraits/men/18.jpg",
-                                    "https://randomuser.me/api/portraits/women/24.jpg"
-                                ] %>
-                                <% @listings.each_with_index do |listing, index| %>
-                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>">
-                                        <div class="listing-media">
-                                            <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title %>" />
-                                            <img class="listing-avatar" src="<%= avatar_images[index % avatar_images.length] %>" alt="Listing host" />
-                                        </div>
-                                        <div class="listing-body">
-                                            <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
-                                            <p class="listing-card-title"><%= listing.title %></p>
-                                            <div class="listing-meta">
-                                                <span><%= pluralize(listing.bedrooms, "bedroom") %></span>
-                                                <span><%= pluralize(listing.bathrooms, "bathroom") %></span>
-                                                <span><%= listing.available_from.strftime("%b %-d") %> - <%= listing.available_until.strftime("%b %-d") %></span>
+                        <div>
+                            <section class="cards-grid" aria-label="Search result listings">
+                                <% if @listings.any? %>
+                                    <% @listings.each do |listing| %>
+                                        <% listing_host = listing.user %>
+                                        <article class="listing-card">
+                                            <div class="listing-media">
+                                                <a class="listing-card-link listing-media-link" href="<%= sublet_listing_path(listing) %>">
+                                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title %>" />
+                                                </a>
+                                                <% if listing_host.present? %>
+                                                    <a class="listing-avatar-link" href="<%= user_profile_path(listing_host) %>" aria-label="View <%= listing_host.display_name %>'s profile">
+                                                        <img class="listing-avatar-image" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
+                                                    </a>
+                                                <% end %>
                                             </div>
-                                            <p class="listing-address"><%= listing.address %></p>
-                                        </div>
-                                    </a>
+                                            <a class="listing-card-link listing-body" href="<%= sublet_listing_path(listing) %>">
+                                                <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
+                                                <p class="listing-card-title"><%= listing.title %></p>
+                                                <div class="listing-meta">
+                                                    <span><%= pluralize(listing.bedrooms, "bedroom") %></span>
+                                                    <span><%= pluralize(listing.bathrooms, "bathroom") %></span>
+                                                    <span><%= listing.available_from.strftime("%b %-d") %> - <%= listing.available_until.strftime("%b %-d") %></span>
+                                                </div>
+                                                <p class="listing-address"><%= listing.address %></p>
+                                            </a>
+                                        </article>
+                                    <% end %>
+                                <% else %>
+                                    <div class="empty-results">
+                                        <p class="empty-results-title">No sublets match those filters.</p>
+                                        <p class="empty-results-copy">Try changing your dates, monthly rent, or amenities to see more available listings.</p>
+                                    </div>
                                 <% end %>
-                            <% else %>
-                                <div class="empty-results">
-                                    <p class="empty-results-title">No sublets cover those dates yet.</p>
-                                    <p class="empty-results-copy">Try widening your move-in or move-out dates to see more available listings.</p>
-                                </div>
+                            </section>
+
+                            <% if @pagy.pages > 1 %>
+                                <nav class="pagination-wrap" aria-label="Search results pages">
+                                    <%== @pagy.series_nav %>
+                                </nav>
                             <% end %>
-                        </section>
+                        </div>
 
                         <aside class="map-card" aria-label="Map of listings">
-                            <% map_groups = listing_map_groups(@listings) %>
+                            <% map_groups = listing_map_groups(@map_listings) %>
                             <div class="map-stage" data-map-stage data-zoom="1" aria-label="Sublet map">
                                 <div class="map-canvas" data-map-canvas>
                                     <div class="map-water" aria-hidden="true"></div>

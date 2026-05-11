@@ -626,26 +626,27 @@
                         </div>
                         NU Sublets
                     </a>
-                    <nav class="d-flex align-items-center topbar-nav">
+                    <nav class="d-flex align-items-center topbar-nav" aria-label="Main navigation">
                         <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
                         <a class="nav-link p-0" href="<%= search_results_path %>">Search</a>
                         <a class="nav-link p-0" href="<%= saved_path %>">Saved</a>
                         <a class="nav-link p-0" href="<%= post_sublet_path %>">Post Sublet</a>
-                        <%= render "auth_nav" %>
+                        <a class="nav-link p-0" href="<%= profile_path %>">Profile</a>
+                        <%= render "auth_nav", show_profile: false %>
                     </nav>
                 </div>
             </header>
 
-            <main>
+            <main id="main-content" aria-labelledby="page-title">
                 <section class="hero">
                     <div class="hero-grid">
                         <div>
-                            <h1 class="headline">Find a Place in Evanston</h1>
+                            <h1 class="headline" id="page-title">Find a Place in Evanston</h1>
                             <a href="<%= search_results_path %>" class="btn btn-primary btn-lg" style="background: #4E2A84; border: #4E2A84; margin-top: 1rem; font-weight: 600;">Browse All Sublets</a>
                         </div>
 
-                        <form class="search-card" action="<%= search_results_path %>" method="get">
-                            <h2 class="search-title">Search Sublets</h2>
+                        <form class="search-card" action="<%= search_results_path %>" method="get" aria-labelledby="search-sublets-title">
+                            <h2 class="search-title" id="search-sublets-title">Search Sublets</h2>
 
                             <div class="form-stack">
                                 <label class="date-picker-label" data-date-picker>
@@ -682,12 +683,32 @@
                     </div>
                 </section>
 
-                <section class="section-block" id="recommendations">
+                <section class="section-block" id="recommendations" aria-labelledby="recommendations-title">
                     <div class="section-inner">
-                        <h2 class="section-title">Sublets We Think You&rsquo;d Like</h2>
+                        <h2 class="section-title" id="recommendations-title">Sublets We Think You&rsquo;d Like</h2>
                         <div class="listing-carousel">
                             <button class="carousel-button prev" type="button" aria-label="Previous sublets" data-carousel-prev="recommendations-track">&#8249;</button>
                             <div class="listing-track" id="recommendations-track" data-carousel-track>
+                            <% if @recommended_listings.any? %>
+                                <% @recommended_listings.each do |listing| %>
+                                    <% listing_host = listing.user %>
+                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>">
+                                        <div class="listing-media">
+                                            <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+                                            <img class="listing-avatar" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
+                                        </div>
+                                        <div class="listing-body">
+                                            <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
+                                            <div class="listing-meta">
+                                                <span><%= pluralize(listing.bedrooms || 0, "bedroom") %></span>
+                                                <span><%= pluralize(listing.bathrooms || 0, "bathroom") %></span>
+                                                <span><%= listing.furnished? ? "Furnished" : "Unfurnished" %></span>
+                                            </div>
+                                            <p class="listing-address"><%= listing.address.presence || "Address coming soon" %></p>
+                                        </div>
+                                    </a>
+                                <% end %>
+                            <% else %>
                             <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(0) %>" alt="Bedroom listing" />
@@ -783,17 +804,18 @@
                                     <p class="listing-address">2018 Sherman Ave, Evanston, IL</p>
                                 </div>
                             </a>
+                            <% end %>
                             </div>
                             <button class="carousel-button next" type="button" aria-label="Next sublets" data-carousel-next="recommendations-track">&#8250;</button>
                         </div>
                     </div>
                 </section>
 
-                <section class="cta-section">
+                <section class="cta-section" aria-labelledby="post-sublet-title">
                     <div class="cta-inner">
                         <div class="cta-shell">
                             <div class="cta-copy">
-                                <h2 class="cta-title">Looking For Someone to Sublet Your Room?</h2>
+                                <h2 class="cta-title" id="post-sublet-title">Looking For Someone to Sublet Your Room?</h2>
                                 <p class="cta-subtitle">List your sublet here</p>
                                 <% if user_signed_in? %>
                                     <a class="cta-button btn btn-primary" href="<%= post_sublet_path %>">Create a Posting</a>
@@ -806,12 +828,32 @@
                     </div>
                 </section>
 
-                <section class="section-block" id="newest-sublets">
+                <section class="section-block" id="newest-sublets" aria-labelledby="newest-sublets-title">
                     <div class="section-inner">
-                        <h2 class="section-title">Newest Sublets</h2>
+                        <h2 class="section-title" id="newest-sublets-title">Newest Sublets</h2>
                         <div class="listing-carousel">
                             <button class="carousel-button prev" type="button" aria-label="Previous newest sublets" data-carousel-prev="newest-track">&#8249;</button>
                             <div class="listing-track" id="newest-track" data-carousel-track>
+                            <% if @newest_listings.any? %>
+                                <% @newest_listings.each do |listing| %>
+                                    <% listing_host = listing.user %>
+                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>">
+                                        <div class="listing-media">
+                                            <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+                                            <img class="listing-avatar" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
+                                        </div>
+                                        <div class="listing-body">
+                                            <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
+                                            <div class="listing-meta">
+                                                <span><%= pluralize(listing.bedrooms || 0, "bedroom") %></span>
+                                                <span><%= pluralize(listing.bathrooms || 0, "bathroom") %></span>
+                                                <span><%= listing.furnished? ? "Furnished" : "Unfurnished" %></span>
+                                            </div>
+                                            <p class="listing-address"><%= listing.address.presence || "Address coming soon" %></p>
+                                        </div>
+                                    </a>
+                                <% end %>
+                            <% else %>
                             <a class="listing-card" href="<%= listing_path %>">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(6) %>" alt="Bedroom listing" />
@@ -907,6 +949,7 @@
                                     <p class="listing-address">1740 Oak Ave, Evanston, IL</p>
                                 </div>
                             </a>
+                            <% end %>
                             </div>
                             <button class="carousel-button next" type="button" aria-label="Next newest sublets" data-carousel-next="newest-track">&#8250;</button>
                         </div>

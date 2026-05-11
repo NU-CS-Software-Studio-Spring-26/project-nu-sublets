@@ -2,7 +2,10 @@ class PagesController < ApplicationController
   layout false
   before_action :authenticate_user!, only: %i[profile anotheruseraccount submit_sublet]
 
-  def home; end
+  def home
+    @recommended_listings = SubletListing.includes(:user).find_available_listings.limit(6)
+    @newest_listings = SubletListing.includes(:user).find_available_listings.order(created_at: :desc).limit(6)
+  end
 
   def listing
     @listing = if params[:id].present?
@@ -27,9 +30,9 @@ class PagesController < ApplicationController
 
     if @move_in && @move_out && @move_out < @move_in
       @filter_error = "Move-out date must be after move-in date."
-      @listings = SubletListing.none
+      listings = SubletListing.none
     else
-      @listings = SubletListing.search_listings(
+      listings = SubletListing.search_listings(
         move_in: @move_in,
         move_out: @move_out,
         min_price: @min_price,
@@ -44,13 +47,25 @@ class PagesController < ApplicationController
         available_only: true
       ).order(:price)
     end
+
+    @total_listings_count = listings.count
+    @pagy, @listings = pagy(:offset, listings, limit: 12)
+    @map_listings = listings.limit(150)
   end
 
   def saved; end
 
   def post_sublet; end
 
-  def profile; end
+  def profile
+    @profile_user = current_user
+  end
+
+  def public_profile
+    @profile_user = User.find(params[:id])
+
+    render :profile
+  end
 
   def anotheruseraccount; end
 

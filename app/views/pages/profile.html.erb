@@ -81,57 +81,93 @@
                 gap: 64px;
                 font-size: 24px;
                 font-weight: 400;
-                line-height: 1;
-                white-space: nowrap;
             }
 
-            .settings-nav a,
-            .settings-nav button {
-                color: var(--nu-text);
-                text-decoration: none;
+            .profile-page {
+                padding: 32px 48px 64px;
             }
 
-            .settings-nav button {
-                border: 0;
-                background: transparent;
-                padding: 0;
-                font: inherit;
-                cursor: pointer;
+            .profile-shell {
+                max-width: 1180px;
+                margin: 0 auto;
             }
 
-            .settings-nav form {
-                margin: 0;
+            .profile-grid {
+                display: grid;
+                grid-template-columns: minmax(300px, 400px) minmax(300px, 360px);
+                justify-content: start;
+                gap: 48px;
+                align-items: start;
             }
 
-            .settings-main {
-                display: flex;
-                align-items: flex-start;
-                gap: 64px;
-                padding: 66px 72px 72px;
-            }
-
-            .settings-sidebar {
-                width: 324px;
-                min-height: 695px;
-                flex: 0 0 324px;
-                border-radius: 16px;
+            .profile-card {
                 background: #fff;
+                border-radius: 16px;
                 box-shadow: var(--nu-shadow-soft);
-                padding: 32px 48px;
+                padding: 24px 26px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 24px;
+                gap: 12px;
             }
 
-            .settings-sidebar-title {
+            .profile-avatar {
+                width: 124px;
+                height: 124px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .verified-row,
+            .rating-row {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .verified-icon {
+                width: 32px;
+                height: 32px;
+                flex: 0 0 auto;
+            }
+
+            .verified-copy {
                 margin: 0;
-                font-size: 32px;
-                font-weight: 600;
-                line-height: 1.2;
+                font-family: "Rubik", sans-serif;
+                font-size: 17px;
+                line-height: 1.7;
+                color: var(--nu-verified);
             }
 
-            .settings-sidebar-nav {
+            .star-row {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .star-icon {
+                width: 20px;
+                height: 20px;
+                display: block;
+            }
+
+            .rating-copy {
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 17px;
+                line-height: 1.7;
+            }
+
+            .bio-copy {
+                width: 100%;
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 17px;
+                line-height: 1.7;
+            }
+
+            .profile-meta,
+            .profile-stats {
                 width: 100%;
                 display: grid;
                 gap: 16px;
@@ -139,30 +175,51 @@
                 line-height: 1.25;
             }
 
-            .settings-sidebar-nav a {
-                text-decoration: none;
+            .profile-meta-item,
+            .profile-stat {
+                border: 1px solid var(--nu-border);
+                border-radius: 12px;
+                padding: 12px 14px;
             }
 
-            .settings-sidebar-nav a[aria-current="page"] {
-                font-weight: 400;
+            .profile-meta-label,
+            .profile-stat-label {
+                margin: 0 0 4px;
+                font-family: "Rubik", sans-serif;
+                font-size: 12px;
+                font-weight: 600;
+                line-height: 1.2;
+                color: var(--nu-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
             }
 
-            .settings-content {
-                width: 504px;
-                max-width: 100%;
-                padding-top: 28px;
+            .profile-meta-value,
+            .profile-stat-value {
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 16px;
+                line-height: 1.4;
+            }
+
+            .profile-stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                margin-top: 6px;
+            }
+
+            .profile-content {
                 display: flex;
                 flex-direction: column;
-                align-items: flex-start;
-                gap: 16px;
+                gap: 10px;
+                width: 100%;
+                max-width: 360px;
             }
 
-            .settings-title {
+            .profile-name {
                 margin: 0;
-                width: 307px;
-                max-width: 100%;
-                font-size: 32px;
-                font-weight: 600;
+                font-family: "Rubik", sans-serif;
+                font-size: clamp(1.95rem, 3vw, 2.2rem);
+                font-weight: 700;
                 line-height: 1.2;
             }
 
@@ -184,6 +241,12 @@
                 line-height: 1.5;
             }
 
+            .details-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+            }
+
             .settings-avatar {
                 width: 160px;
                 height: 160px;
@@ -192,81 +255,81 @@
                 background: #f4eff8;
             }
 
-            .settings-input,
-            .settings-textarea {
-                width: 100%;
-                border: 1px solid var(--nu-border);
-                border-radius: 8px;
-                background: #fff;
-                color: var(--nu-text);
-                font-size: 16px;
-                font-weight: 300;
-                line-height: 2;
-                padding: 8px 16px;
+            .listing-body {
+                padding: 6px 8px 10px;
             }
 
-            .settings-input {
-                height: 52px;
+            .listing-price {
+                margin: 0 0 3px;
+                font-family: "Rubik", sans-serif;
+                font-size: 21px;
+                font-weight: 800;
+                line-height: 1.05;
             }
 
-            .settings-textarea {
-                min-height: 52px;
-                resize: vertical;
-            }
-
-            .settings-input:focus,
-            .settings-textarea:focus,
-            .settings-action:focus-visible,
-            .settings-danger:focus-visible,
-            .settings-sidebar-nav a:focus-visible,
-            .settings-nav a:focus-visible,
-            .settings-nav button:focus-visible,
-            .settings-brand:focus-visible {
-                outline: 3px solid var(--nu-focus);
-                outline-offset: 3px;
-            }
-
-            .settings-action {
-                justify-self: start;
-                border: 0;
-                border-radius: 4px;
-                background: var(--nu-soft-purple);
-                color: var(--nu-text);
-                font-family: "Inter", sans-serif;
-                font-size: 12px;
-                font-weight: 400;
-                line-height: 1;
-                padding: 8px;
-            }
-
-            .settings-danger {
-                color: var(--nu-danger);
-                font-size: 16px;
-                font-weight: 300;
+            .listing-meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                margin-bottom: 3px;
+                font-family: "Rubik", sans-serif;
+                font-size: 10px;
+                font-weight: 500;
                 line-height: 1.2;
-                text-decoration: underline;
-                text-underline-offset: 2px;
+            }
+
+            .listing-address {
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 10px;
+                line-height: 1.2;
+            }
+
+            .empty-state {
+                border: 1px dashed var(--nu-border);
+                border-radius: 16px;
+                padding: 22px 20px;
+                background: #fff;
+            }
+
+            .empty-state-copy {
+                margin: 0 0 16px;
+                font-family: "Rubik", sans-serif;
+                font-size: 15px;
+                line-height: 1.6;
+                color: var(--nu-muted);
+            }
+
+            .empty-state-link {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 44px;
+                border-radius: 12px;
+                padding: 0 18px;
+                background: var(--nu-accent);
+                color: #fff;
+                font-family: "Rubik", sans-serif;
+                font-size: 15px;
+                font-weight: 600;
+                text-decoration: none;
             }
 
             @media (max-width: 991.98px) {
-                .settings-topbar {
-                    padding-inline: 32px;
-                }
-
-                .settings-nav {
-                    gap: 28px;
-                    font-size: 18px;
-                }
-
-                .settings-main {
-                    gap: 32px;
-                    padding: 48px 32px 56px;
+                .profile-grid {
+                    grid-template-columns: minmax(0, 1fr);
+                    gap: 24px;
+                    max-width: 480px;
                 }
 
                 .settings-sidebar {
                     width: 260px;
                     flex-basis: 260px;
                     padding-inline: 32px;
+                }
+
+                .details-grid {
+                    grid-template-columns: minmax(0, 1fr);
                 }
             }
 
@@ -291,17 +354,26 @@
                     padding: 28px 20px 44px;
                 }
 
-                .settings-sidebar {
-                    width: 100%;
-                    min-height: 0;
-                    flex-basis: auto;
-                    align-items: flex-start;
-                    padding: 24px;
+                .profile-avatar {
+                    width: 112px;
+                    height: 112px;
                 }
 
-                .settings-sidebar-title,
-                .settings-title {
-                    font-size: 28px;
+                .verified-copy,
+                .rating-copy,
+                .bio-copy {
+                    font-size: 15px;
+                }
+
+                .profile-meta-value,
+                .profile-stat-value,
+                .section-subtitle,
+                .empty-state-copy {
+                    font-size: 14px;
+                }
+
+                .section-title {
+                    font-size: 19px;
                 }
 
                 .settings-sidebar-nav,
@@ -323,61 +395,123 @@
     </head>
     <body>
         <% user = current_user %>
+        <% listings = user.sublet_listings.order(created_at: :desc) %>
         <% first_name = user.first_name.presence || user.display_name.split.first %>
         <% initials = user.display_name.split.map { |part| part.first }.join.first(2).upcase.presence || "NU" %>
-        <% avatar_src = "https://ui-avatars.com/api/?name=#{ERB::Util.url_encode(initials)}&background=F4EFF8&color=3E1B4B&size=320&bold=true" %>
-        <% bio_value = "Hi #{first_name}, this is your NU Sublets profile." %>
-
-        <div class="settings-page">
-            <header class="settings-topbar">
-                <div class="settings-topbar-inner">
-                    <a class="settings-brand" href="<%= root_path %>">NU-Sublets</a>
-                    <nav class="settings-nav" aria-label="Primary navigation">
-                        <a href="<%= search_results_path %>">Browse</a>
-                        <% if user_signed_in? %>
-                            <%= button_to "Log Out", session_path, method: :delete %>
-                        <% else %>
-                            <a href="<%= login_path %>">Log In</a>
-                        <% end %>
+        <div class="page-shell">
+            <header class="topbar">
+                <div class="topbar-inner">
+                    <a class="brand d-flex align-items-center" href="<%= root_path %>" style="text-decoration: none; color: #4E2A84; font-weight: bold; font-size: 1.25rem;">
+                        <div style="background: #4E2A84; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
+                            <svg width="24" height="24" viewBox="0 0 32 24" fill="none">
+                                <!-- House -->
+                                <path d="M2 12L8 7L14 12V18C14 18.6 13.6 19 13 19H3C2.4 19 2 18.6 2 18V12Z" fill="white"/>
+                                <path d="M6 15H10V19H6V15Z" fill="#4E2A84"/>
+                                <!-- Wildcat head -->
+                                <ellipse cx="24" cy="12" rx="6" ry="5" fill="white"/>
+                                <!-- Cat ears -->
+                                <path d="M20 8L21 6L22 8" fill="white" stroke="white" stroke-width="0.5"/>
+                                <path d="M26 8L27 6L28 8" fill="white" stroke="white" stroke-width="0.5"/>
+                                <!-- Cat eyes -->
+                                <ellipse cx="21.5" cy="11" rx="1" ry="1.2" fill="#4E2A84"/>
+                                <ellipse cx="26.5" cy="11" rx="1" ry="1.2" fill="#4E2A84"/>
+                                <!-- Cat nose and mouth -->
+                                <path d="M24 13.5L23.3 14.2L24.7 14.2Z" fill="#4E2A84"/>
+                                <!-- Whiskers -->
+                                <line x1="18" y1="11.5" x2="20" y2="11.5" stroke="#4E2A84" stroke-width="0.8"/>
+                                <line x1="28" y1="11.5" x2="30" y2="11.5" stroke="#4E2A84" stroke-width="0.8"/>
+                                <line x1="18.5" y1="13" x2="20" y2="13" stroke="#4E2A84" stroke-width="0.8"/>
+                                <line x1="28" y1="13" x2="29.5" y2="13" stroke="#4E2A84" stroke-width="0.8"/>
+                            </svg>
+                        </div>
+                        NU Sublets
+                    </a>
+                    <nav class="d-flex align-items-center topbar-nav">
+                        <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
+                        <a class="nav-link p-0" href="<%= search_results_path %>">Search</a>
+                        <a class="nav-link p-0" href="<%= saved_path %>">Saved</a>
+                        <a class="nav-link p-0" href="<%= post_sublet_path %>">Post Sublet</a>
+                        <%= render "auth_nav" %>
                     </nav>
                 </div>
             </header>
 
-            <main class="settings-main">
-                <aside class="settings-sidebar" aria-label="Profile navigation">
-                    <h2 class="settings-sidebar-title">Profile</h2>
-                    <nav class="settings-sidebar-nav">
-                        <a href="<%= post_sublet_path %>">Your Listings</a>
-                        <a href="<%= profile_path %>" aria-current="page">Account Settings</a>
-                    </nav>
-                </aside>
+            <main class="profile-page">
+                <div class="profile-shell">
+                    <div class="profile-grid">
+                        <section class="profile-card" aria-label="Profile summary">
+                            <img class="profile-avatar" src="https://ui-avatars.com/api/?name=<%= ERB::Util.url_encode(initials) %>&background=F4EFF8&color=3E1B4B&size=248&bold=true" alt="<%= user.display_name %> profile avatar" />
 
-                <section class="settings-content" aria-label="Account settings">
-                    <h1 class="settings-title">Account Settings</h1>
-                    <div class="settings-form">
-                        <div class="settings-field">
-                            <p class="settings-label">Change Profile Picture</p>
-                            <img class="settings-avatar" src="<%= avatar_src %>" alt="<%= user.display_name %> profile picture" />
-                        </div>
+                            <div class="verified-row">
+                                <svg class="verified-icon" viewBox="0 0 32 32" aria-hidden="true">
+                                    <path d="M16 2 6 5.68v8.77C6 21.64 10.26 28.35 16 30.43c5.74-2.08 10-8.79 10-15.98V5.68L16 2Z" fill="none" stroke="#3B82F6" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
+                                    <path d="m11 16.25 3.68 3.68L21 13.61" fill="none" stroke="#3B82F6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" />
+                                </svg>
+                                <p class="verified-copy">Verified Student</p>
+                            </div>
 
-                        <label class="settings-field">
-                            <span class="settings-label">Name</span>
-                            <input class="settings-input" type="text" name="name" value="<%= user.display_name %>" autocomplete="name" />
-                        </label>
+                            <p class="bio-copy">
+                                Hi <%= first_name %>, this is your NU Sublets profile. You&rsquo;re signed in with your Northwestern account and can manage your listings, contact details, and posting activity from here.
+                            </p>
 
-                        <label class="settings-field">
-                            <span class="settings-label">Email</span>
-                            <input class="settings-input" type="email" name="email" value="<%= user.email %>" autocomplete="email" />
-                        </label>
+                            <div class="profile-meta" aria-label="Profile details">
+                                <div class="profile-meta-item">
+                                    <p class="profile-meta-label">Northwestern Email</p>
+                                    <p class="profile-meta-value"><%= user.email %></p>
+                                </div>
+                                <div class="profile-meta-item">
+                                    <p class="profile-meta-label">Display Name</p>
+                                    <p class="profile-meta-value"><%= user.display_name %></p>
+                                </div>
+                            </div>
 
-                        <button class="settings-action" type="button">Change Password</button>
+                            <div class="profile-stats" aria-label="Profile stats">
+                                <div class="profile-stat">
+                                    <p class="profile-stat-label">Listings</p>
+                                    <p class="profile-stat-value"><%= listings.count %></p>
+                                </div>
+                                <div class="profile-stat">
+                                    <p class="profile-stat-label">Status</p>
+                                    <p class="profile-stat-value"><%= user.active? ? "Active" : "Inactive" %></p>
+                                </div>
+                            </div>
+                        </section>
 
-                        <label class="settings-field">
-                            <span class="settings-label">Bio</span>
-                            <textarea class="settings-textarea" name="bio" rows="1"><%= bio_value %></textarea>
-                        </label>
+                        <section class="profile-content" aria-label="Profile listings">
+                            <h1 class="profile-name"><%= user.display_name %></h1>
+                            <h2 class="section-title">Current Listings</h2>
+                            <p class="section-subtitle"><%= listings.any? ? "Your live sublet posts appear here." : "You have not posted a sublet yet." %></p>
 
-                        <a class="settings-danger" href="<%= profile_path %>">Delete Account</a>
+                            <% if listings.any? %>
+                                <% listings.each do |listing| %>
+                                    <a class="listing-card" href="<%= listing_path %>">
+                                        <div class="listing-media">
+                                            <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+                                            <img class="listing-avatar" src="https://ui-avatars.com/api/?name=<%= ERB::Util.url_encode(initials) %>&background=F4EFF8&color=3E1B4B&size=100&bold=true" alt="<%= user.display_name %> listing avatar" />
+                                            <span class="favorite-button" role="button" tabindex="0" aria-pressed="false" aria-label="Save to favorite listings">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                    <path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"></path>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="listing-body">
+                                            <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
+                                            <div class="listing-meta">
+                                                <span><%= pluralize(listing.bedrooms || 0, "bedroom") %></span>
+                                                <span><%= pluralize(listing.bathrooms || 0, "bathroom") %></span>
+                                                <span><%= listing.furnished? ? "Furnished" : "Unfurnished" %></span>
+                                            </div>
+                                            <p class="listing-address"><%= listing.address.presence || "Address coming soon" %></p>
+                                        </div>
+                                    </a>
+                                <% end %>
+                            <% else %>
+                                <div class="empty-state">
+                                    <p class="empty-state-copy">Create your first listing to start receiving interest from other Northwestern students.</p>
+                                    <a class="empty-state-link" href="<%= post_sublet_path %>">Post a Sublet</a>
+                                </div>
+                            <% end %>
+                        </section>
                     </div>
                 </section>
             </main>
