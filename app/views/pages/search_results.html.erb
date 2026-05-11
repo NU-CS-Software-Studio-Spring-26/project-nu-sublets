@@ -547,8 +547,13 @@
                 position: absolute;
                 left: 12px;
                 bottom: -8px;
+                width: 50px;
+                height: 50px;
                 border-radius: 50%;
+                background: #fff;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
                 text-decoration: none;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
 
             .listing-avatar {
@@ -573,6 +578,8 @@
             .listing-avatar-image {
                 width: 100%;
                 height: 100%;
+                border: 2px solid #fff;
+                border-radius: 50%;
                 object-fit: cover;
             }
 
@@ -1295,9 +1302,7 @@
                                               <p class="listing-address"><%= listing.address %></p>
                                           </a>
                                       </article>
-                                  <% end %> 
-                                          </article>
-                                    <% end %>
+                                  <% end %>
                                 <% else %>
                                     <div class="empty-results">
                                         <p class="empty-results-title">No sublets match those filters.</p>
