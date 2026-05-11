@@ -89,6 +89,7 @@
 
             .profile-page {
                 padding: 32px 48px 64px;
+                background: linear-gradient(180deg, #faf8fd 0%, #ffffff 220px);
             }
 
             .profile-shell {
@@ -98,21 +99,21 @@
 
             .profile-grid {
                 display: grid;
-                grid-template-columns: minmax(300px, 400px) minmax(300px, 360px);
-                justify-content: start;
-                gap: 48px;
+                grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+                gap: 28px;
                 align-items: start;
             }
 
             .profile-card {
                 background: #fff;
-                border-radius: 16px;
+                border: 1px solid rgba(78, 42, 132, 0.12);
+                border-radius: 8px;
                 box-shadow: var(--nu-shadow-soft);
-                padding: 24px 26px;
+                padding: 24px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 12px;
+                gap: 14px;
             }
 
             .profile-avatar {
@@ -120,54 +121,67 @@
                 height: 124px;
                 border-radius: 50%;
                 object-fit: cover;
+                border: 4px solid #f4eff8;
             }
 
-            .verified-row,
-            .rating-row {
+            .profile-heading {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+                text-align: center;
+            }
+
+            .profile-name {
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: clamp(1.75rem, 3vw, 2.15rem);
+                font-weight: 800;
+                line-height: 1.15;
+            }
+
+            .profile-role {
+                margin: 0;
+                color: var(--nu-muted);
+                font-family: "Rubik", sans-serif;
+                font-size: 15px;
+                font-weight: 500;
+                line-height: 1.3;
+            }
+
+            .verified-row {
                 display: inline-flex;
                 align-items: center;
                 gap: 8px;
+                border: 1px solid rgba(78, 42, 132, 0.18);
+                border-radius: 999px;
+                padding: 7px 12px;
+                background: #fbf9fd;
             }
 
             .verified-icon {
-                width: 32px;
-                height: 32px;
+                width: 20px;
+                height: 20px;
                 flex: 0 0 auto;
             }
 
             .verified-copy {
                 margin: 0;
                 font-family: "Rubik", sans-serif;
-                font-size: 17px;
-                line-height: 1.7;
-                color: var(--nu-verified);
-            }
-
-            .star-row {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-            }
-
-            .star-icon {
-                width: 20px;
-                height: 20px;
-                display: block;
-            }
-
-            .rating-copy {
-                margin: 0;
-                font-family: "Rubik", sans-serif;
-                font-size: 17px;
-                line-height: 1.7;
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 1.2;
+                color: var(--nu-accent);
             }
 
             .bio-copy {
                 width: 100%;
                 margin: 0;
                 font-family: "Rubik", sans-serif;
-                font-size: 17px;
-                line-height: 1.7;
+                font-size: 15px;
+                line-height: 1.6;
+                color: #252525;
+                text-align: center;
             }
 
             .profile-meta,
@@ -184,7 +198,7 @@
             .profile-meta-item,
             .profile-stat {
                 border: 1px solid var(--nu-border);
-                border-radius: 12px;
+                border-radius: 8px;
                 padding: 12px 14px;
             }
 
@@ -213,20 +227,59 @@
                 margin-top: 6px;
             }
 
+            .profile-actions {
+                width: 100%;
+                display: flex;
+                gap: 10px;
+                margin-top: 2px;
+            }
+
+            .profile-action {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 42px;
+                border-radius: 8px;
+                padding: 0 14px;
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+            .profile-action-primary {
+                flex: 1;
+                background: var(--nu-accent);
+                color: #fff;
+            }
+
+            .profile-action-secondary {
+                border: 1px solid var(--nu-border);
+                color: var(--nu-muted);
+                background: #fff;
+            }
+
             .profile-content {
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
+                gap: 18px;
                 width: 100%;
-                max-width: 360px;
             }
 
-            .profile-name {
-                margin: 0;
-                font-family: "Rubik", sans-serif;
-                font-size: clamp(1.95rem, 3vw, 2.2rem);
-                font-weight: 700;
-                line-height: 1.2;
+            .profile-section {
+                background: #fff;
+                border: 1px solid rgba(78, 42, 132, 0.12);
+                border-radius: 8px;
+                box-shadow: var(--nu-shadow-soft);
+                padding: 22px;
+            }
+
+            .profile-section-header {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 16px;
+                margin-bottom: 14px;
             }
 
             .section-title {
@@ -243,6 +296,12 @@
                 font-size: 15px;
                 line-height: 1.5;
                 color: var(--nu-muted);
+            }
+
+            .details-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
             }
 
             .listing-card {
@@ -352,6 +411,14 @@
                 line-height: 1.05;
             }
 
+            .listing-card-title {
+                margin: 0 0 3px;
+                font-family: "Rubik", sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+                line-height: 1.2;
+            }
+
             .listing-meta {
                 display: flex;
                 flex-wrap: wrap;
@@ -372,7 +439,7 @@
 
             .empty-state {
                 border: 1px dashed var(--nu-border);
-                border-radius: 16px;
+                border-radius: 8px;
                 padding: 22px 20px;
                 background: #fff;
             }
@@ -390,7 +457,7 @@
                 align-items: center;
                 justify-content: center;
                 min-height: 44px;
-                border-radius: 12px;
+                border-radius: 8px;
                 padding: 0 18px;
                 background: var(--nu-accent);
                 color: #fff;
@@ -404,11 +471,14 @@
                 .profile-grid {
                     grid-template-columns: minmax(0, 1fr);
                     gap: 24px;
-                    max-width: 480px;
                 }
 
                 .profile-content {
                     gap: 12px;
+                }
+
+                .details-grid {
+                    grid-template-columns: minmax(0, 1fr);
                 }
             }
 
@@ -440,7 +510,6 @@
                 }
 
                 .verified-copy,
-                .rating-copy,
                 .bio-copy {
                     font-size: 15px;
                 }
@@ -481,10 +550,20 @@
         </style>
     </head>
     <body>
-        <% user = current_user %>
+        <% user = @profile_user || current_user %>
         <% listings = user.sublet_listings.order(created_at: :desc) %>
-        <% first_name = user.first_name.presence || user.display_name.split.first %>
-        <% initials = user.display_name.split.map { |part| part.first }.join.first(2).upcase.presence || "NU" %>
+        <% display_name = user.display_name %>
+        <% first_name = user.first_name.presence || display_name.split.first %>
+        <% avatar_url = user_avatar_url(user) %>
+        <% northwestern_verified = User.northwestern_email?(user.email) %>
+        <% role_status = listings.any? ? (northwestern_verified ? "Verified lister" : "Lister") : "Student / renter" %>
+        <% verification_status = northwestern_verified ? "Verified Northwestern student" : "Northwestern verification pending" %>
+        <% class_year = user.try(:class_year).presence || "Not added yet" %>
+        <% school_program = user.try(:school_program).presence || user.try(:program).presence || "Not added yet" %>
+        <% short_bio = user.try(:bio).presence || "Hi #{first_name}, this is your NU Sublets profile. Add a short bio later so renters and listers know who they are talking with." %>
+        <% preferred_contact = user.try(:preferred_contact_method).presence || "Email" %>
+        <% response_time = user.try(:response_time).presence || (listings.any? ? "Usually responds within 1 day" : "Usually responds within 2 days") %>
+        <% joined_on = user.created_at.present? ? user.created_at.strftime("%B %Y") : "Recently" %>
         <div class="page-shell">
             <header class="topbar">
                 <div class="topbar-inner">
@@ -527,28 +606,39 @@
                 <div class="profile-shell">
                     <div class="profile-grid">
                         <section class="profile-card" aria-label="Profile summary">
-                            <img class="profile-avatar" src="https://ui-avatars.com/api/?name=<%= ERB::Util.url_encode(initials) %>&background=F4EFF8&color=3E1B4B&size=248&bold=true" alt="<%= user.display_name %> profile avatar" />
+                            <img class="profile-avatar" src="<%= avatar_url %>" alt="<%= display_name %> profile avatar" />
+
+                            <div class="profile-heading">
+                                <h1 class="profile-name"><%= display_name %></h1>
+                                <p class="profile-role"><%= role_status %></p>
+                            </div>
 
                             <div class="verified-row">
                                 <svg class="verified-icon" viewBox="0 0 32 32" aria-hidden="true">
-                                    <path d="M16 2 6 5.68v8.77C6 21.64 10.26 28.35 16 30.43c5.74-2.08 10-8.79 10-15.98V5.68L16 2Z" fill="none" stroke="#3B82F6" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
-                                    <path d="m11 16.25 3.68 3.68L21 13.61" fill="none" stroke="#3B82F6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" />
+                                    <path d="M16 2 6 5.68v8.77C6 21.64 10.26 28.35 16 30.43c5.74-2.08 10-8.79 10-15.98V5.68L16 2Z" fill="none" stroke="#4E2A84" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
+                                    <path d="m11 16.25 3.68 3.68L21 13.61" fill="none" stroke="#4E2A84" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" />
                                 </svg>
-                                <p class="verified-copy">Verified Student</p>
+                                <p class="verified-copy"><%= verification_status %></p>
                             </div>
 
-                            <p class="bio-copy">
-                                Hi <%= first_name %>, this is your NU Sublets profile. You&rsquo;re signed in with your Northwestern account and can manage your listings, contact details, and posting activity from here.
-                            </p>
+                            <p class="bio-copy"><%= short_bio %></p>
 
                             <div class="profile-meta" aria-label="Profile details">
                                 <div class="profile-meta-item">
-                                    <p class="profile-meta-label">Northwestern Email</p>
+                                    <p class="profile-meta-label">Preferred Contact</p>
+                                    <p class="profile-meta-value"><%= preferred_contact %></p>
+                                </div>
+                                <div class="profile-meta-item">
+                                    <p class="profile-meta-label">Contact Detail</p>
                                     <p class="profile-meta-value"><%= user.email %></p>
                                 </div>
                                 <div class="profile-meta-item">
-                                    <p class="profile-meta-label">Display Name</p>
-                                    <p class="profile-meta-value"><%= user.display_name %></p>
+                                    <p class="profile-meta-label">Joined</p>
+                                    <p class="profile-meta-value"><%= joined_on %></p>
+                                </div>
+                                <div class="profile-meta-item">
+                                    <p class="profile-meta-label">Response Time</p>
+                                    <p class="profile-meta-value"><%= response_time %></p>
                                 </div>
                             </div>
 
@@ -559,45 +649,83 @@
                                 </div>
                                 <div class="profile-stat">
                                     <p class="profile-stat-label">Status</p>
-                                    <p class="profile-stat-value"><%= user.active? ? "Active" : "Inactive" %></p>
+                                    <p class="profile-stat-value"><%= role_status %></p>
                                 </div>
+                            </div>
+
+                            <div class="profile-actions">
+                                <a class="profile-action profile-action-primary" href="mailto:<%= user.email %>">Contact</a>
+                                <a class="profile-action profile-action-secondary" href="mailto:support@nusublets.com?subject=<%= ERB::Util.url_encode("Report profile: #{display_name}") %>">Report profile</a>
                             </div>
                         </section>
 
                         <section class="profile-content" aria-label="Profile listings">
-                            <h1 class="profile-name"><%= user.display_name %></h1>
-                            <h2 class="section-title">Current Listings</h2>
-                            <p class="section-subtitle"><%= listings.any? ? "Your live sublet posts appear here." : "You have not posted a sublet yet." %></p>
-
-                            <% if listings.any? %>
-                                <% listings.each do |listing| %>
-                                    <a class="listing-card" href="<%= listing_path %>">
-                                        <div class="listing-media">
-                                            <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
-                                            <img class="listing-avatar" src="https://ui-avatars.com/api/?name=<%= ERB::Util.url_encode(initials) %>&background=F4EFF8&color=3E1B4B&size=100&bold=true" alt="<%= user.display_name %> listing avatar" />
-                                            <span class="favorite-button" role="button" tabindex="0" aria-pressed="false" aria-label="Save to favorite listings">
-                                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                                    <path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"></path>
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="listing-body">
-                                            <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
-                                            <div class="listing-meta">
-                                                <span><%= pluralize(listing.bedrooms || 0, "bedroom") %></span>
-                                                <span><%= pluralize(listing.bathrooms || 0, "bathroom") %></span>
-                                                <span><%= listing.furnished? ? "Furnished" : "Unfurnished" %></span>
-                                            </div>
-                                            <p class="listing-address"><%= listing.address.presence || "Address coming soon" %></p>
-                                        </div>
-                                    </a>
-                                <% end %>
-                            <% else %>
-                                <div class="empty-state">
-                                    <p class="empty-state-copy">Create your first listing to start receiving interest from other Northwestern students.</p>
-                                    <a class="empty-state-link" href="<%= post_sublet_path %>">Post a Sublet</a>
+                            <section class="profile-section" aria-label="Profile details">
+                                <div class="profile-section-header">
+                                    <h2 class="section-title">Profile Details</h2>
+                                    <p class="section-subtitle"><%= verification_status %></p>
                                 </div>
-                            <% end %>
+                                <div class="details-grid">
+                                    <div class="profile-meta-item">
+                                        <p class="profile-meta-label">Role / Status</p>
+                                        <p class="profile-meta-value"><%= role_status %></p>
+                                    </div>
+                                    <div class="profile-meta-item">
+                                        <p class="profile-meta-label">Class Year</p>
+                                        <p class="profile-meta-value"><%= class_year %></p>
+                                    </div>
+                                    <div class="profile-meta-item">
+                                        <p class="profile-meta-label">School / Program</p>
+                                        <p class="profile-meta-value"><%= school_program %></p>
+                                    </div>
+                                    <div class="profile-meta-item">
+                                        <p class="profile-meta-label">Response Time</p>
+                                        <p class="profile-meta-value"><%= response_time %></p>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="profile-section" aria-label="Listings posted by this user">
+                                <div class="profile-section-header">
+                                    <div>
+                                        <h2 class="section-title">Listings Posted by <%= first_name %></h2>
+                                        <p class="section-subtitle"><%= listings.any? ? "Active sublet posts from this profile." : "No sublets posted yet." %></p>
+                                    </div>
+                                </div>
+
+                                <% if listings.any? %>
+                                    <div class="details-grid">
+                                        <% listings.each do |listing| %>
+                                            <a class="listing-card" href="<%= sublet_listing_path(listing) %>">
+                                                <div class="listing-media">
+                                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+                                                    <img class="listing-avatar" src="<%= avatar_url %>" alt="<%= display_name %> listing avatar" />
+                                                    <span class="favorite-button" role="button" tabindex="0" aria-pressed="false" aria-label="Save to favorite listings">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                            <path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"></path>
+                                                        </svg>
+                                                    </span>
+                                                </div>
+                                                <div class="listing-body">
+                                                    <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
+                                                    <p class="listing-card-title"><%= listing.title.presence || "Sublet listing" %></p>
+                                                    <div class="listing-meta">
+                                                        <span><%= pluralize(listing.bedrooms || 0, "bedroom") %></span>
+                                                        <span><%= pluralize(listing.bathrooms || 0, "bathroom") %></span>
+                                                        <span><%= listing.furnished? ? "Furnished" : "Unfurnished" %></span>
+                                                    </div>
+                                                    <p class="listing-address"><%= listing.address.presence || "Address coming soon" %></p>
+                                                </div>
+                                            </a>
+                                        <% end %>
+                                    </div>
+                                <% else %>
+                                    <div class="empty-state">
+                                        <p class="empty-state-copy">Create your first listing to start receiving interest from other Northwestern students.</p>
+                                        <a class="empty-state-link" href="<%= post_sublet_path %>">Post a Sublet</a>
+                                    </div>
+                                <% end %>
+                            </section>
                         </section>
                     </div>
                 </div>

@@ -42,7 +42,8 @@ class SessionsController < ApplicationController
       name: display_name,
       first_name: decoded_token["given_name"].presence || name_parts.first,
       last_name: decoded_token["family_name"].presence || name_parts.drop(1).join(" ").presence,
+      profile_photo_url: decoded_token["picture"].presence,
       active: true
-    }
+    }.compact
   end
 end

@@ -2,7 +2,10 @@ class PagesController < ApplicationController
   layout false
   before_action :authenticate_user!, only: %i[profile submit_sublet]
 
-  def home; end
+  def home
+    @recommended_listings = SubletListing.includes(:user).find_available_listings.limit(6)
+    @newest_listings = SubletListing.includes(:user).find_available_listings.order(created_at: :desc).limit(6)
+  end
 
   def listing
     @listing = if params[:id].present?
@@ -54,7 +57,15 @@ class PagesController < ApplicationController
 
   def post_sublet; end
 
-  def profile; end
+  def profile
+    @profile_user = current_user
+  end
+
+  def public_profile
+    @profile_user = User.find(params[:id])
+
+    render :profile
+  end
 
   def privacy_policy; end
 
