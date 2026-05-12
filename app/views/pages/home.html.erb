@@ -599,12 +599,13 @@
     </head>
 
     <body>
+        <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
         <div class="page-shell">
-            <header class="topbar">
+            <header class="topbar" role="banner">
                 <div class="topbar-inner d-flex align-items-center justify-content-between">
-                    <a class="brand d-flex align-items-center" href="<%= root_path %>" style="text-decoration: none; color: #4E2A84; font-weight: bold; font-size: 1.25rem;">
-                        <div style="background: #4E2A84; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
-                            <svg width="24" height="24" viewBox="0 0 32 24" fill="none">
+                    <a class="brand d-flex align-items-center" href="<%= root_path %>" aria-label="NU Sublets home" style="text-decoration: none; color: #4E2A84; font-weight: bold; font-size: 1.25rem;">
+                        <div aria-hidden="true" style="background: #4E2A84; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
+                            <svg width="24" height="24" viewBox="0 0 32 24" fill="none" aria-hidden="true" focusable="false">
                                 <!-- House -->
                                 <path d="M2 12L8 7L14 12V18C14 18.6 13.6 19 13 19H3C2.4 19 2 18.6 2 18V12Z" fill="white"/>
                                 <path d="M6 15H10V19H6V15Z" fill="#4E2A84"/>
@@ -628,7 +629,7 @@
                         NU Sublets
                     </a>
                     <nav class="d-flex align-items-center topbar-nav" aria-label="Main navigation">
-                        <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
+                        <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>" aria-current="page">Browse</a>
                         <a class="nav-link p-0" href="<%= search_results_path %>">Search</a>
                         <a class="nav-link p-0" href="<%= saved_path %>">Saved</a>
                         <a class="nav-link p-0" href="<%= post_sublet_path %>">Post Sublet</a>
@@ -639,6 +640,7 @@
             </header>
 
             <main id="main-content" aria-labelledby="page-title">
+                <p class="visually-hidden" id="carousel-keyboard-help">Use left and right arrow keys to move through sublet cards. Use Home and End to jump to the beginning or end of the carousel.</p>
                 <section class="hero">
                     <div class="hero-grid">
                         <div>
@@ -651,32 +653,33 @@
 
                             <div class="form-stack">
                                 <label class="date-picker-label" data-date-picker>
-                                    <span class="field-label form-label">Move In</span>
+                                    <span class="field-label form-label" id="move-in-label">Move In</span>
                                     <span class="date-field input-group">
-                                        <input class="date-input form-control" type="text" name="move-in" placeholder="mm/dd/yyyy" aria-label="Move in date" data-date-input />
-                                        <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open move in date picker" aria-expanded="false" aria-controls="move-in-picker" data-date-toggle>
+                                        <input class="date-input form-control" type="text" name="move-in" placeholder="mm/dd/yyyy" inputmode="numeric" aria-labelledby="move-in-label" aria-describedby="date-format-hint" data-date-input />
+                                        <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open move in date picker" aria-haspopup="dialog" aria-expanded="false" aria-controls="move-in-picker" data-date-toggle>
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                                 <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                                                 <rect x="4" y="5" width="16" height="15" rx="1.5" stroke="currentColor" stroke-width="1.5" />
                                             </svg>
                                         </button>
                                     </span>
-                                    <div class="date-picker-popover" id="move-in-picker" role="dialog" aria-label="Move in calendar" hidden data-date-popover></div>
+                                    <div class="date-picker-popover" id="move-in-picker" role="dialog" aria-modal="false" aria-label="Move in calendar" hidden data-date-popover></div>
                                 </label>
 
                                 <label class="date-picker-label" data-date-picker>
-                                    <span class="field-label form-label">Move Out</span>
+                                    <span class="field-label form-label" id="move-out-label">Move Out</span>
                                     <span class="date-field input-group">
-                                        <input class="date-input form-control" type="text" name="move-out" placeholder="mm/dd/yyyy" aria-label="Move out date" data-date-input />
-                                        <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open move out date picker" aria-expanded="false" aria-controls="move-out-picker" data-date-toggle>
+                                        <input class="date-input form-control" type="text" name="move-out" placeholder="mm/dd/yyyy" inputmode="numeric" aria-labelledby="move-out-label" aria-describedby="date-format-hint" data-date-input />
+                                        <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open move out date picker" aria-haspopup="dialog" aria-expanded="false" aria-controls="move-out-picker" data-date-toggle>
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                                 <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                                                 <rect x="4" y="5" width="16" height="15" rx="1.5" stroke="currentColor" stroke-width="1.5" />
                                             </svg>
                                         </button>
                                     </span>
-                                    <div class="date-picker-popover" id="move-out-picker" role="dialog" aria-label="Move out calendar" hidden data-date-popover></div>
+                                    <div class="date-picker-popover" id="move-out-picker" role="dialog" aria-modal="false" aria-label="Move out calendar" hidden data-date-popover></div>
                                 </label>
+                                <p class="visually-hidden" id="date-format-hint">Enter dates in month, day, year format.</p>
                             </div>
 
                             <button class="search-button btn btn-primary" type="submit">Search</button>
@@ -687,13 +690,14 @@
                 <section class="section-block" id="recommendations" aria-labelledby="recommendations-title">
                     <div class="section-inner">
                         <h2 class="section-title" id="recommendations-title">Sublets We Think You&rsquo;d Like</h2>
-                        <div class="listing-carousel">
-                            <button class="carousel-button prev" type="button" aria-label="Previous sublets" data-carousel-prev="recommendations-track">&#8249;</button>
-                            <div class="listing-track" id="recommendations-track" data-carousel-track>
+                        <div class="listing-carousel" role="region" aria-labelledby="recommendations-title" aria-roledescription="carousel">
+                            <button class="carousel-button prev" type="button" aria-label="Previous recommended sublets" aria-controls="recommendations-track" data-carousel-prev="recommendations-track">&#8249;</button>
+                            <div class="listing-track" id="recommendations-track" tabindex="0" aria-label="Recommended sublets" aria-describedby="carousel-keyboard-help" data-carousel-track>
                             <% if @recommended_listings.any? %>
                                 <% @recommended_listings.each do |listing| %>
                                     <% listing_host = listing.user %>
-                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>">
+                                    <% listing_name = listing.title.presence || listing.address.presence || "Sublet listing" %>
+                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="<%= listing_name %>, <%= number_to_currency(listing.price, precision: 0) %> per month">
                                         <div class="listing-media">
                                             <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
                                             <img class="listing-avatar" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
@@ -710,7 +714,7 @@
                                     </a>
                                 <% end %>
                             <% else %>
-                            <a class="listing-card" href="<%= listing_path %>">
+                            <a class="listing-card" href="<%= listing_path %>" aria-label="820 Noyes Street sublet, $850 per month">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(0) %>" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://randomuser.me/api/portraits/women/65.jpg" alt="Sophie K." />
@@ -726,7 +730,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="<%= listing_path %>">
+                            <a class="listing-card" href="<%= listing_path %>" aria-label="820 Noyes Street sublet, $850 per month">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(1) %>" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://randomuser.me/api/portraits/men/73.jpg" alt="Marcus J." />
@@ -742,7 +746,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="<%= listing_path %>">
+                            <a class="listing-card" href="<%= listing_path %>" aria-label="820 Noyes Street sublet, $850 per month">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(2) %>" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://randomuser.me/api/portraits/women/27.jpg" alt="Priya M." />
@@ -758,7 +762,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="<%= listing_path %>">
+                            <a class="listing-card" href="<%= listing_path %>" aria-label="614 Foster Street sublet, $920 per month">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(3) %>" alt="Apartment with sunny bedroom" />
                                     <img class="listing-avatar" src="https://randomuser.me/api/portraits/men/15.jpg" alt="Jake T." />
@@ -774,7 +778,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="<%= listing_path %>">
+                            <a class="listing-card" href="<%= listing_path %>" aria-label="930 Hinman Avenue studio, $1,050 per month">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(4) %>" alt="Cozy student apartment" />
                                     <img class="listing-avatar" src="https://randomuser.me/api/portraits/women/32.jpg" alt="Chloe R." />
@@ -790,7 +794,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="<%= listing_path %>">
+                            <a class="listing-card" href="<%= listing_path %>" aria-label="2018 Sherman Avenue sublet, $780 per month">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(5) %>" alt="Shared apartment near campus" />
                                     <img class="listing-avatar" src="https://randomuser.me/api/portraits/men/12.jpg" alt="Tyler C." />
@@ -807,7 +811,7 @@
                             </a>
                             <% end %>
                             </div>
-                            <button class="carousel-button next" type="button" aria-label="Next sublets" data-carousel-next="recommendations-track">&#8250;</button>
+                            <button class="carousel-button next" type="button" aria-label="Next recommended sublets" aria-controls="recommendations-track" data-carousel-next="recommendations-track">&#8250;</button>
                         </div>
                     </div>
                 </section>
@@ -821,7 +825,7 @@
                                 <% if user_signed_in? %>
                                     <a class="cta-button btn btn-primary" href="<%= post_sublet_path %>">Create a Posting</a>
                                 <% else %>
-                                    <a class="cta-button btn btn-primary" href="#" data-login-trigger>Create a Posting</a>
+                                    <a class="cta-button btn btn-primary" href="#" role="button" aria-haspopup="dialog" aria-controls="login-modal" data-login-trigger>Create a Posting</a>
                                 <% end %>
                             </div>
                             <img class="cta-image" src="<%= apartment_listing_image_path(1) %>" alt="Sunny Evanston apartment living room" />
@@ -832,13 +836,14 @@
                 <section class="section-block" id="newest-sublets" aria-labelledby="newest-sublets-title">
                     <div class="section-inner">
                         <h2 class="section-title" id="newest-sublets-title">Newest Sublets</h2>
-                        <div class="listing-carousel">
-                            <button class="carousel-button prev" type="button" aria-label="Previous newest sublets" data-carousel-prev="newest-track">&#8249;</button>
-                            <div class="listing-track" id="newest-track" data-carousel-track>
+                        <div class="listing-carousel" role="region" aria-labelledby="newest-sublets-title" aria-roledescription="carousel">
+                            <button class="carousel-button prev" type="button" aria-label="Previous newest sublets" aria-controls="newest-track" data-carousel-prev="newest-track">&#8249;</button>
+                            <div class="listing-track" id="newest-track" tabindex="0" aria-label="Newest sublets" aria-describedby="carousel-keyboard-help" data-carousel-track>
                             <% if @newest_listings.any? %>
                                 <% @newest_listings.each do |listing| %>
                                     <% listing_host = listing.user %>
-                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>">
+                                    <% listing_name = listing.title.presence || listing.address.presence || "Sublet listing" %>
+                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="<%= listing_name %>, <%= number_to_currency(listing.price, precision: 0) %> per month">
                                         <div class="listing-media">
                                             <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
                                             <img class="listing-avatar" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
@@ -855,7 +860,7 @@
                                     </a>
                                 <% end %>
                             <% else %>
-                            <a class="listing-card" href="<%= listing_path %>">
+                            <a class="listing-card" href="<%= listing_path %>" aria-label="820 Noyes Street sublet, $850 per month">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(6) %>" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://randomuser.me/api/portraits/women/18.jpg" alt="Zoe L." />
@@ -871,7 +876,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="<%= listing_path %>">
+                            <a class="listing-card" href="<%= listing_path %>" aria-label="820 Noyes Street sublet, $850 per month">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(7) %>" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://randomuser.me/api/portraits/men/8.jpg" alt="David S." />
@@ -887,7 +892,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="<%= listing_path %>">
+                            <a class="listing-card" href="<%= listing_path %>" aria-label="820 Noyes Street sublet, $850 per month">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(8) %>" alt="Bedroom listing" />
                                     <img class="listing-avatar" src="https://randomuser.me/api/portraits/women/12.jpg" alt="Kate W." />
@@ -903,7 +908,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="<%= listing_path %>">
+                            <a class="listing-card" href="<%= listing_path %>" aria-label="811 Emerson Street sublet, $1,180 per month">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(9) %>" alt="Newly listed apartment bedroom" />
                                     <img class="listing-avatar" src="https://randomuser.me/api/portraits/women/28.jpg" alt="Lily P." />
@@ -919,7 +924,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="<%= listing_path %>">
+                            <a class="listing-card" href="<%= listing_path %>" aria-label="415 Clark Street summer sublet, $860 per month">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(10) %>" alt="Apartment available for summer sublet" />
                                     <img class="listing-avatar" src="https://randomuser.me/api/portraits/men/18.jpg" alt="Connor M." />
@@ -935,7 +940,7 @@
                                 </div>
                             </a>
 
-                            <a class="listing-card" href="<%= listing_path %>">
+                            <a class="listing-card" href="<%= listing_path %>" aria-label="1740 Oak Avenue sublet, $995 per month">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(11) %>" alt="Bedroom in shared sublet" />
                                     <img class="listing-avatar" src="https://randomuser.me/api/portraits/women/24.jpg" alt="Aisha K." />
@@ -952,7 +957,7 @@
                             </a>
                             <% end %>
                             </div>
-                            <button class="carousel-button next" type="button" aria-label="Next newest sublets" data-carousel-next="newest-track">&#8250;</button>
+                            <button class="carousel-button next" type="button" aria-label="Next newest sublets" aria-controls="newest-track" data-carousel-next="newest-track">&#8250;</button>
                         </div>
                     </div>
                 </section>
@@ -1021,7 +1026,31 @@
 
                 const closeActivePicker = () => closePicker(activePicker);
 
-                const renderPicker = (picker) => {
+                const selectDate = (picker, date) => {
+                    picker.input.value = formatDate(date);
+                    picker.input.dispatchEvent(new Event("change", { bubbles: true }));
+                    closePicker(picker);
+                    picker.input.focus();
+                };
+
+                const focusDateButton = (picker, date) => {
+                    const dateKey = toDateKey(date);
+                    picker.visibleMonth = date.getMonth();
+                    picker.visibleYear = date.getFullYear();
+                    renderPicker(picker, dateKey);
+                };
+
+                const getKeyboardDate = (picker) => {
+                    const activeButton = picker.popover.querySelector(".date-picker-day:focus");
+
+                    if (activeButton?.dataset.date) {
+                        return parseDate(activeButton.dataset.date);
+                    }
+
+                    return parseDate(picker.input.value) || new Date();
+                };
+
+                const renderPicker = (picker, focusDateKey = null) => {
                     const selectedDate = parseDate(picker.input.value);
                     const selectedKey = selectedDate ? toDateKey(selectedDate) : null;
                     const todayKey = toDateKey(new Date());
@@ -1062,6 +1091,7 @@
 
                     const grid = document.createElement("div");
                     grid.className = "date-picker-grid";
+                    grid.setAttribute("aria-label", monthFormatter.format(monthStart));
 
                     for (let index = 0; index < 42; index += 1) {
                         const date = new Date(gridStart);
@@ -1072,7 +1102,9 @@
                         dayButton.className = "date-picker-day";
                         dayButton.type = "button";
                         dayButton.textContent = date.getDate();
+                        dayButton.dataset.date = formatDate(date);
                         dayButton.setAttribute("aria-label", new Intl.DateTimeFormat("en-US", { dateStyle: "full" }).format(date));
+                        dayButton.setAttribute("aria-pressed", dateKey === selectedKey ? "true" : "false");
 
                         if (date.getMonth() !== picker.visibleMonth) {
                             dayButton.classList.add("is-muted");
@@ -1084,15 +1116,52 @@
 
                         if (dateKey === selectedKey) {
                             dayButton.classList.add("is-selected");
-                            dayButton.setAttribute("aria-pressed", "true");
                         }
 
                         dayButton.addEventListener("click", (event) => {
                             event.preventDefault();
                             event.stopPropagation();
-                            picker.input.value = formatDate(date);
-                            picker.input.dispatchEvent(new Event("change", { bubbles: true }));
-                            closePicker(picker);
+                            selectDate(picker, date);
+                        });
+
+                        dayButton.addEventListener("keydown", (event) => {
+                            const focusedDate = getKeyboardDate(picker);
+                            let nextDate = null;
+
+                            if (event.key === "ArrowLeft") {
+                                nextDate = new Date(focusedDate);
+                                nextDate.setDate(focusedDate.getDate() - 1);
+                            } else if (event.key === "ArrowRight") {
+                                nextDate = new Date(focusedDate);
+                                nextDate.setDate(focusedDate.getDate() + 1);
+                            } else if (event.key === "ArrowUp") {
+                                nextDate = new Date(focusedDate);
+                                nextDate.setDate(focusedDate.getDate() - 7);
+                            } else if (event.key === "ArrowDown") {
+                                nextDate = new Date(focusedDate);
+                                nextDate.setDate(focusedDate.getDate() + 7);
+                            } else if (event.key === "Home") {
+                                nextDate = new Date(focusedDate);
+                                nextDate.setDate(focusedDate.getDate() - focusedDate.getDay());
+                            } else if (event.key === "End") {
+                                nextDate = new Date(focusedDate);
+                                nextDate.setDate(focusedDate.getDate() + (6 - focusedDate.getDay()));
+                            } else if (event.key === "PageUp" || event.key === "PageDown") {
+                                nextDate = new Date(focusedDate);
+                                const monthOffset = event.key === "PageUp" ? -1 : 1;
+                                nextDate.setMonth(focusedDate.getMonth() + (event.shiftKey ? monthOffset * 12 : monthOffset));
+                            } else if (event.key === "Escape") {
+                                event.preventDefault();
+                                closePicker(picker);
+                                picker.input.focus();
+                                return;
+                            }
+
+                            if (nextDate) {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                focusDateButton(picker, nextDate);
+                            }
                         });
 
                         grid.append(dayButton);
@@ -1109,6 +1178,7 @@
                         }
 
                         renderPicker(picker);
+                        picker.popover.querySelector(".date-picker-nav")?.focus();
                     });
 
                     nextButton.addEventListener("click", (event) => {
@@ -1122,9 +1192,14 @@
                         }
 
                         renderPicker(picker);
+                        picker.popover.querySelectorAll(".date-picker-nav")[1]?.focus();
                     });
 
                     picker.popover.append(header, weekdays, grid);
+
+                    if (focusDateKey) {
+                        picker.popover.querySelector(`[data-date="${focusDateKey}"]`)?.focus();
+                    }
                 };
 
                 const openPicker = (picker) => {
@@ -1173,6 +1248,22 @@
 
                     input.addEventListener("focus", () => openPicker(picker));
                     input.addEventListener("click", () => openPicker(picker));
+                    input.addEventListener("keydown", (event) => {
+                        if (event.key === "ArrowDown") {
+                            event.preventDefault();
+                            openPicker(picker);
+                            focusDateButton(picker, parseDate(input.value) || new Date());
+                        } else if (event.key === "Escape") {
+                            closePicker(picker);
+                        }
+                    });
+                    toggle.addEventListener("keydown", (event) => {
+                        if (event.key === "ArrowDown") {
+                            event.preventDefault();
+                            openPicker(picker);
+                            focusDateButton(picker, parseDate(input.value) || new Date());
+                        }
+                    });
                     popover.addEventListener("click", (event) => event.stopPropagation());
                 });
 
@@ -1215,12 +1306,32 @@
                     nextButton.disabled = track.scrollLeft >= maxScrollLeft;
                 };
 
+                const scrollByCard = (direction) => {
+                    track.scrollBy({ left: getScrollAmount() * direction, behavior: "smooth" });
+                };
+
                 prevButton.addEventListener("click", () => {
-                    track.scrollBy({ left: -getScrollAmount(), behavior: "smooth" });
+                    scrollByCard(-1);
                 });
 
                 nextButton.addEventListener("click", () => {
-                    track.scrollBy({ left: getScrollAmount(), behavior: "smooth" });
+                    scrollByCard(1);
+                });
+
+                track.addEventListener("keydown", (event) => {
+                    if (event.key === "ArrowLeft") {
+                        event.preventDefault();
+                        scrollByCard(-1);
+                    } else if (event.key === "ArrowRight") {
+                        event.preventDefault();
+                        scrollByCard(1);
+                    } else if (event.key === "Home") {
+                        event.preventDefault();
+                        track.scrollTo({ left: 0, behavior: "smooth" });
+                    } else if (event.key === "End") {
+                        event.preventDefault();
+                        track.scrollTo({ left: track.scrollWidth, behavior: "smooth" });
+                    }
                 });
 
                 track.addEventListener("scroll", updateButtons, { passive: true });
