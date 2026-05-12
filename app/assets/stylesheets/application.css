@@ -8,3 +8,18 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+.text-muted {
+  color: #495057 !important;
+}
+
+a.text-muted {
+  color: #495057 !important;
+  text-decoration: underline dotted;
+}
+
+a.text-muted:hover,
+a.text-muted:focus {
+  color: #343a40 !important;
+  text-decoration: underline;
+}

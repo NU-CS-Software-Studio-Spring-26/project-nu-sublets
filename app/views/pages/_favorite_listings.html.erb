@@ -88,7 +88,7 @@
 
         const getCardData = (card) => ({
             id: getCardId(card),
-            href: card.getAttribute("href") || "#",
+            href: card.getAttribute("href") || card.querySelector("a[href*='/listings/']")?.getAttribute("href") || "#",
             imageSrc: card.querySelector(".listing-main-image")?.getAttribute("src") || "",
             imageAlt: card.querySelector(".listing-main-image")?.getAttribute("alt") || "Favorite listing",
             avatarSrc: card.querySelector(".listing-avatar")?.getAttribute("src") || "",

@@ -16,7 +16,6 @@ Rails.application.routes.draw do
   get "saved" => "pages#saved", as: :saved
   get "post-sublet" => "pages#post_sublet", as: :post_sublet
   get "profile" => "pages#profile", as: :profile
-  patch "profile" => "pages#update_profile"
   get "privacy-policy" => "pages#privacy_policy", as: :privacy_policy
   get "login" => "pages#login", as: :login
   post "session" => "sessions#create", as: :session
