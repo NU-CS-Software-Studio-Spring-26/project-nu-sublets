@@ -48,6 +48,76 @@
         outline-offset: 4px;
         border-radius: 999px;
     }
+
+    .favorite-listing-carousel {
+        position: relative;
+        width: 100%;
+    }
+
+    .favorite-listing-track {
+        display: flex;
+        gap: 22px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        padding: 4px 2px 12px;
+    }
+
+    .favorite-listing-track::-webkit-scrollbar {
+        display: none;
+    }
+
+    .favorite-listing-track .listing-card {
+        flex: 0 0 min(360px, calc(100vw - 56px));
+        scroll-snap-align: start;
+    }
+
+    .favorite-carousel-button {
+        position: absolute;
+        top: 50%;
+        z-index: 3;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+        color: #000;
+        font-family: "Rubik", sans-serif;
+        font-size: 24px;
+        line-height: 1;
+        transform: translateY(-50%);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .favorite-carousel-button:hover,
+    .favorite-carousel-button:focus-visible {
+        transform: translateY(-50%) scale(1.04);
+    }
+
+    .favorite-carousel-button:disabled {
+        opacity: 0.4;
+        cursor: default;
+    }
+
+    .favorite-carousel-button.prev {
+        left: -18px;
+    }
+
+    .favorite-carousel-button.next {
+        right: -18px;
+    }
+
+    @media (max-width: 767.98px) {
+        .favorite-carousel-button {
+            display: none;
+        }
+    }
 </style>
 
 <script>
@@ -105,40 +175,72 @@
             button.setAttribute("aria-label", favored ? "Remove from favorite listings" : "Save to favorite listings");
         };
 
+        const getScrollAmount = (track) => {
+            const firstCard = track.querySelector(".listing-card");
+
+            if (!firstCard) {
+                return 0;
+            }
+
+            const styles = window.getComputedStyle(track);
+            const gap = Number.parseFloat(styles.columnGap || styles.gap || "0");
+            return firstCard.getBoundingClientRect().width + gap;
+        };
+
+        const updateFavoriteCarousel = (track) => {
+            const carousel = track.closest("[data-favorite-carousel]");
+            const prevButton = carousel?.querySelector("[data-favorite-carousel-prev]");
+            const nextButton = carousel?.querySelector("[data-favorite-carousel-next]");
+
+            if (!prevButton || !nextButton) {
+                return;
+            }
+
+            const maxScrollLeft = track.scrollWidth - track.clientWidth - 2;
+            prevButton.disabled = track.scrollLeft <= 2;
+            nextButton.disabled = track.scrollLeft >= maxScrollLeft;
+            carousel.hidden = track.children.length === 0;
+        };
+
         const renderFavoriteCards = () => {
-            const target = document.querySelector("[data-favorite-listings]");
-            if (!target) {
+            const targets = document.querySelectorAll("[data-favorite-listings]");
+
+            if (targets.length === 0) {
                 return;
             }
 
             const favorites = readFavorites();
-            const emptyState = document.querySelector("[data-favorites-empty]");
-            target.innerHTML = "";
 
-            favorites.forEach((listing) => {
-                const card = document.createElement("a");
-                card.className = "listing-card";
-                card.href = listing.href || "#";
-                card.innerHTML = `
-                    <div class="listing-media">
-                        <img class="listing-main-image" src="${escapeHtml(listing.imageSrc)}" alt="${escapeHtml(listing.imageAlt)}" />
-                        ${listing.avatarSrc ? `<img class="listing-avatar" src="${escapeHtml(listing.avatarSrc)}" alt="${escapeHtml(listing.avatarAlt)}" />` : ""}
-                    </div>
-                    <div class="listing-body">
-                        <p class="listing-price">${escapeHtml(listing.price)}</p>
-                        ${listing.title ? `<p class="listing-card-title">${escapeHtml(listing.title)}</p>` : ""}
-                        <div class="listing-meta">
-                            ${(listing.meta || []).map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
+            targets.forEach((target) => {
+                target.innerHTML = "";
+
+                favorites.forEach((listing) => {
+                    const card = document.createElement("a");
+                    card.className = "listing-card";
+                    card.href = listing.href || "#";
+                    card.innerHTML = `
+                        <div class="listing-media">
+                            <img class="listing-main-image" src="${escapeHtml(listing.imageSrc)}" alt="${escapeHtml(listing.imageAlt)}" />
+                            ${listing.avatarSrc ? `<img class="listing-avatar" src="${escapeHtml(listing.avatarSrc)}" alt="${escapeHtml(listing.avatarAlt)}" />` : ""}
                         </div>
-                        <p class="listing-address">${escapeHtml(listing.address)}</p>
-                    </div>
-                `;
-                target.appendChild(card);
+                        <div class="listing-body">
+                            <p class="listing-price">${escapeHtml(listing.price)}</p>
+                            ${listing.title ? `<p class="listing-card-title">${escapeHtml(listing.title)}</p>` : ""}
+                            <div class="listing-meta">
+                                ${(listing.meta || []).map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
+                            </div>
+                            <p class="listing-address">${escapeHtml(listing.address)}</p>
+                        </div>
+                    `;
+                    target.appendChild(card);
+                });
+
+                updateFavoriteCarousel(target);
             });
 
-            if (emptyState) {
+            document.querySelectorAll("[data-favorites-empty]").forEach((emptyState) => {
                 emptyState.hidden = favorites.length > 0;
-            }
+            });
 
             bindFavoriteButtons();
         };
@@ -208,7 +310,54 @@
             });
         }
 
+        const bindFavoriteCarousels = () => {
+            document.querySelectorAll("[data-favorite-listings]").forEach((track) => {
+                if (track.dataset.favoriteCarouselBound === "true") {
+                    updateFavoriteCarousel(track);
+                    return;
+                }
+
+                const carousel = track.closest("[data-favorite-carousel]");
+                const prevButton = carousel?.querySelector("[data-favorite-carousel-prev]");
+                const nextButton = carousel?.querySelector("[data-favorite-carousel-next]");
+
+                if (!prevButton || !nextButton) {
+                    return;
+                }
+
+                track.dataset.favoriteCarouselBound = "true";
+
+                const scrollByCard = (direction) => {
+                    track.scrollBy({ left: getScrollAmount(track) * direction, behavior: "smooth" });
+                };
+
+                prevButton.addEventListener("click", () => scrollByCard(-1));
+                nextButton.addEventListener("click", () => scrollByCard(1));
+                track.addEventListener("scroll", () => updateFavoriteCarousel(track), { passive: true });
+                window.addEventListener("resize", () => updateFavoriteCarousel(track));
+
+                track.addEventListener("keydown", (event) => {
+                    if (event.key === "ArrowLeft") {
+                        event.preventDefault();
+                        scrollByCard(-1);
+                    } else if (event.key === "ArrowRight") {
+                        event.preventDefault();
+                        scrollByCard(1);
+                    } else if (event.key === "Home") {
+                        event.preventDefault();
+                        track.scrollTo({ left: 0, behavior: "smooth" });
+                    } else if (event.key === "End") {
+                        event.preventDefault();
+                        track.scrollTo({ left: track.scrollWidth, behavior: "smooth" });
+                    }
+                });
+
+                updateFavoriteCarousel(track);
+            });
+        };
+
         const initializeFavorites = () => {
+            bindFavoriteCarousels();
             bindFavoriteButtons();
             renderFavoriteCards();
         };
