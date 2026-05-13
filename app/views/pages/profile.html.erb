@@ -457,7 +457,7 @@
 
             .profile-tabs-layout {
                 display: grid;
-                grid-template-columns: 324px minmax(0, 504px);
+                grid-template-columns: 324px minmax(0, 720px);
                 gap: 64px;
                 align-items: start;
             }
@@ -626,6 +626,14 @@
                 grid-template-columns: 1fr;
                 gap: 24px;
                 width: min(100%, 400px);
+            }
+
+            .profile-tabs-layout .favorite-listing-carousel {
+                width: min(100%, 720px);
+            }
+
+            .profile-tabs-layout .favorite-listing-track .listing-card {
+                flex-basis: min(400px, calc(100vw - 56px));
             }
 
             .profile-tabs-layout .listing-card {
@@ -1094,7 +1102,11 @@
 
                             <div class="panel-section">
                                 <h3 class="panel-section-title">Saved Listings</h3>
-                                <section class="cards-grid favorite-list-stack" aria-label="Saved sublet listings" data-favorite-listings></section>
+                                <div class="favorite-listing-carousel" role="region" aria-label="Saved sublet listings" aria-roledescription="carousel" data-favorite-carousel hidden>
+                                    <button class="favorite-carousel-button prev" type="button" aria-label="Previous saved sublets" data-favorite-carousel-prev>&#8249;</button>
+                                    <section class="favorite-listing-track" tabindex="0" aria-label="Saved sublet listings" data-favorite-listings></section>
+                                    <button class="favorite-carousel-button next" type="button" aria-label="Next saved sublets" data-favorite-carousel-next>&#8250;</button>
+                                </div>
                                 <div class="empty-state" data-favorites-empty>
                                     <p class="empty-state-title">No saved sublets yet.</p>
                                     <p class="empty-state-copy">Heart listings on the search page to build your shortlist.</p>
