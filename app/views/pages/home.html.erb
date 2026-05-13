@@ -109,10 +109,14 @@
                 text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.6);
             }
 
+            .hero-browse-button {
+                margin-left: 20px;
+            }
+
             .search-card {
                 width: 100%;
                 margin-top: 28px;
-                padding: 12px 12px 10px;
+                padding: 22px 24px 24px;
                 border: 1px solid var(--nu-muted-border);
                 border-radius: 8px;
                 background: var(--nu-white);
@@ -120,10 +124,10 @@
             }
 
             .search-title {
-                margin: 0 0 6px;
+                margin: 0 0 18px;
                 color: var(--nu-text);
                 font-family: "Rubik", sans-serif;
-                font-size: 20px;
+                font-size: 24px;
                 font-weight: 600;
                 line-height: 1.1;
             }
@@ -131,13 +135,13 @@
             .form-stack {
                 display: flex;
                 flex-direction: column;
-                gap: 12px;
-                margin-bottom: 12px;
+                gap: 18px;
+                margin-bottom: 20px;
             }
 
             .field-label {
                 display: block;
-                margin-bottom: 4px;
+                margin-bottom: 8px;
                 color: var(--nu-text);
                 font-family: "Rubik", sans-serif;
                 font-size: 16px;
@@ -149,7 +153,7 @@
                 display: flex;
                 align-items: center;
                 gap: 12px;
-                padding: 5px 10px;
+                padding: 12px 14px;
                 border: 1px solid rgba(0, 0, 0, 0.16);
                 border-radius: 4px;
                 background: var(--nu-white);
@@ -167,7 +171,7 @@
                 outline: 0;
                 padding: 0;
                 color: var(--nu-text);
-                font-size: 14px;
+                font-size: 16px;
                 line-height: 1.35;
                 font-family: "Fustat", sans-serif;
                 background: transparent;
@@ -183,8 +187,8 @@
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                width: 16px;
-                height: 16px;
+                width: 20px;
+                height: 20px;
                 padding: 0;
                 border: 0;
                 background: transparent;
@@ -304,8 +308,8 @@
             .search-button {
                 width: 100%;
                 border-radius: 12px;
-                padding: 8px 18px;
-                font-size: 14px;
+                padding: 14px 18px;
+                font-size: 16px;
                 line-height: 1.1;
                 background: var(--nu-button);
             }
@@ -532,6 +536,10 @@
                     max-width: 520px;
                 }
 
+                .hero-browse-button {
+                    margin-left: 0;
+                }
+
                 .search-card {
                     max-width: 528px;
                     margin-top: 0;
@@ -645,7 +653,7 @@
                     <div class="hero-grid">
                         <div>
                             <h1 class="headline" id="page-title">Find a Place in Evanston</h1>
-                            <a href="<%= search_results_path %>" class="btn btn-primary btn-lg" style="background: #4E2A84; border: #4E2A84; margin-top: 1rem; font-weight: 600;">Browse All Sublets</a>
+                            <a href="<%= search_results_path %>" class="hero-browse-button btn btn-primary btn-lg" style="background: #4E2A84; border: #4E2A84; margin-top: 1rem; font-weight: 600;">Browse All Sublets</a>
                         </div>
 
                         <form class="search-card" action="<%= search_results_path %>" method="get" aria-labelledby="search-sublets-title">
