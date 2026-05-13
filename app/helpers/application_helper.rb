@@ -8,6 +8,21 @@ module ApplicationHelper
     "apartment-exterior.png"
   ].freeze
 
+  PLACEHOLDER_PROFILE_PHOTO_URLS = [
+    "https://randomuser.me/api/portraits/women/65.jpg",
+    "https://randomuser.me/api/portraits/men/73.jpg",
+    "https://randomuser.me/api/portraits/women/27.jpg",
+    "https://randomuser.me/api/portraits/men/15.jpg",
+    "https://randomuser.me/api/portraits/women/32.jpg",
+    "https://randomuser.me/api/portraits/men/12.jpg",
+    "https://randomuser.me/api/portraits/women/18.jpg",
+    "https://randomuser.me/api/portraits/men/8.jpg",
+    "https://randomuser.me/api/portraits/women/12.jpg",
+    "https://randomuser.me/api/portraits/women/28.jpg",
+    "https://randomuser.me/api/portraits/men/18.jpg",
+    "https://randomuser.me/api/portraits/women/24.jpg"
+  ].freeze
+
   def listing_map_groups(listings)
     listings.group_by { |listing| normalized_listing_address(listing.address) }
             .values
@@ -31,12 +46,19 @@ module ApplicationHelper
 
   def user_avatar_url(user, size: 248)
     return url_for(user.profile_photo) if user.respond_to?(:profile_photo) && user.profile_photo.attached?
-    return user.profile_photo_url if user.respond_to?(:profile_photo_url) && user.profile_photo_url.present?
+
+    if user.respond_to?(:profile_photo_url) && user.profile_photo_url.present? && !placeholder_profile_photo_url?(user.profile_photo_url)
+      return user.profile_photo_url
+    end
 
     "https://ui-avatars.com/api/?name=#{ERB::Util.url_encode(user_initials(user))}&background=F4EFF8&color=3E1B4B&size=#{size}&bold=true"
   end
 
   private
+
+  def placeholder_profile_photo_url?(url)
+    PLACEHOLDER_PROFILE_PHOTO_URLS.include?(url)
+  end
 
   def apartment_image_index(listing_or_index, offset)
     # Keep demo images stable between renders without storing image records.
