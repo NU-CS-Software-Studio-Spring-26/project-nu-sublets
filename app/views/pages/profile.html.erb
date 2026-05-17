@@ -1038,7 +1038,7 @@
                 <div class="profile-shell">
                     <div class="profile-tabs-layout">
                         <aside class="profile-tab-card" aria-label="Profile navigation">
-                            <h1 class="profile-tab-title">Profile</h1>
+                            <h1 class="profile-tab-title"><%= user.display_name %></h1>
                             <div class="profile-sidebar-summary">
                                 <div class="profile-sidebar-person">
                                     <img class="profile-sidebar-avatar" src="<%= user_avatar_url(user, size: 320) %>" alt="<%= user.display_name %> profile photo" />
@@ -1049,7 +1049,11 @@
                                         <path d="M12 2.75 5 5.33v6.14c0 5.03 2.98 9.73 7 11.18 4.02-1.45 7-6.15 7-11.18V5.33L12 2.75Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" />
                                         <path d="m8.75 12.15 2.2 2.2 4.3-4.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
                                     </svg>
-                                    <span>Verified Student</span>
+                                    <span>Verified Northwestern student</span>
+                                </div>
+                                <div class="visually-hidden">
+                                    Hi <%= first_name %>. Student / renter. Preferred Contact. Usually responds within 2 days.
+                                    <a href="#">Report profile</a>
                                 </div>
                             </div>
                             <div class="profile-tab-list" role="tablist" aria-label="Profile tabs">
