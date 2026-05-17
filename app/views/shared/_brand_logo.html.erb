@@ -1,0 +1,8 @@
+<% size = local_assigns.fetch(:size, 32) %>
+<% label = local_assigns.fetch(:label, "NU Sublets") %>
+<% text_class = local_assigns[:text_class] %>
+<%= image_tag "NUSublets Logo.svg",
+              alt: "",
+              aria: { hidden: true },
+              style: "width: #{size}px; height: #{size}px; object-fit: contain; margin-right: 8px; flex: 0 0 auto;" %>
+<span<%= text_class.present? ? " class=\"#{text_class}\"".html_safe : "" %>><%= label %></span>
