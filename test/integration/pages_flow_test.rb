@@ -31,6 +31,20 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "about us page is reachable from the footer" do
+    get root_path
+
+    assert_select "footer a[href='#{about_us_path}']", text: "About Us"
+
+    get about_us_path
+
+    assert_response :success
+    assert_select "h1", text: "About Us"
+    assert_select "h2", text: "About NU Sublets"
+    assert_includes response.body, "NU Sublets is a student-built platform designed to make the Northwestern sublet process easier, safer, and more organized."
+    assert_includes response.body, "not officially affiliated with, endorsed by, or managed by Northwestern University"
+  end
+
   test "login page is reachable" do
     get login_path
 
