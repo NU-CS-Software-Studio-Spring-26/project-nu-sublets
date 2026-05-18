@@ -127,3 +127,10 @@ The repository includes a `wiki.md` file with additional project context, includ
 - Design references (e.g., Miro board)  
 - Future feature ideas  
 - Comparable platforms  
+
+## Visual Improvements
+
+### Header and Footer Navigation Icons
+Added small decorative icons next to the main header navigation links (`Browse`, `Search`, `Saved`, and `Post Sublet`) and footer links (`About Us`, `Privacy Policy`, `Disclaimer`, and `GitHub Repository`). This improves visual polish, makes navigation easier to scan, and keeps the header/footer style consistent throughout the app.
+
+Icon source: custom inline SVGs adapted from [Bootstrap Icons](https://icons.getbootstrap.com/) path data. Bootstrap Icons are open source under the [MIT License](https://github.com/twbs/icons/blob/main/LICENSE.md). Icons are used decoratively with visible text labels preserved for accessibility.

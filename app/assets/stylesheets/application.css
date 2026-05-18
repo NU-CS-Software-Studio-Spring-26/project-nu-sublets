@@ -75,6 +75,69 @@ body.is-page-leaving .page-shell {
   transform: translateY(1px);
 }
 
+.nav-item-link {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.nav-item-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.nav-item-icon {
+  width: 1em !important;
+  height: 1em !important;
+  flex: 0 0 1em !important;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.nav-item-text {
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+footer nav[aria-label="Footer links"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem 0;
+  text-decoration: none !important;
+}
+
+footer a.text-muted.nav-item-link,
+footer a.text-muted.nav-item-link:hover,
+footer a.text-muted.nav-item-link:focus-visible {
+  display: flex;
+  align-items: center;
+  margin-right: 0 !important;
+  text-decoration: none !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+
+footer nav[aria-label="Footer links"] a,
+footer nav[aria-label="Footer links"] a *,
+footer nav[aria-label="Footer links"] a:hover,
+footer nav[aria-label="Footer links"] a:hover *,
+footer nav[aria-label="Footer links"] a:focus,
+footer nav[aria-label="Footer links"] a:focus * {
+  text-decoration: none !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+
+@media (min-width: 768px) {
+  footer nav[aria-label="Footer links"] {
+    justify-content: flex-end;
+  }
+}
+
 .topbar-nav form {
   display: inline-flex !important;
   min-width: 86px;

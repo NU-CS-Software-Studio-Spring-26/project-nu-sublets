@@ -14,13 +14,10 @@
             <div class="col-md-4 text-md-end">
                 <p class="text-muted mb-1">&copy; 2026 NU Sublets</p>
                 <nav aria-label="Footer links">
-                    <%= link_to "About Us", @footer_about_path || about_us_path, class: "text-muted" %>
-                    <span class="text-muted mx-1">&middot;</span>
-                    <%= link_to "Privacy Policy", privacy_policy_path, class: "text-muted" %>
-                    <span class="text-muted mx-1">&middot;</span>
-                    <%= link_to "Disclaimer", disclaimer_path, class: "text-muted" %>
-                    <span class="text-muted mx-1">&middot;</span>
-                    <%= link_to "GitHub Repository", "https://github.com/NU-CS-Software-Studio-Spring-26/project-nu-sublets", class: "text-muted", target: "_blank", rel: "noopener" %>
+                    <%= link_to(nav_item_label_with_icon(:about_us, "About Us"), @footer_about_path || about_us_path, class: "text-muted nav-item-link") %>
+                    <%= link_to(nav_item_label_with_icon(:privacy_policy, "Privacy Policy"), privacy_policy_path, class: "text-muted nav-item-link", style: "margin-left: 1.75rem;") %>
+                    <%= link_to(nav_item_label_with_icon(:disclaimer, "Disclaimer"), disclaimer_path, class: "text-muted nav-item-link", style: "margin-left: 1.75rem;") %>
+                    <%= link_to(nav_item_label_with_icon(:github, "GitHub Repository"), "https://github.com/NU-CS-Software-Studio-Spring-26/project-nu-sublets", class: "text-muted nav-item-link", style: "margin-left: 1.75rem;", target: "_blank", rel: "noopener") %>
                 </nav>
             </div>
         </div>
