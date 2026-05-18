@@ -655,6 +655,16 @@
                 color: var(--nu-muted);
             }
 
+            .photo-status.is-error {
+                color: #b42318;
+                font-weight: 600;
+            }
+
+            .photo-status.is-complete {
+                color: #1f7a3f;
+                font-weight: 600;
+            }
+
             .phone-field {
                 display: flex;
                 align-items: center;
@@ -968,6 +978,7 @@
                 const photoDropzone = document.querySelector("[data-photo-dropzone]");
                 let photoPreviewUrls = [];
                 let selectedPhotos = [];
+                let photoNotice = "";
 
                 const clearPhotoPreviewUrls = () => {
                     photoPreviewUrls.forEach((url) => URL.revokeObjectURL(url));
@@ -989,12 +1000,23 @@
                     photoPreview.innerHTML = "";
 
                     const files = selectedPhotos;
-                    if (files.length === 0) {
+                    photoStatus.classList.remove("is-error", "is-complete");
+
+                    if (photoNotice) {
+                        photoStatus.textContent = photoNotice;
+                        photoStatus.classList.add("is-error");
+                        photoNotice = "";
+                    } else if (files.length === 0) {
                         photoStatus.textContent = "No photos selected";
                     } else if (files.length < 4) {
                         photoStatus.textContent = `${files.length} selected. Add ${4 - files.length} more to meet the minimum.`;
+                        photoStatus.classList.add("is-error");
+                    } else if (files.length === 10) {
+                        photoStatus.textContent = "10 photos selected. You reached the maximum.";
+                        photoStatus.classList.add("is-complete");
                     } else {
-                        photoStatus.textContent = `${files.length} photo${files.length === 1 ? "" : "s"} selected`;
+                        photoStatus.textContent = `${files.length} photos selected. You can add up to ${10 - files.length} more.`;
+                        photoStatus.classList.add("is-complete");
                     }
 
                     files.forEach((file, index) => {
@@ -1027,7 +1049,15 @@
 
                 const addPhotos = (files) => {
                     const newPhotos = Array.from(files || []).filter((file) => file.type.startsWith("image/"));
-                    selectedPhotos = selectedPhotos.concat(newPhotos);
+                    const openSlots = Math.max(0, 10 - selectedPhotos.length);
+
+                    if (newPhotos.length > openSlots) {
+                        photoNotice = openSlots === 0
+                            ? "You can upload up to 10 photos."
+                            : `Only ${openSlots} more photo${openSlots === 1 ? "" : "s"} can be added.`;
+                    }
+
+                    selectedPhotos = selectedPhotos.concat(newPhotos.slice(0, openSlots));
                     syncPhotoInput();
                     renderPhotoPreview();
                 };

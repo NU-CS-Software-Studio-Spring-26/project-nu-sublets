@@ -170,6 +170,42 @@
                 display: none;
             }
 
+            .active-filter-summary {
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 8px;
+                margin-top: 2px;
+            }
+
+            .active-filter-summary[hidden] {
+                display: none;
+            }
+
+            .active-filter-label {
+                color: var(--nu-muted);
+                font-family: "Rubik", sans-serif;
+                font-size: 12px;
+                font-weight: 600;
+                line-height: 1.2;
+            }
+
+            .active-filter-chip {
+                display: inline-flex;
+                align-items: center;
+                min-height: 28px;
+                padding: 4px 9px;
+                border: 1px solid rgba(78, 42, 132, 0.2);
+                border-radius: 999px;
+                background: #f8f5fb;
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 12px;
+                font-weight: 600;
+                line-height: 1.2;
+            }
+
             .filter-menu {
                 position: relative;
             }
@@ -1237,6 +1273,7 @@
                         </button>
 
                         <p class="filter-error" role="alert" <%= "hidden" unless @filter_error.present? %> data-filter-error><%= @filter_error %></p>
+                        <div class="active-filter-summary" data-active-filter-summary aria-live="polite" hidden></div>
                     </form>
                 </div>
             </section>
@@ -1595,6 +1632,7 @@
                     const moveOutInput = filterForm.querySelector('input[name="move-out"]');
                     const error = filterForm.querySelector("[data-filter-error]");
                     const additionalControls = Array.from(filterForm.querySelectorAll("[data-filter-control]"));
+                    const activeFilterSummary = filterForm.querySelector("[data-active-filter-summary]");
 
                     const hasAdditionalFilter = () => additionalControls.some((control) => {
                         if (control.type === "checkbox") {
@@ -1603,6 +1641,65 @@
 
                         return control.value.trim().length > 0;
                     });
+
+                    const selectedOptionText = (control) => {
+                        const selectedOption = control.options?.[control.selectedIndex];
+                        return selectedOption ? selectedOption.textContent.trim() : control.value.trim();
+                    };
+
+                    const updateActiveFilterSummary = () => {
+                        if (!activeFilterSummary) return;
+
+                        const chips = [];
+                        const moveIn = moveInInput.value.trim();
+                        const moveOut = moveOutInput.value.trim();
+                        const minPrice = filterForm.querySelector('input[name="min_price"]')?.value.trim();
+                        const maxPrice = filterForm.querySelector('input[name="max_price"]')?.value.trim();
+                        const bedrooms = filterForm.querySelector('select[name="bedrooms"]');
+                        const bathrooms = filterForm.querySelector('select[name="bathrooms"]');
+                        const checkedAmenities = Array.from(filterForm.querySelectorAll('input[name="amenities[]"]:checked'));
+                        const checkedPreferences = Array.from(filterForm.querySelectorAll('input[name="preferences[]"]:checked'));
+
+                        if (moveIn || moveOut) {
+                            chips.push(`Dates: ${moveIn || "move in"} to ${moveOut || "move out"}`);
+                        }
+
+                        if (minPrice || maxPrice) {
+                            chips.push(`Rent: ${minPrice ? `$${minPrice}` : "$0"}-${maxPrice ? `$${maxPrice}` : "any"}`);
+                        }
+
+                        if (bedrooms?.value) {
+                            chips.push(selectedOptionText(bedrooms));
+                        }
+
+                        if (bathrooms?.value) {
+                            chips.push(selectedOptionText(bathrooms));
+                        }
+
+                        checkedAmenities.forEach((control) => chips.push(control.value));
+                        checkedPreferences.forEach((control) => chips.push(control.value));
+
+                        activeFilterSummary.hidden = chips.length === 0;
+                        activeFilterSummary.innerHTML = "";
+
+                        if (chips.length === 0) return;
+
+                        const label = document.createElement("span");
+                        label.className = "active-filter-label";
+                        label.textContent = "Active filters";
+                        activeFilterSummary.appendChild(label);
+
+                        chips.forEach((chipText) => {
+                            const chip = document.createElement("span");
+                            chip.className = "active-filter-chip";
+                            chip.textContent = chipText;
+                            activeFilterSummary.appendChild(chip);
+                        });
+                    };
+
+                    filterForm.addEventListener("input", updateActiveFilterSummary);
+                    filterForm.addEventListener("change", updateActiveFilterSummary);
+                    updateActiveFilterSummary();
 
                     filterForm.addEventListener("submit", (event) => {
                         const hasMoveIn = moveInInput.value.trim().length > 0;
