@@ -1,5 +1,11 @@
 # NU Sublets
 
+## **Project Board**
+
+**We were not able to create a GitHub Project Board directly under the `NU-CS-Software-Studio-Spring-26` classroom organization, so we are using the following project board for now:**
+
+**[NU Sublets Project Board](https://github.com/users/melindajwang/projects/1)**
+
 ### An .edu-verified marketplace where students post and browse sublets.
 
 NU Sublets is a Rails application designed to help Northwestern students safely post, search, and browse sublet listings. The app supports authenticated student users, listing creation, listing photos, search/filter/sort tools, favorites, and basic safety restrictions around contact information and listing ownership.
