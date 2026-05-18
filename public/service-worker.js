@@ -1,4 +1,4 @@
-const CACHE_NAME = "nu-sublets-static-v1";
+const CACHE_NAME = "nu-sublets-static-v2";
 const STATIC_ASSETS = [
   "/",
   "/manifest.json",

@@ -22,11 +22,25 @@ class PwaAssetsTest < ActionDispatch::IntegrationTest
     get "/service-worker.js"
 
     assert_response :success
+    assert_includes response.body, "nu-sublets-static-v2"
     assert_includes response.body, "self.addEventListener(\"install\""
     assert_includes response.body, "self.addEventListener(\"activate\""
     assert_includes response.body, "self.addEventListener(\"fetch\""
     assert_includes response.body, "if (request.method !== \"GET\") return;"
     assert_includes response.body, "url.pathname.startsWith(\"/profile\")"
+  end
+
+  test "pwa icons load from public icons" do
+    {
+      "/icons/icon-192.png" => "192x192",
+      "/icons/icon-512.png" => "512x512",
+      "/icons/apple-touch-icon.png" => "180x180"
+    }.each_key do |path|
+      get path
+
+      assert_response :success
+      assert_equal "image/png", response.media_type
+    end
   end
 
   test "home page links manifest and registers service worker" do

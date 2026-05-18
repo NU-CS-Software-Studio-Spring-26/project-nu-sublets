@@ -207,6 +207,8 @@ The test suite includes or should include coverage for:
 
 NU Sublets includes a web app manifest and a conservative service worker for installability. The service worker caches only static/public assets and avoids authenticated, user-specific, form-submission, listing-detail, and account pages.
 
+The installed app icons are generated from the existing NU Sublets logo and served from `public/icons/`.
+
 To test installability, open Chrome DevTools and inspect:
 
 - Application -> Manifest
