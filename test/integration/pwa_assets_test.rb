@@ -34,7 +34,8 @@ class PwaAssetsTest < ActionDispatch::IntegrationTest
     {
       "/icons/icon-192.png" => "192x192",
       "/icons/icon-512.png" => "512x512",
-      "/icons/apple-touch-icon.png" => "180x180"
+      "/icons/apple-touch-icon.png" => "180x180",
+      "/icon.png" => "512x512"
     }.each_key do |path|
       get path
 
@@ -48,6 +49,7 @@ class PwaAssetsTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "link[rel='manifest'][href='/manifest.json']"
+    assert_select "link[rel='icon'][href='/icons/icon-192.png']"
     assert_select "meta[name='theme-color'][content='#4E2A84']"
     assert_select "link[rel='apple-touch-icon'][href='/icons/apple-touch-icon.png']"
     assert_includes response.body, "navigator.serviceWorker.register(\"/service-worker.js\", { scope: \"/\" })"
