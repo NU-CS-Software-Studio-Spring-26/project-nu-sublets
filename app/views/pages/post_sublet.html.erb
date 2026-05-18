@@ -655,6 +655,13 @@
                 color: var(--nu-muted);
             }
 
+            .photo-count {
+                margin: 2px 0 0;
+                font-size: 14px;
+                line-height: 1.6;
+                color: var(--nu-muted);
+            }
+
             .photo-status.is-error {
                 color: #b42318;
                 font-weight: 600;
@@ -927,10 +934,14 @@
                                     <span class="upload-title">Upload listing photos</span>
                                     <span class="upload-copy">Add up to 5 clear photos of the room, shared spaces, and building.</span>
                                 </button>
-                                <input class="photo-input" type="file" name="photos[]" accept="image/png,image/jpeg,image/webp" multiple data-photo-input />
+                                <input class="photo-input" type="file" id="listing-photos-input" name="photos[]" accept="image/png,image/jpeg,image/webp" multiple data-photo-input />
+                                <noscript>
+                                    <input class="field-input" type="file" name="photos[]" accept="image/png,image/jpeg,image/webp" multiple />
+                                </noscript>
                                 <div class="photo-preview-grid" aria-label="Selected photos" data-photo-preview></div>
                             </div>
-                            <p class="photo-status" data-photo-status>No photos selected</p>
+                            <p class="photo-count" data-photo-count aria-live="polite">0 of 5 photos selected</p>
+                            <p class="photo-status" data-photo-status aria-live="polite" hidden></p>
                         </section>
 
                         <section class="section-block field-stack">
@@ -974,11 +985,12 @@
                 const photoTrigger = document.querySelector("[data-photo-upload-trigger]");
                 const photoInput = document.querySelector("[data-photo-input]");
                 const photoPreview = document.querySelector("[data-photo-preview]");
+                const photoCount = document.querySelector("[data-photo-count]");
                 const photoStatus = document.querySelector("[data-photo-status]");
                 const photoDropzone = document.querySelector("[data-photo-dropzone]");
                 let photoPreviewUrls = [];
                 let selectedPhotos = [];
-                let photoNotice = "";
+                let photoWarnings = [];
                 const maxPhotos = 5;
                 const maxPhotoSize = 5 * 1024 * 1024;
                 const allowedPhotoTypes = new Set(["image/png", "image/jpeg", "image/webp"]);
@@ -997,26 +1009,22 @@
                 };
 
                 const renderPhotoPreview = () => {
-                    if (!photoInput || !photoPreview || !photoStatus) return;
+                    if (!photoInput || !photoPreview || !photoStatus || !photoCount) return;
 
                     clearPhotoPreviewUrls();
                     photoPreview.innerHTML = "";
 
                     const files = selectedPhotos;
-                    photoStatus.classList.remove("is-error", "is-complete");
+                    photoCount.textContent = `${files.length} of ${maxPhotos} photos selected`;
+                    photoStatus.classList.remove("is-error");
 
-                    if (photoNotice) {
-                        photoStatus.textContent = photoNotice;
+                    if (photoWarnings.length > 0) {
+                        photoStatus.textContent = photoWarnings.join(" ");
                         photoStatus.classList.add("is-error");
-                        photoNotice = "";
-                    } else if (files.length === 0) {
-                        photoStatus.textContent = "No photos selected";
-                    } else if (files.length === maxPhotos) {
-                        photoStatus.textContent = "5 photos selected. You reached the maximum.";
-                        photoStatus.classList.add("is-complete");
+                        photoStatus.hidden = false;
                     } else {
-                        photoStatus.textContent = `${files.length} photos selected. You can add up to ${maxPhotos - files.length} more.`;
-                        photoStatus.classList.add("is-complete");
+                        photoStatus.textContent = "";
+                        photoStatus.hidden = true;
                     }
 
                     files.forEach((file, index) => {
@@ -1049,19 +1057,24 @@
 
                 const addPhotos = (files) => {
                     const incomingFiles = Array.from(files || []);
+                    const warnings = [];
+
+                    if (selectedPhotos.length + incomingFiles.length > maxPhotos) {
+                        warnings.push("You can upload up to 5 photos per listing.");
+                    }
+
+                    if (incomingFiles.some((file) => file.size > maxPhotoSize)) {
+                        warnings.push("Each photo must be 5 MB or smaller.");
+                    }
+
+                    if (incomingFiles.some((file) => !allowedPhotoTypes.has(file.type))) {
+                        warnings.push("Photos must be PNG, JPG, or WebP files.");
+                    }
+
+                    photoWarnings = warnings;
+
                     const newPhotos = incomingFiles.filter((file) => allowedPhotoTypes.has(file.type) && file.size <= maxPhotoSize);
-                    const rejectedCount = incomingFiles.length - newPhotos.length;
                     const openSlots = Math.max(0, maxPhotos - selectedPhotos.length);
-
-                    if (rejectedCount > 0) {
-                        photoNotice = "Photos must be PNG, JPG, or WebP files and 5 MB or smaller.";
-                    }
-
-                    if (newPhotos.length > openSlots) {
-                        photoNotice = openSlots === 0
-                            ? "You can upload up to 5 photos."
-                            : `Only ${openSlots} more photo${openSlots === 1 ? "" : "s"} can be added.`;
-                    }
 
                     selectedPhotos = selectedPhotos.concat(newPhotos.slice(0, openSlots));
                     syncPhotoInput();

@@ -134,3 +134,14 @@ The repository includes a `wiki.md` file with additional project context, includ
 Added small decorative icons next to the main header navigation links (`Browse`, `Search`, `Saved`, and `Post Sublet`) and footer links (`About Us`, `Privacy Policy`, `Disclaimer`, and `GitHub Repository`). This improves visual polish, makes navigation easier to scan, and keeps the header/footer style consistent throughout the app.
 
 Icon source: custom inline SVGs adapted from [Bootstrap Icons](https://icons.getbootstrap.com/) path data. Bootstrap Icons are open source under the [MIT License](https://github.com/twbs/icons/blob/main/LICENSE.md). Icons are used decoratively with visible text labels preserved for accessibility.
+
+## JavaScript UX Improvements
+
+### Post Sublet Photo Upload Preview + Validation
+Added photo previews to the Post Sublet form so users can see selected listing photos before submitting. Added client-side warnings for selecting too many photos, unsupported file types, and oversized files.
+
+- Too many photos warning: `You can upload up to 5 photos per listing.`
+- File size warning: `Each photo must be 5 MB or smaller.`
+- File type warning: `Photos must be PNG, JPG, or WebP files.`
+
+Server-side validation remains the source of truth for all upload limits and allowed file rules.
