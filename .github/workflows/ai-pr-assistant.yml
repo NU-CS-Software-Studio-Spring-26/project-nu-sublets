@@ -55,8 +55,8 @@ jobs:
 
           git diff --name-status "${BASE_SHA}...${HEAD_SHA}" > tmp/ai-pr-assistant/changed-files.txt
           git diff --name-only "${BASE_SHA}...${HEAD_SHA}" | grep -E '^(test|spec)/|_test\.rb$|_spec\.rb$' > tmp/ai-pr-assistant/changed-tests.txt || true
-          git diff --unified=80 "${BASE_SHA}...${HEAD_SHA}" > tmp/ai-pr-assistant/pr-diff.full.patch
-          head -c 120000 tmp/ai-pr-assistant/pr-diff.full.patch > tmp/ai-pr-assistant/pr-diff.patch
+          git diff --unified=20 "${BASE_SHA}...${HEAD_SHA}" > tmp/ai-pr-assistant/pr-diff.full.patch
+          head -c 18000 tmp/ai-pr-assistant/pr-diff.full.patch > tmp/ai-pr-assistant/pr-diff.patch
 
           if [ ! -s tmp/ai-pr-assistant/changed-tests.txt ]; then
             echo "No test files changed in this pull request." > tmp/ai-pr-assistant/changed-tests.txt
@@ -89,12 +89,12 @@ jobs:
             cat tmp/ai-pr-assistant/security/importmap-audit.txt
           } > tmp/ai-pr-assistant/security-output.full.md
 
-          head -c 70000 tmp/ai-pr-assistant/security-output.full.md > tmp/ai-pr-assistant/security-output.md
+          head -c 8000 tmp/ai-pr-assistant/security-output.full.md > tmp/ai-pr-assistant/security-output.md
 
       - name: Generate AI PR assistant report
         id: ai_report
         continue-on-error: true
-        uses: actions/ai-inference@v2
+        uses: actions/ai-inference@v1
         with:
           prompt-file: .github/prompts/ai-pr-assistant.prompt.yml
           file_input: |
@@ -108,6 +108,7 @@ jobs:
         if: always()
         uses: actions/github-script@v8
         env:
+          RESPONSE: ${{ steps.ai_report.outputs.response }}
           RESPONSE_FILE: ${{ steps.ai_report.outputs.response-file }}
           AI_OUTCOME: ${{ steps.ai_report.outcome }}
           BRAKEMAN_EXIT: ${{ env.brakeman_exit }}
@@ -118,7 +119,9 @@ jobs:
             const fs = require('fs');
             const marker = '<!-- ai-pr-assistant -->';
             let report;
-            if (process.env.AI_OUTCOME === 'success' && process.env.RESPONSE_FILE && fs.existsSync(process.env.RESPONSE_FILE)) {
+            if (process.env.AI_OUTCOME === 'success' && process.env.RESPONSE?.trim()) {
+              report = process.env.RESPONSE.trim();
+            } else if (process.env.AI_OUTCOME === 'success' && process.env.RESPONSE_FILE && fs.existsSync(process.env.RESPONSE_FILE)) {
               report = fs.readFileSync(process.env.RESPONSE_FILE, 'utf8').trim();
             } else {
               report = [
