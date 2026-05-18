@@ -1,5 +1,45 @@
 class SessionsController < ApplicationController
+  layout false
+
   def create
+    if params[:id_token].present?
+      create_from_firebase_token
+    else
+      create_from_password
+    end
+  end
+
+  def omniauth
+    auth = request.env["omniauth.auth"]
+    user = User.from_omniauth(auth)
+
+    unless user
+      redirect_to login_path, alert: "Use your Northwestern Google account to log in."
+      return
+    end
+
+    start_session_for(user)
+    redirect_to profile_path, notice: "Logged in with Google."
+  rescue ActiveRecord::RecordInvalid
+    redirect_to login_path, alert: "Could not log in with Google."
+  end
+
+  def omniauth_failure
+    redirect_to login_path, alert: "Google login was not completed."
+  end
+
+  def google_oauth_unconfigured
+    redirect_to login_path, alert: "Google sign-in is unavailable until OAuth credentials are configured."
+  end
+
+  def destroy
+    reset_session
+    redirect_to root_path, notice: "Logged out."
+  end
+
+  private
+
+  def create_from_firebase_token
     decoded_token = FirebaseTokenVerifier.new.verify(params.require(:id_token))
     email = decoded_token.fetch("email").to_s.downcase
 
@@ -12,7 +52,7 @@ class SessionsController < ApplicationController
     user.assign_attributes(user_attributes(decoded_token, email))
     user.save!
 
-    session[:user_id] = user.id
+    start_session_for(user)
 
     render json: {
       user: {
@@ -27,12 +67,22 @@ class SessionsController < ApplicationController
     render json: { error: "Could not verify Google login." }, status: :unauthorized
   end
 
-  def destroy
-    reset_session
-    redirect_to root_path
+  def create_from_password
+    user = User.find_by(email: params[:email].to_s.strip.downcase)
+
+    if user&.authenticate(params[:password].to_s)
+      start_session_for(user)
+      redirect_to profile_path, notice: "Logged in successfully."
+    else
+      flash.now[:alert] = "Invalid email or password."
+      render "pages/login", status: :unprocessable_entity
+    end
   end
 
-  private
+  def start_session_for(user)
+    reset_session
+    session[:user_id] = user.id
+  end
 
   def user_attributes(decoded_token, email)
     display_name = decoded_token["name"].presence || email.split("@").first

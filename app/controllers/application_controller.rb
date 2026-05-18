@@ -9,7 +9,7 @@ class ApplicationController < ActionController::Base
   # Changes to the importmap will invalidate the etag for HTML responses
   stale_when_importmap_changes
 
-  helper_method :current_user, :user_signed_in?
+  helper_method :current_user, :user_signed_in?, :google_oauth_configured?
 
   private
 
@@ -19,6 +19,10 @@ class ApplicationController < ActionController::Base
 
   def user_signed_in?
     current_user.present?
+  end
+
+  def google_oauth_configured?
+    ENV["GOOGLE_CLIENT_ID"].present? && ENV["GOOGLE_CLIENT_SECRET"].present?
   end
 
   def authenticate_user!

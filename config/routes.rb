@@ -12,6 +12,8 @@ Rails.application.routes.draw do
   root "pages#home"
   get "listing" => "pages#listing", as: :listing
   get "listings/:id" => "pages#listing", as: :sublet_listing
+  patch "listings/:id" => "sublet_listings#update"
+  delete "listings/:id" => "sublet_listings#destroy"
   get "search-results" => "pages#search_results", as: :search_results
   get "saved" => "pages#saved", as: :saved
   get "post-sublet" => "pages#post_sublet", as: :post_sublet
@@ -24,6 +26,11 @@ Rails.application.routes.draw do
   get "disclaimer" => "pages#disclaimer", as: :disclaimer
   get "privacy-policy" => "pages#privacy_policy", as: :privacy_policy
   get "login" => "pages#login", as: :login
+  get "signup" => "registrations#new", as: :signup
+  post "signup" => "registrations#create"
+  post "google-oauth" => "sessions#google_oauth_unconfigured", as: :google_oauth
+  match "auth/:provider/callback" => "sessions#omniauth", via: %i[get post], as: :omniauth_callback
+  match "auth/failure" => "sessions#omniauth_failure", via: %i[get post], as: :omniauth_failure
   post "session" => "sessions#create", as: :session
   delete "session" => "sessions#destroy"
   post "post-sublet" => "pages#submit_sublet", as: :submit_sublet

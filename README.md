@@ -145,6 +145,48 @@ rbenv rehash
 - Production should not expose raw stack traces to users.
 - The app is deployed on Heroku.
 
+## Authentication
+
+NU Sublets supports local email/password authentication and Google OAuth for Northwestern-verified users.
+
+Local authentication:
+
+- Users can sign up with name, Northwestern email, password, and password confirmation.
+- Passwords are handled through Rails `has_secure_password`.
+- Raw passwords are never stored. The database stores only the BCrypt-backed `password_digest`.
+- Local login failures use a generic error message so the app does not reveal whether a specific email address exists.
+- Email addresses must belong to an allowed Northwestern domain.
+
+Google OAuth authentication:
+
+- Google login is handled through OmniAuth and `omniauth-google-oauth2`.
+- Successful OAuth login reads the Google auth hash email, uid, provider, and name.
+- The app only creates or logs in users whose Google email passes the Northwestern domain check.
+- Existing users are matched by Google provider/uid or by email so repeat OAuth login does not duplicate accounts.
+
+Required OAuth environment variables:
+
+```bash
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
+
+In the Google Cloud Console, add this authorized redirect URI for local development:
+
+```text
+http://localhost:3000/auth/google_oauth2/callback
+```
+
+For deployed environments, add the same callback path on the production host, for example:
+
+```text
+https://your-production-host/auth/google_oauth2/callback
+```
+
+If Google returns `Error 400: invalid_request`, check that both environment variables are present and that the exact callback URL for the host you are using is listed in the OAuth client settings.
+
+OAuth credentials and local `.env` files must not be committed to the repository.
+
 ## Testing
 
 Run the test suite with:

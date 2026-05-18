@@ -141,6 +141,17 @@
         color: #166534;
     }
 
+    .login-modal__oauth-note {
+        margin: 0;
+        border-radius: 8px;
+        background: #fff8e1;
+        color: #5f4300;
+        font-family: "Rubik", sans-serif;
+        font-size: 14px;
+        line-height: 1.4;
+        padding: 10px 12px;
+    }
+
     .login-modal__signup-link {
         color: #4E2A84;
         text-decoration: underline;
@@ -211,12 +222,6 @@
     id="login-modal"
     class="login-modal"
     data-login-modal
-    data-firebase-api-key="<%= ENV["FIREBASE_API_KEY"] %>"
-    data-firebase-auth-domain="<%= ENV["FIREBASE_AUTH_DOMAIN"] %>"
-    data-firebase-project-id="<%= ENV["FIREBASE_PROJECT_ID"] %>"
-    data-firebase-app-id="<%= ENV["FIREBASE_APP_ID"] %>"
-    data-session-url="<%= session_path %>"
-    data-csrf-token="<%= form_authenticity_token %>"
     aria-hidden="true"
 >
     <div class="login-modal__backdrop" data-login-close></div>
@@ -224,12 +229,26 @@
         <button class="login-modal__close" type="button" aria-label="Close login popup" data-login-close>&times;</button>
         <h2 class="login-modal__title" id="login-modal-title">Login</h2>
 
-        <p class="login-modal__error" data-login-error role="alert"></p>
+        <%= form_with url: session_path, method: :post, local: true, class: "login-modal__form" do %>
+            <%= email_field_tag :email, nil, class: "login-modal__field", placeholder: "Northwestern email", autocomplete: "email", required: true %>
+            <%= password_field_tag :password, nil, class: "login-modal__field", placeholder: "Password", autocomplete: "current-password", required: true %>
+            <%= submit_tag "Log in", class: "login-modal__submit" %>
+        <% end %>
 
-        <form class="login-modal__form" action="#" method="post" data-email-link-form>
-            <input class="login-modal__field" type="email" name="login-email" placeholder="Northwestern email" autocomplete="email" required />
-            <button class="login-modal__submit" type="submit" data-email-link-submit>Email me a login link</button>
-        </form>
+        <div class="login-modal__divider" aria-hidden="true">
+            <span class="login-modal__divider-text">or</span>
+        </div>
+
+        <%= button_to "Sign in with Google",
+                      google_oauth_configured? ? "/auth/google_oauth2" : google_oauth_path,
+                      method: :post,
+                      class: "login-modal__social",
+                      data: { turbo: false } %>
+
+        <p class="login-modal__signup">
+            Need an account?
+            <%= link_to "Sign up", signup_path, class: "login-modal__signup-link" %>
+        </p>
     </div>
 </div>
 
@@ -242,87 +261,7 @@
         }
 
         modal.dataset.loginBound = "true";
-        const errorMessage = modal.querySelector("[data-login-error]");
-        const emailLinkForm = modal.querySelector("[data-email-link-form]");
-        const emailLinkSubmit = modal.querySelector("[data-email-link-submit]");
-
-        const setMessage = (message, type = "error") => {
-            if (errorMessage) {
-                errorMessage.textContent = message;
-                errorMessage.classList.remove("is-error", "is-success");
-
-                if (message) {
-                    errorMessage.classList.add(type === "success" ? "is-success" : "is-error");
-                }
-            }
-        };
-
-        const clearMessage = () => setMessage("");
-
-        const setLoading = (isLoading) => {
-            if (!emailLinkSubmit) {
-                return;
-            }
-
-            emailLinkSubmit.disabled = isLoading;
-            emailLinkSubmit.style.opacity = isLoading ? "0.7" : "";
-        };
-
-        const isNorthwesternEmail = (email) => {
-            const normalizedEmail = String(email || "").toLowerCase();
-            return normalizedEmail.endsWith("@u.northwestern.edu") ||
-                normalizedEmail.endsWith("@northwestern.edu") ||
-                normalizedEmail.endsWith("@ads.northwestern.edu");
-        };
-
-        const firebaseConfig = () => ({
-            apiKey: modal.dataset.firebaseApiKey,
-            authDomain: modal.dataset.firebaseAuthDomain,
-            projectId: modal.dataset.firebaseProjectId,
-            appId: modal.dataset.firebaseAppId
-        });
-
-        const loadFirebaseAuth = async () => {
-            const [{ initializeApp, getApp, getApps }, authModule] = await Promise.all([
-                import("https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"),
-                import("https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js")
-            ]);
-
-            const config = firebaseConfig();
-
-            if (Object.values(config).some((value) => !value)) {
-                throw new Error("Firebase is not configured yet.");
-            }
-
-            const app = getApps().length ? getApp() : initializeApp(config);
-
-            return {
-                auth: authModule.getAuth(app),
-                ...authModule
-            };
-        };
-
-        const createRailsSession = async (firebaseUser) => {
-            const idToken = await firebaseUser.getIdToken();
-            const response = await fetch(modal.dataset.sessionUrl, {
-                method: "POST",
-                credentials: "same-origin",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                    "X-CSRF-Token": modal.dataset.csrfToken
-                },
-                body: JSON.stringify({ id_token: idToken })
-            });
-
-            if (!response.ok) {
-                const body = await response.json().catch(() => ({}));
-                throw new Error(body.error || "Could not finish login.");
-            }
-        };
-
         const openModal = () => {
-            clearMessage();
             modal.classList.add("is-open");
             modal.setAttribute("aria-hidden", "false");
             document.body.classList.add("login-modal-open");
@@ -357,63 +296,5 @@
             }
         });
 
-        if (emailLinkForm) {
-            emailLinkForm.addEventListener("submit", async (event) => {
-                event.preventDefault();
-                clearMessage();
-                setLoading(true);
-
-                const formData = new FormData(emailLinkForm);
-                const email = String(formData.get("login-email") || "").trim().toLowerCase();
-
-                try {
-                    if (!isNorthwesternEmail(email)) {
-                        throw new Error("Use your Northwestern email to log in.");
-                    }
-
-                    const { auth, sendSignInLinkToEmail } = await loadFirebaseAuth();
-                    await sendSignInLinkToEmail(auth, email, {
-                        url: `${window.location.origin}${window.location.pathname}`,
-                        handleCodeInApp: true
-                    });
-                    window.localStorage.setItem("emailForSignIn", email);
-                    setMessage("Check your email for the login link.", "success");
-                } catch (error) {
-                    setMessage(error.message || "Could not send login link.");
-                } finally {
-                    setLoading(false);
-                }
-            });
-        }
-
-        const completeEmailLinkSignIn = async () => {
-            try {
-                const { auth, isSignInWithEmailLink, signInWithEmailLink } = await loadFirebaseAuth();
-
-                if (!isSignInWithEmailLink(auth, window.location.href)) {
-                    return;
-                }
-
-                let email = window.localStorage.getItem("emailForSignIn");
-
-                if (!email) {
-                    email = window.prompt("Enter the Northwestern email you used to request this login link.");
-                }
-
-                if (!email || !isNorthwesternEmail(email)) {
-                    throw new Error("Use your Northwestern email to finish logging in.");
-                }
-
-                const credential = await signInWithEmailLink(auth, email, window.location.href);
-                window.localStorage.removeItem("emailForSignIn");
-                await createRailsSession(credential.user);
-                window.location.replace(`${window.location.origin}${window.location.pathname}`);
-            } catch (error) {
-                openModal();
-                setMessage(error.message || "Could not finish email link login.");
-            }
-        };
-
-        completeEmailLinkSignIn();
     })();
 </script>

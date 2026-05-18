@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en" data-bs-theme="light">
     <head>
-        <title>Login | NU Sublets</title>
+        <title>Sign Up | NU Sublets</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -20,8 +20,10 @@
                 font-family: "Fustat", sans-serif;
             }
 
-            .login-page-shell {
+            .page-shell {
                 min-height: 100vh;
+                display: flex;
+                flex-direction: column;
             }
 
             .topbar {
@@ -56,14 +58,14 @@
             }
 
             .auth-main {
-                min-height: calc(100vh - 60px);
+                flex: 1;
                 display: grid;
                 place-items: center;
                 padding: 48px 24px;
             }
 
             .auth-card {
-                width: min(100%, 480px);
+                width: min(100%, 520px);
                 border-radius: 8px;
                 background: #fff;
                 box-shadow: 0 0 25px rgba(217, 217, 217, 0.5);
@@ -89,13 +91,16 @@
                 margin: 0 0 24px;
             }
 
-            .auth-form {
+            .auth-form,
+            .auth-field {
                 display: grid;
+            }
+
+            .auth-form {
                 gap: 16px;
             }
 
             .auth-field {
-                display: grid;
                 gap: 7px;
             }
 
@@ -114,80 +119,31 @@
                 font: inherit;
             }
 
-            .auth-button,
-            .auth-google {
+            .auth-button {
                 width: 100%;
                 min-height: 48px;
+                border: 0;
                 border-radius: 6px;
+                background: #4E2A84;
+                color: #fff;
                 font-family: "Rubik", sans-serif;
                 font-size: 16px;
                 font-weight: 600;
-            }
-
-            .auth-button {
-                border: 0;
-                background: #4E2A84;
-                color: #fff;
-            }
-
-            .auth-google {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                border: 1px solid #d9d9d9;
-                background: #fff;
-                color: #000;
-            }
-
-            .auth-divider {
-                display: flex;
-                align-items: center;
-                gap: 14px;
-                margin: 20px 0;
-                color: #5b5b5b;
-                font-family: "Rubik", sans-serif;
-                font-size: 13px;
-            }
-
-            .auth-divider::before,
-            .auth-divider::after {
-                content: "";
-                flex: 1;
-                border-top: 1px solid #d9d9d9;
             }
 
             .auth-alert {
                 margin: 0 0 16px;
                 border-radius: 6px;
                 padding: 10px 12px;
-                font-family: "Rubik", sans-serif;
-                font-size: 14px;
-            }
-
-            .auth-alert.alert {
                 background: #fff3f3;
                 color: #9f1d1d;
-            }
-
-            .auth-alert.notice {
-                background: #ecfdf3;
-                color: #166534;
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
             }
 
             .auth-switch {
                 margin: 18px 0 0;
                 text-align: center;
-            }
-
-            .auth-oauth-note {
-                margin: 0;
-                border-radius: 6px;
-                background: #fff8e1;
-                color: #5f4300;
-                font-family: "Rubik", sans-serif;
-                font-size: 14px;
-                line-height: 1.45;
-                padding: 10px 12px;
             }
 
             .auth-link {
@@ -198,14 +154,14 @@
         <%= render "pages/focus_styles" %>
     </head>
     <body>
-        <div class="login-page-shell">
+        <div class="page-shell">
             <header class="topbar">
                 <div class="topbar-inner">
                     <a class="brand d-flex align-items-center" href="<%= root_path %>" style="text-decoration: none; color: #4E2A84; font-weight: bold; font-size: 1.25rem;">
-                        <%= render 'shared/brand_logo' %>
+                        <%= render "shared/brand_logo" %>
                     </a>
                     <nav class="d-flex align-items-center topbar-nav">
-                        <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
+                        <a class="nav-link p-0" href="<%= root_path(anchor: "recommendations") %>">Browse</a>
                         <a class="nav-link p-0" href="<%= search_results_path %>">Search</a>
                         <a class="nav-link p-0" href="<%= saved_path %>">Saved</a>
                         <a class="nav-link p-0" href="<%= post_sublet_path %>">Post Sublet</a>
@@ -215,39 +171,41 @@
             </header>
 
             <main class="auth-main">
-                <section class="auth-card" aria-labelledby="login-title">
-                    <h1 class="auth-title" id="login-title">Log in</h1>
-                    <p class="auth-copy">Use your Northwestern account to browse, save, and post sublets.</p>
+                <section class="auth-card" aria-labelledby="signup-title">
+                    <h1 class="auth-title" id="signup-title">Create your account</h1>
+                    <p class="auth-copy">Use your Northwestern email and a password of at least 8 characters.</p>
 
-                    <% flash.each do |type, message| %>
-                        <p class="auth-alert <%= type %>" role="alert"><%= message %></p>
+                    <% if flash[:alert].present? %>
+                        <p class="auth-alert" role="alert"><%= flash[:alert] %></p>
                     <% end %>
 
-                    <%= form_with url: session_path, method: :post, local: true, class: "auth-form" do %>
+                    <%= form_with model: @user, url: signup_path, method: :post, local: true, class: "auth-form" do |form| %>
                         <div class="auth-field">
-                            <%= label_tag :email, "Northwestern email", class: "auth-label" %>
-                            <%= email_field_tag :email, nil, class: "auth-input", autocomplete: "email", required: true %>
+                            <%= form.label :name, "Name", class: "auth-label" %>
+                            <%= form.text_field :name, class: "auth-input", autocomplete: "name", required: true %>
                         </div>
 
                         <div class="auth-field">
-                            <%= label_tag :password, "Password", class: "auth-label" %>
-                            <%= password_field_tag :password, nil, class: "auth-input", autocomplete: "current-password", required: true %>
+                            <%= form.label :email, "Northwestern email", class: "auth-label" %>
+                            <%= form.email_field :email, class: "auth-input", autocomplete: "email", required: true %>
                         </div>
 
-                        <%= submit_tag "Log in", class: "auth-button" %>
+                        <div class="auth-field">
+                            <%= form.label :password, "Password", class: "auth-label" %>
+                            <%= form.password_field :password, class: "auth-input", autocomplete: "new-password", required: true %>
+                        </div>
+
+                        <div class="auth-field">
+                            <%= form.label :password_confirmation, "Password confirmation", class: "auth-label" %>
+                            <%= form.password_field :password_confirmation, class: "auth-input", autocomplete: "new-password", required: true %>
+                        </div>
+
+                        <%= form.submit "Sign up", class: "auth-button" %>
                     <% end %>
-
-                    <div class="auth-divider">or</div>
-
-                    <%= button_to "Sign in with Google",
-                                  google_oauth_configured? ? "/auth/google_oauth2" : google_oauth_path,
-                                  method: :post,
-                                  class: "auth-google",
-                                  data: { turbo: false } %>
 
                     <p class="auth-switch">
-                        Need an account?
-                        <%= link_to "Sign up", signup_path, class: "auth-link" %>
+                        Already have an account?
+                        <%= link_to "Log in", login_path, class: "auth-link" %>
                     </p>
                 </section>
             </main>
