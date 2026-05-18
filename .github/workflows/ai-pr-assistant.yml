@@ -94,9 +94,9 @@ jobs:
       - name: Generate AI PR assistant report
         id: ai_report
         continue-on-error: true
-        uses: actions/ai-inference@v1
+        uses: actions/ai-inference@v2
         with:
-          prompt-file: .github/prompts/ai-pr-assistant.prompt.yml
+          prompt-file: .github/prompts/ai-pr-assistant.prompt.txt
           file_input: |
             pr_metadata: tmp/ai-pr-assistant/pr-metadata.md
             changed_files: tmp/ai-pr-assistant/changed-files.txt
