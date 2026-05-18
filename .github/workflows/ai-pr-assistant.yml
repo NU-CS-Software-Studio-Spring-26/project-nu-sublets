@@ -1,0 +1,174 @@
+name: AI PR Assistant
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  models: read
+
+concurrency:
+  group: ai-pr-assistant-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  summarize:
+    name: PR summary, test gaps, and security notes
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Collect PR context
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p tmp/ai-pr-assistant
+
+          {
+            echo "Number: #${PR_NUMBER}"
+            echo "Title: ${PR_TITLE}"
+            echo "Author: ${PR_AUTHOR}"
+            echo
+            echo "Body:"
+            echo "${PR_BODY:-No pull request body provided.}"
+          } > tmp/ai-pr-assistant/pr-metadata.md
+
+          git diff --name-status "${BASE_SHA}...${HEAD_SHA}" > tmp/ai-pr-assistant/changed-files.txt
+          git diff --name-only "${BASE_SHA}...${HEAD_SHA}" | grep -E '^(test|spec)/|_test\.rb$|_spec\.rb$' > tmp/ai-pr-assistant/changed-tests.txt || true
+          git diff --unified=80 "${BASE_SHA}...${HEAD_SHA}" > tmp/ai-pr-assistant/pr-diff.full.patch
+          head -c 120000 tmp/ai-pr-assistant/pr-diff.full.patch > tmp/ai-pr-assistant/pr-diff.patch
+
+          if [ ! -s tmp/ai-pr-assistant/changed-tests.txt ]; then
+            echo "No test files changed in this pull request." > tmp/ai-pr-assistant/changed-tests.txt
+          fi
+
+      - name: Run security scans for AI explanation
+        env:
+          RAILS_ENV: test
+        run: |
+          set +e
+          mkdir -p tmp/ai-pr-assistant/security
+
+          bundle exec brakeman --no-pager --format plain > tmp/ai-pr-assistant/security/brakeman.txt 2>&1
+          echo "brakeman_exit=$?" >> "$GITHUB_ENV"
+
+          bin/bundler-audit > tmp/ai-pr-assistant/security/bundler-audit.txt 2>&1
+          echo "bundler_audit_exit=$?" >> "$GITHUB_ENV"
+
+          bin/importmap audit > tmp/ai-pr-assistant/security/importmap-audit.txt 2>&1
+          echo "importmap_audit_exit=$?" >> "$GITHUB_ENV"
+
+          {
+            echo "## Brakeman"
+            cat tmp/ai-pr-assistant/security/brakeman.txt
+            echo
+            echo "## Bundler Audit"
+            cat tmp/ai-pr-assistant/security/bundler-audit.txt
+            echo
+            echo "## JavaScript Dependency Audit"
+            cat tmp/ai-pr-assistant/security/importmap-audit.txt
+          } > tmp/ai-pr-assistant/security-output.full.md
+
+          head -c 70000 tmp/ai-pr-assistant/security-output.full.md > tmp/ai-pr-assistant/security-output.md
+
+      - name: Generate AI PR assistant report
+        id: ai_report
+        continue-on-error: true
+        uses: actions/ai-inference@v2
+        with:
+          prompt-file: .github/prompts/ai-pr-assistant.prompt.yml
+          file_input: |
+            pr_metadata: tmp/ai-pr-assistant/pr-metadata.md
+            changed_files: tmp/ai-pr-assistant/changed-files.txt
+            pr_diff: tmp/ai-pr-assistant/pr-diff.patch
+            changed_tests: tmp/ai-pr-assistant/changed-tests.txt
+            security_outputs: tmp/ai-pr-assistant/security-output.md
+
+      - name: Post or update PR comment
+        if: always()
+        uses: actions/github-script@v8
+        env:
+          RESPONSE_FILE: ${{ steps.ai_report.outputs.response-file }}
+          AI_OUTCOME: ${{ steps.ai_report.outcome }}
+          BRAKEMAN_EXIT: ${{ env.brakeman_exit }}
+          BUNDLER_AUDIT_EXIT: ${{ env.bundler_audit_exit }}
+          IMPORTMAP_AUDIT_EXIT: ${{ env.importmap_audit_exit }}
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- ai-pr-assistant -->';
+            let report;
+            if (process.env.AI_OUTCOME === 'success' && process.env.RESPONSE_FILE && fs.existsSync(process.env.RESPONSE_FILE)) {
+              report = fs.readFileSync(process.env.RESPONSE_FILE, 'utf8').trim();
+            } else {
+              report = [
+                '## PR Change Summary',
+                '- AI report generation was unavailable for this run.',
+                '',
+                '## Test Gap Suggestions',
+                '- Check the changed files and verify controller, model, and system test coverage manually.',
+                '',
+                '## Security Findings',
+                '- Security scans were run for context, but the AI explanation could not be generated.'
+              ].join('\n');
+            }
+            const scanStatus = [
+              `Brakeman exit: ${process.env.BRAKEMAN_EXIT ?? 'unknown'}`,
+              `Bundler Audit exit: ${process.env.BUNDLER_AUDIT_EXIT ?? 'unknown'}`,
+              `Importmap Audit exit: ${process.env.IMPORTMAP_AUDIT_EXIT ?? 'unknown'}`
+            ].join(' | ');
+            const body = [
+              marker,
+              '# AI PR Assistant',
+              '',
+              report,
+              '',
+              '---',
+              `_Generated by GitHub Models in CI. ${scanStatus}._`
+            ].join('\n');
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100
+            });
+            const existing = comments.find(comment => comment.body?.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body
+              });
+            }
