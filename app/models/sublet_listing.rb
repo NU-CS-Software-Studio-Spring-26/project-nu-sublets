@@ -2,6 +2,10 @@ class SubletListing < ApplicationRecord
   MAX_PRICE = 20_000
   MAX_ROOMS = 20
   MAX_LABELS = 12
+  MAX_PHOTOS = 5
+  MAX_PHOTO_SIZE = 5.megabytes
+  ALLOWED_PHOTO_CONTENT_TYPES = %w[image/png image/jpeg image/webp].freeze
+
 
   AMENITY_OPTIONS = [
     "Furnished",
@@ -71,6 +75,7 @@ class SubletListing < ApplicationRecord
 
   # Associations
   belongs_to :user
+  has_many_attached :photos
 
   serialize :amenities, coder: JSON, type: Array
   serialize :preferences, coder: JSON, type: Array
@@ -105,6 +110,7 @@ class SubletListing < ApplicationRecord
   validate :available_from_not_in_past
   validate :amenity_labels_are_allowed
   validate :preference_labels_are_allowed
+  validate :photos_meet_upload_rules
 
   # Scopes
   scope :available, -> { where("available_until >= ?", Date.current) }
@@ -336,6 +342,21 @@ class SubletListing < ApplicationRecord
 
     if available_from < Date.current
       errors.add(:available_from, "cannot be in the past")
+    end
+  end
+
+  def photos_meet_upload_rules
+    return unless photos.attached?
+
+    photo_attachments = photos.attachments
+    errors.add(:base, "You can upload up to 5 photos per listing.") if photo_attachments.size > MAX_PHOTOS
+
+    if photo_attachments.any? { |photo| photo.blob.byte_size > MAX_PHOTO_SIZE }
+      errors.add(:base, "Each photo must be 5 MB or smaller.")
+    end
+
+    if photo_attachments.any? { |photo| !photo.blob.content_type.in?(ALLOWED_PHOTO_CONTENT_TYPES) }
+      errors.add(:base, "Photos must be PNG, JPG, or WebP files.")
     end
   end
 end

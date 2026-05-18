@@ -798,7 +798,7 @@
                         </div>
                     <% end %>
 
-                    <%= form_with url: submit_sublet_path, method: :post, local: true, class: "post-card" do %>
+                    <%= form_with url: submit_sublet_path, method: :post, local: true, html: { multipart: true }, class: "post-card" do %>
                         <section class="section-block field-stack">
                             <div>
                                 <h2 class="section-title">Address</h2>
@@ -914,7 +914,7 @@
                         <section class="section-block field-stack">
                             <div>
                                 <h2 class="section-title">Photos</h2>
-                                <p class="section-helper">You must upload a minimum of 4 photos</p>
+                                <p class="section-helper">Upload up to 5 photos. PNG, JPG, or WebP only. 5 MB max per photo.</p>
                             </div>
 
                             <div class="photo-upload-row" data-photo-dropzone>
@@ -925,9 +925,9 @@
                                         </svg>
                                     </span>
                                     <span class="upload-title">Upload listing photos</span>
-                                    <span class="upload-copy">Add 4-10 clear photos of the room, shared spaces, and building.</span>
+                                    <span class="upload-copy">Add up to 5 clear photos of the room, shared spaces, and building.</span>
                                 </button>
-                                <input class="photo-input" type="file" name="photos[]" accept="image/*" multiple data-photo-input />
+                                <input class="photo-input" type="file" name="photos[]" accept="image/png,image/jpeg,image/webp" multiple data-photo-input />
                                 <div class="photo-preview-grid" aria-label="Selected photos" data-photo-preview></div>
                             </div>
                             <p class="photo-status" data-photo-status>No photos selected</p>
@@ -979,6 +979,9 @@
                 let photoPreviewUrls = [];
                 let selectedPhotos = [];
                 let photoNotice = "";
+                const maxPhotos = 5;
+                const maxPhotoSize = 5 * 1024 * 1024;
+                const allowedPhotoTypes = new Set(["image/png", "image/jpeg", "image/webp"]);
 
                 const clearPhotoPreviewUrls = () => {
                     photoPreviewUrls.forEach((url) => URL.revokeObjectURL(url));
@@ -1008,14 +1011,11 @@
                         photoNotice = "";
                     } else if (files.length === 0) {
                         photoStatus.textContent = "No photos selected";
-                    } else if (files.length < 4) {
-                        photoStatus.textContent = `${files.length} selected. Add ${4 - files.length} more to meet the minimum.`;
-                        photoStatus.classList.add("is-error");
-                    } else if (files.length === 10) {
-                        photoStatus.textContent = "10 photos selected. You reached the maximum.";
+                    } else if (files.length === maxPhotos) {
+                        photoStatus.textContent = "5 photos selected. You reached the maximum.";
                         photoStatus.classList.add("is-complete");
                     } else {
-                        photoStatus.textContent = `${files.length} photos selected. You can add up to ${10 - files.length} more.`;
+                        photoStatus.textContent = `${files.length} photos selected. You can add up to ${maxPhotos - files.length} more.`;
                         photoStatus.classList.add("is-complete");
                     }
 
@@ -1048,12 +1048,18 @@
                 });
 
                 const addPhotos = (files) => {
-                    const newPhotos = Array.from(files || []).filter((file) => file.type.startsWith("image/"));
-                    const openSlots = Math.max(0, 10 - selectedPhotos.length);
+                    const incomingFiles = Array.from(files || []);
+                    const newPhotos = incomingFiles.filter((file) => allowedPhotoTypes.has(file.type) && file.size <= maxPhotoSize);
+                    const rejectedCount = incomingFiles.length - newPhotos.length;
+                    const openSlots = Math.max(0, maxPhotos - selectedPhotos.length);
+
+                    if (rejectedCount > 0) {
+                        photoNotice = "Photos must be PNG, JPG, or WebP files and 5 MB or smaller.";
+                    }
 
                     if (newPhotos.length > openSlots) {
                         photoNotice = openSlots === 0
-                            ? "You can upload up to 10 photos."
+                            ? "You can upload up to 5 photos."
                             : `Only ${openSlots} more photo${openSlots === 1 ? "" : "s"} can be added.`;
                     }
 

@@ -33,6 +33,10 @@ For our MVP, we need a platform for people to post their living spaces for suble
 - Seed the database with realistic demo data.
 - Run model, controller, system, authentication, and authorization tests.
 
+## Listing Photo Upload Rules
+
+Listing photos are validated server-side. Each listing can have up to 5 photos, and each photo must be a PNG, JPG, or WebP file that is 5 MB or smaller.
+
 ## Team Members / Contributors
 
 - Melinda Wang

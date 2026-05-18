@@ -110,6 +110,19 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
   end
 
+  test "invalid sublet photo upload shows a friendly error and preserves input" do
+    sign_in_with_firebase_email("student@u.northwestern.edu")
+    upload = uploaded_test_file("lease.pdf", "application/pdf", "%PDF-1.4 fake pdf")
+
+    assert_no_difference("SubletListing.count") do
+      post submit_sublet_path, params: valid_sublet_post_params.merge(photos: [ upload ])
+    end
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, "Photos must be PNG, JPG, or WebP files."
+    assert_select "input[name='street-address'][value='820 Noyes St']"
+  end
+
   test "home page links to the other product views" do
     get root_path
 
@@ -431,6 +444,8 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     get post_sublet_path
 
     assert_select "form[action='#{submit_sublet_path}'][method='post']"
+    assert_select "input[type='file'][name='photos[]'][accept='image/png,image/jpeg,image/webp'][multiple]"
+    assert_includes response.body, "Upload up to 5 photos. PNG, JPG, or WebP only. 5 MB max per photo."
   end
 
   private
@@ -485,5 +500,13 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     post session_path, params: { id_token: "firebase-token" }, as: :json
   ensure
     FirebaseTokenVerifier.define_singleton_method(:new) { |*args, **kwargs| original_new.call(*args, **kwargs) }
+  end
+
+  def uploaded_test_file(filename, content_type, content)
+    file = Tempfile.new([ File.basename(filename, ".*"), File.extname(filename) ], binmode: true)
+    file.write(content)
+    file.rewind
+
+    Rack::Test::UploadedFile.new(file.path, content_type, original_filename: filename)
   end
 end

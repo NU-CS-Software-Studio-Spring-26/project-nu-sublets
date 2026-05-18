@@ -40,7 +40,8 @@ class SubletListingsController < ApplicationController
       :available_until,
       :furnished,
       :pets_allowed,
-      :utilities_included
+      :utilities_included,
+      photos: []
     )
   end
 end

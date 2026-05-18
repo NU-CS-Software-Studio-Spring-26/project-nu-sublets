@@ -2,6 +2,7 @@ require "test_helper"
 
 class SubletListingTest < ActiveSupport::TestCase
   def setup
+    @uploaded_files = []
     @user = User.create!(
       name: "Listing Owner",
       email: "listing.owner@u.northwestern.edu",
@@ -17,6 +18,44 @@ class SubletListingTest < ActiveSupport::TestCase
     assert result[:success]
     assert_instance_of SubletListing, result[:listing]
     assert_equal "Listing created successfully", result[:message]
+  end
+
+  test "valid listing with acceptable image uploads succeeds" do
+    listing = @user.sublet_listings.new(valid_listing_params)
+    listing.photos.attach([
+      uploaded_file("listing-photo-one.png", "image/png", png_bytes),
+      uploaded_file("listing-photo-two.webp", "image/webp", "RIFF----WEBPVP8 ")
+    ])
+
+    assert listing.valid?
+    assert listing.save
+    assert_equal 2, listing.photos.count
+  end
+
+  test "uploading more than five images fails with a friendly error" do
+    listing = @user.sublet_listings.new(valid_listing_params)
+    listing.photos.attach(
+      6.times.map { |index| uploaded_file("listing-photo-#{index}.png", "image/png", png_bytes) }
+    )
+
+    assert_not listing.valid?
+    assert_includes listing.errors[:base], "You can upload up to 5 photos per listing."
+  end
+
+  test "uploading an image larger than five megabytes fails with a friendly error" do
+    listing = @user.sublet_listings.new(valid_listing_params)
+    listing.photos.attach(uploaded_file("large-listing-photo.png", "image/png", large_png_bytes))
+
+    assert_not listing.valid?
+    assert_includes listing.errors[:base], "Each photo must be 5 MB or smaller."
+  end
+
+  test "uploading a non image file fails with a friendly error" do
+    listing = @user.sublet_listings.new(valid_listing_params)
+    listing.photos.attach(uploaded_file("lease.pdf", "application/pdf", "%PDF-1.4 fake pdf"))
+
+    assert_not listing.valid?
+    assert_includes listing.errors[:base], "Photos must be PNG, JPG, or WebP files."
   end
 
   test "update_listing updates attributes" do
@@ -216,5 +255,22 @@ class SubletListingTest < ActiveSupport::TestCase
       available_from: Date.current + 1.day,
       available_until: Date.current + 60.days
     }
+  end
+
+  def uploaded_file(filename, content_type, content)
+    file = Tempfile.new([ File.basename(filename, ".*"), File.extname(filename) ], binmode: true)
+    file.write(content)
+    file.rewind
+    @uploaded_files << file
+
+    Rack::Test::UploadedFile.new(file.path, content_type, original_filename: filename)
+  end
+
+  def png_bytes
+    "\x89PNG\r\n\x1A\n".b
+  end
+
+  def large_png_bytes
+    png_bytes + ("0" * (SubletListing::MAX_PHOTO_SIZE + 1))
   end
 end
