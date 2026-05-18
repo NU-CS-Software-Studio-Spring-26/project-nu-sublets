@@ -98,6 +98,10 @@ class PagesController < ApplicationController
     render :anotheruseraccount
   end
 
+  def about
+    @footer_about_path = about_path
+  end
+
   def about_us; end
 
   def disclaimer; end

@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   patch "profile" => "pages#update_profile"
   get "users/:id" => "pages#user_profile", as: :user_profile
   get "another-user-account" => "pages#another_user_account", as: :another_user_account
+  get "about" => "pages#about", as: :about
   get "about-us" => "pages#about_us", as: :about_us
   get "disclaimer" => "pages#disclaimer", as: :disclaimer
   get "privacy-policy" => "pages#privacy_policy", as: :privacy_policy
