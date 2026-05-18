@@ -1,7 +1,7 @@
 require "test_helper"
 
 class AiListingDraftServiceTest < ActiveSupport::TestCase
-  test "builds a template draft without an api key" do
+  test "builds a demo draft without an api key" do
     draft = AiListingDraftService.call(
       {
         "street-address" => "820 Noyes St",
@@ -15,13 +15,15 @@ class AiListingDraftServiceTest < ActiveSupport::TestCase
       api_key: nil
     )
 
-    assert_equal "template", draft[:source]
+    assert_equal "demo", draft[:source]
     assert_includes draft[:title], "820 Noyes St"
     assert_includes draft[:description], "$950/month"
-    assert_includes draft[:description], "Laundry and Gym"
+    assert_includes draft[:description], "utilities included"
+    assert_includes draft[:description], "Laundry"
+    assert_includes draft[:description], "Gym"
   end
 
-  test "uses existing notes when present" do
+  test "incorporates existing notes into demo copy" do
     draft = AiListingDraftService.call(
       {
         "street-address" => "820 Noyes St",
@@ -31,8 +33,9 @@ class AiListingDraftServiceTest < ActiveSupport::TestCase
       api_key: nil
     )
 
-    assert_equal "Quiet Room Near Campus", draft[:title]
-    assert_equal "Bright furnished room near Northwestern with a short walk to campus.", draft[:description]
+    assert_equal "demo", draft[:source]
+    assert_includes draft[:title], "820 Noyes St"
+    assert_includes draft[:description], "Additional notes: Bright furnished room near Northwestern with a short walk to campus."
   end
 
   test "requires some listing context" do

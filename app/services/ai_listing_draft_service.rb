@@ -22,11 +22,11 @@ class AiListingDraftService
   def call
     raise InputError, "Add an address, rent, or notes before generating a draft." unless enough_context?
 
-    return fallback_draft unless api_key.present?
+    return demo_draft unless api_key.present?
 
     openai_draft
   rescue JSON::ParserError, KeyError, Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNREFUSED, SocketError
-    fallback_draft
+    demo_draft
   end
 
   private
@@ -71,14 +71,14 @@ class AiListingDraftService
       http.request(request)
     end
 
-    return fallback_draft unless response.is_a?(Net::HTTPSuccess)
+    return demo_draft unless response.is_a?(Net::HTTPSuccess)
 
     parsed = JSON.parse(response.body)
     draft = JSON.parse(extract_output_text(parsed))
     title = clean_text(draft.fetch("title")).first(TITLE_LIMIT)
     description = clean_text(draft.fetch("description")).first(DESCRIPTION_LIMIT)
 
-    return fallback_draft if title.blank? || description.blank?
+    return demo_draft if title.blank? || description.blank?
 
     { title:, description:, source: "ai" }
   end
@@ -132,34 +132,66 @@ class AiListingDraftService
                  .join("\n")
   end
 
-  def fallback_draft
-    title = params["title"].presence || fallback_title
-    description = params["description"].presence || fallback_description
-
+  def demo_draft
     {
-      title: title.first(TITLE_LIMIT),
-      description: description.first(DESCRIPTION_LIMIT),
-      source: "template"
+      title: demo_title.first(TITLE_LIMIT),
+      description: demo_description.first(DESCRIPTION_LIMIT),
+      source: "demo"
     }
   end
 
-  def fallback_title
+  def demo_title
     location = params["street-address"].presence || "Northwestern"
     room_label = params["bedrooms"].present? ? "#{params["bedrooms"]}-Bedroom " : ""
-    "#{room_label}Sublet Near #{location}".squish
+    "Bright #{room_label}Sublet Near #{location}".squish
   end
 
-  def fallback_description
-    details = []
-    details << "Available from #{params["start-date"]}" if params["start-date"].present?
-    details << "through #{params["end-date"]}" if params["end-date"].present?
-    details << "for $#{params["price"]}/month" if params["price"].present?
-    details << "with #{Array(params["amenities"]).to_sentence}" if Array(params["amenities"]).any?
-    details << "Utilities are included" if params["utilities_included"] == "1"
-    details << "The space is furnished" if params["furnished"] == "1"
+  def demo_description
+    details = [
+      intro_sentence,
+      rent_sentence,
+      features_sentence,
+      notes_sentence,
+      "Message me with any questions or to set up a time to see the space."
+    ].compact
 
-    sentence = details.any? ? details.join(" ") : "A comfortable sublet near Northwestern campus."
-    "#{sentence}. Message me with any questions or to set up a time to see the space.".squish
+    details.join(" ").squish
+  end
+
+  def intro_sentence
+    dates = if params["start-date"].present? && params["end-date"].present?
+              " from #{params["start-date"]} to #{params["end-date"]}"
+    elsif params["start-date"].present?
+              " starting #{params["start-date"]}"
+    end
+
+    "This sublet#{dates} is a convenient option for Northwestern students looking for a comfortable place near campus."
+  end
+
+  def rent_sentence
+    return if params["price"].blank?
+
+    "Rent is $#{params["price"]}/month."
+  end
+
+  def features_sentence
+    features = []
+    features << "#{params["bedrooms"]} bedroom" if params["bedrooms"].present?
+    features << "#{params["bathrooms"]} bathroom" if params["bathrooms"].present?
+    features << "furnished" if params["furnished"] == "1"
+    features << "utilities included" if params["utilities_included"] == "1"
+    features << "pet-friendly" if params["pets_allowed"] == "1"
+    features += Array(params["amenities"])
+
+    return if features.blank?
+
+    "Highlights include #{features.uniq.to_sentence}."
+  end
+
+  def notes_sentence
+    return if params["description"].blank?
+
+    "Additional notes: #{params["description"]}"
   end
 
   def address
