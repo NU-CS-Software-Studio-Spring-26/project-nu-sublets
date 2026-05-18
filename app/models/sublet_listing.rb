@@ -1,4 +1,8 @@
 class SubletListing < ApplicationRecord
+  MAX_PRICE = 20_000
+  MAX_ROOMS = 20
+  MAX_LABELS = 12
+
   AMENITY_OPTIONS = [
     "Furnished",
     "Laundry",
@@ -72,18 +76,35 @@ class SubletListing < ApplicationRecord
   serialize :preferences, coder: JSON, type: Array
 
   # Validations
+  before_validation :normalize_user_input
+
   validates :title, presence: true, length: { minimum: 5, maximum: 100 }
   validates :description, presence: true, length: { minimum: 10, maximum: 1000 }
-  validates :price, presence: true, numericality: { greater_than: 0 }
-  validates :address, presence: true
+  validates :price, presence: true, numericality: {
+    greater_than: 0,
+    less_than_or_equal_to: MAX_PRICE,
+    message: "must be between $1 and $#{MAX_PRICE.to_fs(:delimited)}"
+  }
+  validates :address, presence: true, length: { maximum: 250 }
   validates :available_from, presence: true
   validates :available_until, presence: true
-  validates :bedrooms, presence: true, numericality: { greater_than_or_equal_to: 0 }
-  validates :bathrooms, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :bedrooms, presence: true, numericality: {
+    only_integer: true,
+    greater_than_or_equal_to: 0,
+    less_than_or_equal_to: MAX_ROOMS
+  }
+  validates :bathrooms, presence: true, numericality: {
+    only_integer: true,
+    greater_than_or_equal_to: 0,
+    less_than_or_equal_to: MAX_ROOMS
+  }
+  validates :furnished, :pets_allowed, :utilities_included, inclusion: { in: [ true, false ] }
 
   # Custom validations
   validate :available_until_after_available_from
   validate :available_from_not_in_past
+  validate :amenity_labels_are_allowed
+  validate :preference_labels_are_allowed
 
   # Scopes
   scope :available, -> { where("available_until >= ?", Date.current) }
@@ -260,6 +281,46 @@ class SubletListing < ApplicationRecord
 
     escaped_label = ActiveRecord::Base.sanitize_sql_like(label.to_json)
     relation.where("#{column} LIKE ?", "%#{escaped_label}%")
+  end
+
+  def normalize_user_input
+    self.title = normalize_text(title)
+    self.description = normalize_text(description)
+    self.address = normalize_text(address)
+    self.amenities = normalize_labels(amenities, AMENITY_OPTIONS)
+    self.preferences = normalize_labels(preferences, PREFERENCE_OPTIONS)
+    self.furnished = false if furnished.nil?
+    self.pets_allowed = false if pets_allowed.nil?
+    self.utilities_included = false if utilities_included.nil?
+  end
+
+  def normalize_text(value)
+    value.to_s.gsub(/[[:cntrl:]]/, " ").squish.presence
+  end
+
+  def normalize_labels(labels, allowed_labels)
+    Array(labels).map { |label| normalize_text(label) }.compact.uniq
+  end
+
+  def amenity_labels_are_allowed
+    validate_allowed_labels(:amenities, AMENITY_OPTIONS)
+  end
+
+  def preference_labels_are_allowed
+    validate_allowed_labels(:preferences, PREFERENCE_OPTIONS)
+  end
+
+  def validate_allowed_labels(attribute, allowed_labels)
+    raw_labels = Array(public_send(attribute)).map { |label| normalize_text(label) }.compact
+    unsupported_labels = raw_labels - allowed_labels
+
+    if unsupported_labels.any?
+      errors.add(attribute, "include unsupported options")
+    end
+
+    if raw_labels.length > MAX_LABELS
+      errors.add(attribute, "can include at most #{MAX_LABELS} options")
+    end
   end
 
   def available_until_after_available_from

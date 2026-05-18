@@ -48,6 +48,47 @@ class SubletListingTest < ActiveSupport::TestCase
     assert_includes listing.errors[:available_until], "must be after the available from date"
   end
 
+  test "normalizes listing text input before validation" do
+    listing = @user.sublet_listings.new(
+      valid_listing_params.merge(
+        title: "  Sunny\u0000   Room   Near   Campus  ",
+        address: "  820   Noyes St,\n Evanston, IL 60201  "
+      )
+    )
+
+    assert listing.valid?
+    assert_equal "Sunny Room Near Campus", listing.title
+    assert_equal "820 Noyes St, Evanston, IL 60201", listing.address
+  end
+
+  test "rejects unreasonable numeric listing input with friendly errors" do
+    listing = @user.sublet_listings.new(
+      valid_listing_params.merge(
+        price: 50_000,
+        bedrooms: 21,
+        bathrooms: -1
+      )
+    )
+
+    assert_not listing.valid?
+    assert_includes listing.errors[:price], "must be between $1 and $20,000"
+    assert_includes listing.errors[:bedrooms], "must be less than or equal to 20"
+    assert_includes listing.errors[:bathrooms], "must be greater than or equal to 0"
+  end
+
+  test "rejects unsupported and excessive listing labels" do
+    listing = @user.sublet_listings.new(
+      valid_listing_params.merge(
+        amenities: SubletListing::AMENITY_OPTIONS.first(13),
+        preferences: [ "Quiet", "<script>alert(1)</script>" ]
+      )
+    )
+
+    assert_not listing.valid?
+    assert_includes listing.errors[:amenities], "can include at most 12 options"
+    assert_includes listing.errors[:preferences], "include unsupported options"
+  end
+
   test "currently_available returns true for active date window" do
     listing = @user.sublet_listings.create!(
       valid_listing_params.merge(
