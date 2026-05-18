@@ -79,7 +79,7 @@ module ApplicationHelper
     ).html_safe
 
     content_tag(:span, class: "nav-item-with-icon", style: "display:inline-flex;align-items:center;gap:0.35em;white-space:nowrap;") do
-      safe_join([tiny_icon_markup, content_tag(:span, label, class: "nav-item-text", style: "white-space:nowrap;")])
+      safe_join([ tiny_icon_markup, content_tag(:span, label, class: "nav-item-text", style: "white-space:nowrap;") ])
     end
   end
 
