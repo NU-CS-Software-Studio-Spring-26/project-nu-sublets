@@ -236,6 +236,14 @@ or, if configured:
 bin/rubocop
 ```
 
+Run Rails security scanning with Brakeman:
+
+```bash
+bundle exec brakeman --no-pager
+```
+
+Brakeman runs in GitHub Actions CI on both pushes and pull requests as part of the security scan job.
+
 Code quality expectations:
 
 - Linters should be applied before milestone submission.
