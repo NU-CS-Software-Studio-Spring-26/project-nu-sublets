@@ -59,3 +59,15 @@ document.addEventListener("keydown", (event) => {
   event.preventDefault()
   visitNavigationPath(siteNavigation[nextIndex].path)
 })
+
+document.addEventListener("turbo:before-visit", () => {
+  document.body.classList.add("is-page-leaving")
+})
+
+document.addEventListener("turbo:load", () => {
+  document.body.classList.remove("is-page-leaving")
+})
+
+document.addEventListener("turbo:before-cache", () => {
+  document.body.classList.remove("is-page-leaving")
+})
