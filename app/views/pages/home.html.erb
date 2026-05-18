@@ -611,6 +611,8 @@
             }
         </style>
         <%= render "focus_styles" %>
+    <%= render "shared/pwa_meta" %>
+
     </head>
 
     <body>
@@ -1332,5 +1334,7 @@
                 updateButtons();
             });
         </script>
+    <%= render "shared/service_worker_registration" %>
+
     </body>
 </html>

@@ -203,6 +203,19 @@ The test suite includes or should include coverage for:
 - Permission checks for listing ownership.
 - Happy-path user flows where possible.
 
+## PWA Support
+
+NU Sublets includes a web app manifest and a conservative service worker for installability. The service worker caches only static/public assets and avoids authenticated, user-specific, form-submission, listing-detail, and account pages.
+
+To test installability, open Chrome DevTools and inspect:
+
+- Application -> Manifest
+- Application -> Service Workers
+
+On Android Chrome, users can choose "Add to Home screen." On iPhone Safari, users can use Share -> Add to Home Screen.
+
+The deployed Heroku app should be tested over HTTPS because service workers and installability require a secure context outside localhost.
+
 ## Linting / Code Quality
 
 Run the Rails/Ruby linter with:

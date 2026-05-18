@@ -31,11 +31,17 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to profile_path
   end
 
-  test "login page does not show Google setup warning when OAuth is not configured" do
+  test "login page shows Google sign in without setup warning" do
     get login_path
 
     assert_response :success
-    assert_select "form[action='#{google_oauth_path}'] button", text: "Sign in with Google"
+    google_action = if ENV["GOOGLE_CLIENT_ID"].present? && ENV["GOOGLE_CLIENT_SECRET"].present?
+                      "/auth/google_oauth2"
+    else
+                      google_oauth_path
+    end
+
+    assert_select "form[action='#{google_action}'] button", text: "Sign in with Google"
     assert_no_match "Google sign-in is not configured yet", response.body
   end
 

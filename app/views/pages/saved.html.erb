@@ -264,6 +264,8 @@
             }
         </style>
         <%= render "focus_styles" %>
+    <%= render "shared/pwa_meta" %>
+
     </head>
     <body>
         <div class="page-shell">
@@ -310,5 +312,7 @@
         ></script>
         <%= render "login_modal" %>
         <%= render "favorite_listings" %>
+    <%= render "shared/service_worker_registration" %>
+
     </body>
 </html>

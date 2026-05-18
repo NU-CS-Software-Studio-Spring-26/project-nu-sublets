@@ -989,6 +989,8 @@
             }
         </style>
         <%= render "focus_styles" %>
+    <%= render "shared/pwa_meta" %>
+
     </head>
     <body>
         <% user = @profile_user || current_user %>
@@ -1203,5 +1205,7 @@
                 })();
             </script>
         </div>
+    <%= render "shared/service_worker_registration" %>
+
     </body>
 </html>

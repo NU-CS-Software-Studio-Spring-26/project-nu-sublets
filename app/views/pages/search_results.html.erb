@@ -1120,6 +1120,8 @@
             }
         </style>
         <%= render "focus_styles" %>
+    <%= render "shared/pwa_meta" %>
+
     </head>
     <body>
         <div class="page-shell">
@@ -1718,5 +1720,7 @@
                 });
             })();
         </script>
+    <%= render "shared/service_worker_registration" %>
+
     </body>
 </html>

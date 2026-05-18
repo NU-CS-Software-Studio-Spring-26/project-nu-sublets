@@ -540,6 +540,8 @@
             }
         </style>
         <%= render "focus_styles" %>
+    <%= render "shared/pwa_meta" %>
+
     </head>
     <body>
         <% host_name = @listing_host.display_name || @listing_host.name || "Listing Host" %>
@@ -824,5 +826,7 @@
             })();
         </script>
         <%= render "login_modal" %>
+    <%= render "shared/service_worker_registration" %>
+
     </body>
 </html>
