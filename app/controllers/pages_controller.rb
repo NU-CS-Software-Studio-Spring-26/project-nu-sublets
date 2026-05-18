@@ -66,7 +66,7 @@ class PagesController < ApplicationController
     current_user.assign_attributes(profile_params)
 
     if current_user.email.present? && !User.northwestern_email?(current_user.email)
-      @profile_errors = ["Use your Northwestern email."]
+      @profile_errors = [ "Use your Northwestern email." ]
       render :profile, status: :unprocessable_entity
       return
     end
@@ -90,15 +90,13 @@ class PagesController < ApplicationController
 
   def user_profile
     @profile_user = User.find(params[:id])
-    render :profile
+    render :anotheruseraccount
   end
 
   def another_user_account
     @profile_user = User.where.not(id: current_user&.id).first || current_user || fallback_host
-    render :profile
+    render :anotheruseraccount
   end
-
-  def about; end
 
   def privacy_policy; end
 

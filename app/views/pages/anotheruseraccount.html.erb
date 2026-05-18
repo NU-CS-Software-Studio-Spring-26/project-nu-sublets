@@ -481,8 +481,8 @@
         </style>
     </head>
     <body>
-        <% user = current_user %>
-        <% listings = user.sublet_listings.order(created_at: :desc) %>
+        <% user = @profile_user || current_user %>
+        <% listings = user.persisted? ? user.sublet_listings.order(created_at: :desc) : SubletListing.none %>
         <% first_name = user.first_name.presence || user.display_name.split.first %>
         <% initials = user.display_name.split.map { |part| part.first }.join.first(2).upcase.presence || "NU" %>
         <div class="page-shell">
@@ -505,14 +505,14 @@
                 <div class="profile-shell">
                     <div class="profile-grid">
                         <section class="profile-card" aria-label="Profile summary">
-                            <img class="profile-avatar" src="https://ui-avatars.com/api/?name=<%= ERB::Util.url_encode(initials) %>&background=F4EFF8&color=3E1B4B&size=248&bold=true" alt="<%= user.display_name %> profile avatar" />
+                            <img class="profile-avatar" src="<%= user_avatar_url(user, size: 248) %>" alt="<%= user.display_name %> profile avatar" />
 
                             <div class="verified-row">
                                 <svg class="verified-icon" viewBox="0 0 32 32" aria-hidden="true">
                                     <path d="M16 2 6 5.68v8.77C6 21.64 10.26 28.35 16 30.43c5.74-2.08 10-8.79 10-15.98V5.68L16 2Z" fill="none" stroke="#3B82F6" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
                                     <path d="m11 16.25 3.68 3.68L21 13.61" fill="none" stroke="#3B82F6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" />
                                 </svg>
-                                <p class="verified-copy">Verified Student</p>
+                                <p class="verified-copy">Verified Northwestern student</p>
                             </div>
 
                             <p class="bio-copy">
@@ -549,10 +549,10 @@
 
                             <% if listings.any? %>
                                 <% listings.each do |listing| %>
-                                    <a class="listing-card" href="<%= listing_path %>">
+                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>">
                                         <div class="listing-media">
                                             <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
-                                            <img class="listing-avatar" src="https://ui-avatars.com/api/?name=<%= ERB::Util.url_encode(initials) %>&background=F4EFF8&color=3E1B4B&size=100&bold=true" alt="<%= user.display_name %> listing avatar" />
+                                            <img class="listing-avatar" src="<%= user_avatar_url(user, size: 100) %>" alt="<%= user.display_name %> listing avatar" />
                                             <span class="favorite-button" role="button" tabindex="0" aria-pressed="false" aria-label="Save to favorite listings">
                                                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                                     <path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"></path>
@@ -561,6 +561,7 @@
                                         </div>
                                         <div class="listing-body">
                                             <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
+                                            <p class="listing-card-title"><%= listing.title %></p>
                                             <div class="listing-meta">
                                                 <span><%= pluralize(listing.bedrooms || 0, "bedroom") %></span>
                                                 <span><%= pluralize(listing.bathrooms || 0, "bathroom") %></span>

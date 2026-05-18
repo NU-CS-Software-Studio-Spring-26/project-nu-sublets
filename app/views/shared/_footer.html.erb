@@ -6,13 +6,22 @@
                 <div class="d-flex align-items-center mb-2">
                     <%= render 'shared/brand_logo', size: 24, text_class: 'fw-bold mb-0' %>
                 </div>
-                <p class="text-muted mb-0">Find your perfect sublet near Northwestern University</p>
+                <p class="text-muted mb-0">
+                    NU Sublets is a student-built platform for Northwestern-verified users.
+                    Listings are user-generated and not verified by Northwestern University.
+                </p>
             </div>
             <div class="col-md-4 text-md-end">
                 <p class="text-muted mb-1">&copy; 2026 NU Sublets</p>
-                <%= link_to "About Us", about_path, class: "text-muted" %>
-                <span class="text-muted mx-2" aria-hidden="true">|</span>
-                <%= link_to "Privacy Policy", privacy_policy_path, class: "text-muted" %>
+                <nav aria-label="Footer links">
+                    <%= link_to "About Us", about_us_path, class: "text-muted" %>
+                    <span class="text-muted mx-1">&middot;</span>
+                    <%= link_to "Privacy Policy", privacy_policy_path, class: "text-muted" %>
+                    <span class="text-muted mx-1">&middot;</span>
+                    <%= link_to "Disclaimer", disclaimer_path, class: "text-muted" %>
+                    <span class="text-muted mx-1">&middot;</span>
+                    <%= link_to "GitHub Repository", "https://github.com/NU-CS-Software-Studio-Spring-26/project-nu-sublets", class: "text-muted", target: "_blank", rel: "noopener" %>
+                </nav>
             </div>
         </div>
     </div>

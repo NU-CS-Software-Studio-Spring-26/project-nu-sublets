@@ -31,6 +31,35 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "about us page is reachable from the footer" do
+    get root_path
+
+    assert_select "footer a[href='#{about_us_path}']", text: "About Us"
+    assert_select "footer a[href='https://github.com/NU-CS-Software-Studio-Spring-26/project-nu-sublets'][target='_blank'][rel='noopener']", text: "GitHub Repository"
+
+    get about_us_path
+
+    assert_response :success
+    assert_select "h1", text: "About Us"
+    assert_select "h2", text: "About NU Sublets"
+    assert_includes response.body, "NU Sublets is a student-built platform designed to make the Northwestern sublet process easier, safer, and more organized."
+    assert_includes response.body, "not officially affiliated with, endorsed by, or managed by Northwestern University"
+  end
+
+  test "disclaimer page is reachable from the footer" do
+    get root_path
+
+    assert_select "footer a[href='#{disclaimer_path}']", text: "Disclaimer"
+
+    get disclaimer_path
+
+    assert_response :success
+    assert_select "h1", text: "Disclaimer / Terms of Use"
+    assert_select "h2", text: "Disclaimer"
+    assert_includes response.body, "NU Sublets does not own, manage, inspect, or verify the condition, legality, price, availability, or safety of any listed property."
+    assert_includes response.body, "By using NU Sublets, you agree to use the platform responsibly"
+  end
+
   test "login page is reachable" do
     get login_path
 
