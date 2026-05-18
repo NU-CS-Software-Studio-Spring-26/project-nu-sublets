@@ -525,25 +525,67 @@
             }
 
             .upload-box {
-                width: 112px;
-                height: 72px;
-                display: inline-flex;
+                width: 100%;
+                min-height: 132px;
+                display: flex;
+                flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                border: 0;
-                border-radius: 0;
-                background: var(--nu-chip);
-                color: #fff;
-                font-size: 28px;
-                line-height: 1;
+                gap: 8px;
+                padding: 22px;
+                border: 1.5px dashed rgba(78, 42, 132, 0.42);
+                border-radius: 14px;
+                background: #f8f5fb;
+                color: var(--nu-text);
+                text-align: center;
                 cursor: pointer;
-                transition: opacity 0.2s ease, transform 0.2s ease;
+                transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
             }
 
             .upload-box:hover,
-            .upload-box:focus-visible {
-                opacity: 0.88;
+            .upload-box:focus-visible,
+            .photo-upload-row.is-drag-over .upload-box {
+                background: #f1e9f7;
+                border-color: var(--nu-accent);
+                box-shadow: 0 8px 24px rgba(78, 42, 132, 0.12);
                 transform: translateY(-1px);
+            }
+
+            .upload-box:focus-visible {
+                outline: 3px solid rgba(156, 81, 182, 0.45);
+                outline-offset: 3px;
+            }
+
+            .upload-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: var(--nu-accent);
+                color: #fff;
+            }
+
+            .upload-icon svg {
+                width: 22px;
+                height: 22px;
+                display: block;
+            }
+
+            .upload-title {
+                margin: 0;
+                font-family: "Rubik", sans-serif;
+                font-size: 16px;
+                font-weight: 700;
+                line-height: 1.2;
+            }
+
+            .upload-copy {
+                margin: 0;
+                color: var(--nu-muted);
+                font-size: 13px;
+                line-height: 1.35;
             }
 
             .photo-input {
@@ -551,42 +593,45 @@
             }
 
             .photo-upload-row {
-                display: flex;
-                flex-wrap: wrap;
-                align-items: flex-start;
-                gap: 8px;
+                display: grid;
+                gap: 12px;
             }
 
             .photo-preview-grid {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 8px;
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+                gap: 10px;
             }
 
             .photo-preview {
-                width: 112px;
-                height: 72px;
+                width: 100%;
+                aspect-ratio: 4 / 3;
                 padding: 0;
                 border: 0;
-                border-radius: 0;
+                border-radius: 10px;
                 overflow: hidden;
-                background: var(--nu-chip);
+                background: #ece7f2;
                 cursor: pointer;
                 position: relative;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
             }
 
             .photo-preview::after {
-                content: "Remove";
+                content: "Remove photo";
                 position: absolute;
-                inset: 0;
+                right: 8px;
+                top: 8px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background: rgba(0, 0, 0, 0.6);
+                min-height: 28px;
+                padding: 0 10px;
+                border-radius: 999px;
+                background: rgba(0, 0, 0, 0.72);
                 color: #fff;
                 font-family: "Rubik", sans-serif;
                 font-size: 12px;
-                font-weight: 500;
+                font-weight: 600;
                 opacity: 0;
                 transition: opacity 0.2s ease;
             }
@@ -604,7 +649,7 @@
             }
 
             .photo-status {
-                margin: 0;
+                margin: 2px 0 0;
                 font-size: 14px;
                 line-height: 1.6;
                 color: var(--nu-muted);
@@ -696,6 +741,10 @@
 
                 .chip-row {
                     gap: 8px;
+                }
+
+                .photo-preview-grid {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
                 }
 
                 .checkbox-row {
@@ -856,8 +905,16 @@
                                 <p class="section-helper">You must upload a minimum of 4 photos</p>
                             </div>
 
-                            <div class="photo-upload-row">
-                                <button class="upload-box" type="button" aria-label="Upload photos" data-photo-upload-trigger>+</button>
+                            <div class="photo-upload-row" data-photo-dropzone>
+                                <button class="upload-box" type="button" aria-label="Upload photos" data-photo-upload-trigger>
+                                    <span class="upload-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none">
+                                            <path d="M4 16.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5M12 4v12m0-12 4 4m-4-4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </span>
+                                    <span class="upload-title">Upload listing photos</span>
+                                    <span class="upload-copy">Add 4-10 clear photos of the room, shared spaces, and building.</span>
+                                </button>
                                 <input class="photo-input" type="file" name="photos[]" accept="image/*" multiple data-photo-input />
                                 <div class="photo-preview-grid" aria-label="Selected photos" data-photo-preview></div>
                             </div>
@@ -906,6 +963,7 @@
                 const photoInput = document.querySelector("[data-photo-input]");
                 const photoPreview = document.querySelector("[data-photo-preview]");
                 const photoStatus = document.querySelector("[data-photo-status]");
+                const photoDropzone = document.querySelector("[data-photo-dropzone]");
                 let photoPreviewUrls = [];
                 let selectedPhotos = [];
 
@@ -929,9 +987,13 @@
                     photoPreview.innerHTML = "";
 
                     const files = selectedPhotos;
-                    photoStatus.textContent = files.length === 0
-                        ? "No photos selected"
-                        : `${files.length} photo${files.length === 1 ? "" : "s"} selected`;
+                    if (files.length === 0) {
+                        photoStatus.textContent = "No photos selected";
+                    } else if (files.length < 4) {
+                        photoStatus.textContent = `${files.length} selected. Add ${4 - files.length} more to meet the minimum.`;
+                    } else {
+                        photoStatus.textContent = `${files.length} photo${files.length === 1 ? "" : "s"} selected`;
+                    }
 
                     files.forEach((file, index) => {
                         const url = URL.createObjectURL(file);
@@ -961,11 +1023,33 @@
                     photoInput?.click();
                 });
 
-                photoInput?.addEventListener("change", () => {
-                    const newPhotos = Array.from(photoInput.files || []);
+                const addPhotos = (files) => {
+                    const newPhotos = Array.from(files || []).filter((file) => file.type.startsWith("image/"));
                     selectedPhotos = selectedPhotos.concat(newPhotos);
                     syncPhotoInput();
                     renderPhotoPreview();
+                };
+
+                photoInput?.addEventListener("change", () => {
+                    addPhotos(photoInput.files);
+                });
+
+                ["dragenter", "dragover"].forEach((eventName) => {
+                    photoDropzone?.addEventListener(eventName, (event) => {
+                        event.preventDefault();
+                        photoDropzone.classList.add("is-drag-over");
+                    });
+                });
+
+                ["dragleave", "drop"].forEach((eventName) => {
+                    photoDropzone?.addEventListener(eventName, () => {
+                        photoDropzone.classList.remove("is-drag-over");
+                    });
+                });
+
+                photoDropzone?.addEventListener("drop", (event) => {
+                    event.preventDefault();
+                    addPhotos(event.dataTransfer?.files);
                 });
 
                 const amenities = <%= raw SubletListing::AMENITY_OPTIONS.to_json %>;
