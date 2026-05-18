@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <title>About Us | NU Sublets</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;500;600&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+        />
+        <style>
+            body {
+                margin: 0;
+                background: #fff;
+                color: #000;
+                font-family: "Fustat", sans-serif;
+            }
+
+            .page-shell {
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .topbar {
+                background: #fff;
+                border-bottom: 1px solid #d9d9d9;
+                font-family: "Rubik", sans-serif;
+                padding: 0 24px;
+                min-height: 60px;
+                display: flex;
+                align-items: center;
+            }
+
+            .topbar-inner {
+                max-width: 1200px;
+                width: 100%;
+                margin: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .topbar-nav {
+                gap: 28px;
+            }
+
+            .brand,
+            .nav-link {
+                color: #000;
+                font-size: 16px;
+                line-height: 1.2;
+                text-decoration: none;
+            }
+
+            .about-main {
+                flex: 1;
+                padding: 56px 24px 64px;
+            }
+
+            .about-content {
+                max-width: 960px;
+                margin: 0 auto;
+            }
+
+            .about-hero {
+                max-width: 780px;
+                margin-bottom: 40px;
+            }
+
+            .about-eyebrow {
+                color: #4e2a84;
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                font-weight: 700;
+                letter-spacing: 0;
+                margin-bottom: 12px;
+                text-transform: uppercase;
+            }
+
+            .about-content h1,
+            .about-content h2 {
+                font-family: "Rubik", sans-serif;
+            }
+
+            .about-content h1 {
+                margin-bottom: 16px;
+                font-size: 44px;
+                font-weight: 800;
+                line-height: 1.08;
+            }
+
+            .about-lede {
+                color: #333;
+                font-size: 20px;
+                line-height: 1.6;
+                margin: 0;
+            }
+
+            .about-grid {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 18px;
+                margin: 36px 0 44px;
+            }
+
+            .about-card {
+                border: 1px solid #d9d9d9;
+                border-radius: 8px;
+                padding: 24px;
+            }
+
+            .about-card h2 {
+                font-size: 20px;
+                font-weight: 700;
+                margin-bottom: 10px;
+            }
+
+            .about-card p,
+            .about-section p,
+            .about-section li {
+                color: #454545;
+                font-size: 17px;
+                line-height: 1.65;
+            }
+
+            .about-section {
+                max-width: 820px;
+                margin-top: 32px;
+            }
+
+            .about-section h2 {
+                font-size: 24px;
+                font-weight: 700;
+                margin-bottom: 12px;
+            }
+
+            .about-section ul {
+                padding-left: 1.25rem;
+            }
+
+            @media (max-width: 820px) {
+                .topbar {
+                    padding: 14px 18px;
+                }
+
+                .topbar-inner,
+                .topbar-nav {
+                    align-items: flex-start;
+                    flex-direction: column;
+                }
+
+                .topbar-nav {
+                    gap: 14px;
+                    margin-top: 16px;
+                }
+
+                .about-main {
+                    padding: 40px 20px 52px;
+                }
+
+                .about-content h1 {
+                    font-size: 34px;
+                }
+
+                .about-lede {
+                    font-size: 18px;
+                }
+
+                .about-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+        <%= render "focus_styles" %>
+    </head>
+    <body>
+        <div class="page-shell">
+            <header class="topbar">
+                <div class="topbar-inner">
+                    <a class="brand d-flex align-items-center" href="<%= root_path %>" style="text-decoration: none; color: #4E2A84; font-weight: bold; font-size: 1.25rem;">
+                        <%= render 'shared/brand_logo' %>
+                    </a>
+                    <nav class="d-flex align-items-center topbar-nav">
+                        <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
+                        <a class="nav-link p-0" href="<%= search_results_path %>">Search</a>
+                        <a class="nav-link p-0" href="<%= saved_path %>">Saved</a>
+                        <a class="nav-link p-0" href="<%= post_sublet_path %>">Post Sublet</a>
+                        <%= render "auth_nav" %>
+                    </nav>
+                </div>
+            </header>
+
+            <main class="about-main">
+                <article class="about-content">
+                    <section class="about-hero">
+                        <p class="about-eyebrow">Student-first housing support</p>
+                        <h1>About NU Sublets</h1>
+                        <p class="about-lede">NU Sublets helps Northwestern students find and share short-term housing near campus with less friction, clearer listings, and a community built around verified student needs.</p>
+                    </section>
+
+                    <section class="about-grid" aria-label="What NU Sublets cares about">
+                        <div class="about-card">
+                            <h2>Built for Northwestern</h2>
+                            <p>Every workflow is shaped around Evanston, campus calendars, and the way students actually search for a temporary place to live.</p>
+                        </div>
+                        <div class="about-card">
+                            <h2>Clearer Listings</h2>
+                            <p>Dates, price, amenities, preferences, photos, and location details are organized so renters can compare options quickly.</p>
+                        </div>
+                        <div class="about-card">
+                            <h2>Student Trust</h2>
+                            <p>Account features center Northwestern identity and give hosts a dedicated profile so renters know who they are contacting.</p>
+                        </div>
+                    </section>
+
+                    <section class="about-section">
+                        <h2>Why We Exist</h2>
+                        <p>Finding a sublet should not mean digging through scattered group chats, old posts, and listings with missing details. NU Sublets brings the search into one focused place for students who need flexible housing during internships, study abroad, summer quarter, research terms, or a gap between leases.</p>
+                    </section>
+
+                    <section class="about-section">
+                        <h2>What You Can Do Here</h2>
+                        <ul>
+                            <li>Browse and filter available sublets near Northwestern.</li>
+                            <li>Save promising listings while you compare options.</li>
+                            <li>Post your own sublet with the details renters need most.</li>
+                            <li>Use profiles to learn more about listing hosts.</li>
+                        </ul>
+                    </section>
+                </article>
+            </main>
+
+            <%= render "shared/footer" %>
+        </div>
+    </body>
+</html>

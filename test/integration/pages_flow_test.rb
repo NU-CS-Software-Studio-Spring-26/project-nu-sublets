@@ -37,6 +37,14 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "about page is reachable from the footer" do
+    get about_path
+
+    assert_response :success
+    assert_select "h1", text: "About NU Sublets"
+    assert_select "a[href='#{about_path}']", text: "About Us"
+  end
+
   test "login page redirects after sign in" do
     sign_in_with_firebase_email("student@u.northwestern.edu")
 
