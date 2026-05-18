@@ -98,6 +98,10 @@ class PagesController < ApplicationController
     render :anotheruseraccount
   end
 
+  def about_us; end
+
+  def disclaimer; end
+
   def privacy_policy; end
 
   def login
