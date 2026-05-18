@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_18_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_18_022136) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -40,23 +40,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_18_000000) do
   end
 
   create_table "sublet_listings", force: :cascade do |t|
-    t.text "address"
+    t.text "address", null: false
     t.text "amenities"
-    t.date "available_from"
-    t.date "available_until"
-    t.integer "bathrooms"
-    t.integer "bedrooms"
+    t.date "available_from", null: false
+    t.date "available_until", null: false
+    t.integer "bathrooms", null: false
+    t.integer "bedrooms", null: false
     t.datetime "created_at", null: false
-    t.text "description"
-    t.boolean "furnished"
-    t.boolean "pets_allowed"
+    t.text "description", null: false
+    t.boolean "furnished", default: false, null: false
+    t.boolean "pets_allowed", default: false, null: false
     t.text "preferences"
-    t.decimal "price"
-    t.string "title"
+    t.decimal "price", null: false
+    t.string "title", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
-    t.boolean "utilities_included"
+    t.boolean "utilities_included", default: false, null: false
     t.index ["user_id"], name: "index_sublet_listings_on_user_id"
+    t.check_constraint "available_until > available_from", name: "sublet_listings_available_until_after_from"
+    t.check_constraint "bathrooms >= 0 AND bathrooms <= 20", name: "sublet_listings_bathrooms_range"
+    t.check_constraint "bedrooms >= 0 AND bedrooms <= 20", name: "sublet_listings_bedrooms_range"
+    t.check_constraint "price > 0 AND price <= 20000", name: "sublet_listings_price_range"
   end
 
   create_table "users", force: :cascade do |t|

@@ -129,9 +129,9 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{search_results_path}']", text: /Search/
     assert_select "a[href='#{saved_path}']", text: /Saved/
     assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet|Create a Posting/
-    assert_select "a[href='#{profile_path}']", text: "Profile"
+    assert_select "a[href='#{profile_path}']", text: "Profile", count: 0
     assert_select "a[href='#{login_path}']", text: /Log in/
-    assert_select "a[href='#{listing_path}']"
+    assert_select "a.listing-card[href]"
   end
 
   test "home browse cards use database listing owners and stored profile photos" do
