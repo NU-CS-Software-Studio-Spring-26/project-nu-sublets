@@ -1,6 +1,6 @@
 class PagesController < ApplicationController
   layout false
-  before_action :authenticate_user!, only: %i[profile update_profile anotheruseraccount submit_sublet]
+  before_action :authenticate_user!, only: %i[profile update_profile anotheruseraccount submit_sublet generate_sublet_draft]
 
   def home
     @recommended_listings = SubletListing.includes(:user).find_available_listings.limit(6)
@@ -126,6 +126,20 @@ class PagesController < ApplicationController
     end
   end
 
+  def generate_sublet_draft
+    draft = AiListingDraftService.call(generate_sublet_draft_params)
+
+    render json: {
+      title: draft.fetch(:title),
+      description: draft.fetch(:description),
+      source: draft.fetch(:source)
+    }
+  rescue AiListingDraftService::InputError => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  rescue AiListingDraftService::DraftError
+    render json: { error: "We could not generate a draft right now. Please try again." }, status: :service_unavailable
+  end
+
   private
 
   def search_date_param(key)
@@ -158,6 +172,28 @@ class PagesController < ApplicationController
 
   def profile_params
     params.require(:user).permit(:name, :email, :profile_photo_url, :profile_photo, :bio)
+  end
+
+  def generate_sublet_draft_params
+    params.permit(
+      :title,
+      :description,
+      :price,
+      :bedrooms,
+      :bathrooms,
+      :furnished,
+      :pets_allowed,
+      :utilities_included,
+      "street-address",
+      "address-line-2",
+      :city,
+      :state,
+      "zip-code",
+      "start-date",
+      "end-date",
+      amenities: [],
+      preferences: []
+    ).to_h
   end
 
   def sync_name_parts

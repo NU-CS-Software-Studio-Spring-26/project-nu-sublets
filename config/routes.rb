@@ -33,5 +33,6 @@ Rails.application.routes.draw do
   match "auth/failure" => "sessions#omniauth_failure", via: %i[get post], as: :omniauth_failure
   post "session" => "sessions#create", as: :session
   delete "session" => "sessions#destroy"
+  post "post-sublet/ai-draft" => "pages#generate_sublet_draft", as: :generate_sublet_draft
   post "post-sublet" => "pages#submit_sublet", as: :submit_sublet
 end

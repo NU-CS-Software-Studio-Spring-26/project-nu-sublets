@@ -445,8 +445,40 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     get post_sublet_path
 
     assert_select "form[action='#{submit_sublet_path}'][method='post']"
+    assert_select "form[data-ai-draft-url='#{generate_sublet_draft_path}']"
+    assert_select "input[name='title'][data-title-input]"
+    assert_select "button[data-login-trigger]", text: "Generate Draft"
     assert_select "input[type='file'][name='photos[]'][accept='image/png,image/jpeg,image/webp'][multiple]"
     assert_includes response.body, "Upload up to 5 photos. PNG, JPG, or WebP only. 5 MB max per photo."
+  end
+
+  test "signed in post sublet page can generate a listing draft" do
+    sign_in_with_firebase_email("student@u.northwestern.edu")
+
+    get post_sublet_path
+
+    assert_select "button[data-ai-draft-button]", text: "Generate Draft"
+  end
+
+  test "ai listing draft endpoint returns generated copy" do
+    sign_in_with_firebase_email("student@u.northwestern.edu")
+
+    stub_ai_listing_draft(
+      title: "AI Draft Title",
+      description: "AI draft description for a Northwestern sublet.",
+      source: "template"
+    ) do
+      post generate_sublet_draft_path, params: {
+        "street-address" => "820 Noyes St",
+        price: "950",
+        amenities: [ "Laundry" ]
+      }, as: :json
+    end
+
+    assert_response :success
+    response_body = JSON.parse(response.body)
+    assert_equal "AI Draft Title", response_body.fetch("title")
+    assert_equal "AI draft description for a Northwestern sublet.", response_body.fetch("description")
   end
 
   private
@@ -509,5 +541,13 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     file.rewind
 
     Rack::Test::UploadedFile.new(file.path, content_type, original_filename: filename)
+  end
+
+  def stub_ai_listing_draft(response)
+    original_call = AiListingDraftService.method(:call)
+    AiListingDraftService.define_singleton_method(:call) { |_| response }
+    yield
+  ensure
+    AiListingDraftService.define_singleton_method(:call) { |*args, **kwargs| original_call.call(*args, **kwargs) }
   end
 end

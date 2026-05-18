@@ -178,6 +178,56 @@
                 margin-bottom: 4px;
             }
 
+            .ai-draft-panel {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                padding: 14px 16px;
+                border: 1px solid rgba(78, 42, 132, 0.22);
+                border-radius: 8px;
+                background: rgba(78, 42, 132, 0.05);
+            }
+
+            .ai-draft-panel .section-title {
+                line-height: 1.3;
+            }
+
+            .ai-draft-button {
+                flex: 0 0 auto;
+                border: 0;
+                border-radius: 8px;
+                background: var(--nu-accent);
+                color: #fff;
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 1.2;
+                padding: 12px 14px;
+            }
+
+            .ai-draft-button:hover,
+            .ai-draft-button:focus-visible {
+                background: #3f226b;
+                outline: 0;
+            }
+
+            .ai-draft-button[disabled] {
+                cursor: wait;
+                opacity: 0.72;
+            }
+
+            .ai-draft-status {
+                margin: 0;
+                color: var(--nu-muted);
+                font-size: 14px;
+                line-height: 1.4;
+            }
+
+            .ai-draft-status.is-error {
+                color: #dc2626;
+            }
+
             .field-stack {
                 display: flex;
                 flex-direction: column;
@@ -822,7 +872,7 @@
                         </div>
                     <% end %>
 
-                    <%= form_with url: submit_sublet_path, method: :post, local: true, html: { multipart: true }, class: "post-card" do %>
+                    <%= form_with url: submit_sublet_path, method: :post, local: true, html: { multipart: true }, class: "post-card", data: { ai_draft_form: true, ai_draft_url: generate_sublet_draft_path } do %>
                         <section class="section-block field-stack">
                             <div>
                                 <h2 class="section-title">Address</h2>
@@ -883,6 +933,22 @@
                             <label class="field-input price-field">
                                 <span class="prefix">$</span>
                                 <input class="field-input no-border" type="text" name="price" placeholder="Price" value="<%= params[:price] %>" />
+                            </label>
+                        </section>
+
+                        <section class="section-block field-stack">
+                            <div class="ai-draft-panel">
+                                <h2 class="section-title">Listing Draft</h2>
+                                <% if user_signed_in? %>
+                                    <button class="ai-draft-button" type="button" data-ai-draft-button>Generate Draft</button>
+                                <% else %>
+                                    <button class="ai-draft-button" type="button" aria-haspopup="dialog" aria-controls="login-modal" data-login-trigger>Generate Draft</button>
+                                <% end %>
+                            </div>
+                            <p class="ai-draft-status" data-ai-draft-status aria-live="polite" hidden></p>
+                            <label class="field-stack">
+                                <span class="field-label">Title</span>
+                                <input class="field-input" type="text" name="title" placeholder="Listing title" value="<%= params[:title] %>" maxlength="100" data-title-input />
                             </label>
                         </section>
 
@@ -1008,6 +1074,10 @@
                 const photoDropzone = document.querySelector("[data-photo-dropzone]");
                 const descriptionInput = document.querySelector("[data-description-input]");
                 const descriptionCounter = document.querySelector("[data-description-counter]");
+                const draftForm = document.querySelector("[data-ai-draft-form]");
+                const draftButton = document.querySelector("[data-ai-draft-button]");
+                const draftStatus = document.querySelector("[data-ai-draft-status]");
+                const titleInput = document.querySelector("[data-title-input]");
                 let photoPreviewUrls = [];
                 let selectedPhotos = [];
                 let photoWarnings = [];
@@ -1033,6 +1103,50 @@
 
                     if (length >= nearDescriptionLimit) {
                         descriptionCounter.classList.add("is-near-limit");
+                    }
+                };
+
+                const setDraftStatus = (message, isError = false) => {
+                    if (!draftStatus) return;
+
+                    draftStatus.textContent = message;
+                    draftStatus.classList.toggle("is-error", isError);
+                    draftStatus.hidden = message.length === 0;
+                };
+
+                const generateDraft = async () => {
+                    if (!draftForm || !draftButton || !titleInput || !descriptionInput) return;
+
+                    const formData = new FormData(draftForm);
+                    draftButton.disabled = true;
+                    draftButton.textContent = "Generating...";
+                    setDraftStatus("Generating a draft...");
+
+                    try {
+                        const response = await fetch(draftForm.dataset.aiDraftUrl, {
+                            method: "POST",
+                            headers: {
+                                "Accept": "application/json",
+                                "X-CSRF-Token": formData.get("authenticity_token")
+                            },
+                            body: formData
+                        });
+
+                        const payload = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(payload.error || "We could not generate a draft right now.");
+                        }
+
+                        titleInput.value = payload.title || titleInput.value;
+                        descriptionInput.value = payload.description || descriptionInput.value;
+                        updateDescriptionCounter();
+                        setDraftStatus(payload.source === "ai" ? "Draft generated." : "Draft generated from your form details.");
+                    } catch (error) {
+                        setDraftStatus(error.message, true);
+                    } finally {
+                        draftButton.disabled = false;
+                        draftButton.textContent = "Generate Draft";
                     }
                 };
 
@@ -1148,6 +1262,8 @@
                     descriptionInput.addEventListener("input", updateDescriptionCounter);
                     updateDescriptionCounter();
                 }
+
+                draftButton?.addEventListener("click", generateDraft);
 
                 const amenities = <%= raw SubletListing::AMENITY_OPTIONS.to_json %>;
                 const preferences = <%= raw SubletListing::PREFERENCE_OPTIONS.to_json %>;
