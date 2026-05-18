@@ -114,6 +114,13 @@ NU Sublets is a Northwestern-only subletting platform for posting and discoverin
 - [Airbnb](https://www.airbnb.com/)
 - [Northwestern Off-Campus Housing](https://offcampushousing.northwestern.edu/)
 
+## Visual Asset Sources
+- NU Sublets logo and app icons: project-created assets in `app/assets/images` and `public`
+- Apartment listing demo images: project assets in `app/assets/images`
+- Campus/Evanston image: project asset `app/assets/images/nu-evanston.jpg`
+- Generated initials avatars: [UI Avatars](https://ui-avatars.com/)
+- Demo profile portraits used in seed/static listing cards: [Random User](https://randomuser.me/)
+
 ## Repository Notes
 The repository includes a `wiki.md` file with additional project context, including:
 - Problem description  
