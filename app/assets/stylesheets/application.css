@@ -23,3 +23,87 @@ a.text-muted:focus {
   color: #343a40 !important;
   text-decoration: underline;
 }
+
+.page-shell {
+  animation: page-enter 180ms ease-out both;
+}
+
+body.is-page-leaving .page-shell {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.topbar {
+  transition: box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+.topbar-nav {
+  align-items: center;
+  display: grid !important;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(86px, max-content);
+  justify-content: end;
+}
+
+.topbar-nav .nav-link,
+.topbar-nav .btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  min-width: 86px;
+  border-radius: 8px;
+  padding: 0 8px !important;
+  text-align: center;
+  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  white-space: nowrap;
+}
+
+.topbar-nav .nav-link:hover,
+.topbar-nav .nav-link:focus-visible,
+.topbar-nav .btn:hover,
+.topbar-nav .btn:focus-visible,
+.topbar-nav .nav-link[aria-current="page"] {
+  background: #f4eff8;
+  color: #4E2A84 !important;
+  text-decoration: none;
+}
+
+.topbar-nav .nav-link:active,
+.topbar-nav .btn:active {
+  transform: translateY(1px);
+}
+
+.topbar-nav form {
+  display: inline-flex !important;
+  min-width: 86px;
+}
+
+.topbar-nav form .nav-link {
+  width: 100%;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-shell,
+  body.is-page-leaving .page-shell,
+  .topbar,
+  .topbar-nav .nav-link,
+  .topbar-nav .btn {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
