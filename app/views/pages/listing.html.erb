@@ -302,13 +302,21 @@
             }
 
             .availability-card {
+                width: 100%;
                 max-width: 435px;
                 margin-left: 0.75rem;
             }
 
             .contact-card {
+                width: 100%;
                 max-width: 435px;
                 margin: 1.75rem 0 0 0.75rem;
+            }
+
+            .listing-sidebar {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
             }
 
             .card-title,
@@ -440,6 +448,10 @@
                 .contact-card {
                     max-width: none;
                     margin-left: 0;
+                }
+
+                .listing-sidebar {
+                    align-items: stretch;
                 }
 
                 .listing-copy-column {
@@ -628,28 +640,11 @@
                             <% else %>
                                 </div>
                             <% end %>
-                                <div class="host-name"><%= host_name %></div>
-                                <svg class="verified-badge" viewBox="0 0 48 48" aria-label="Verified listing badge" role="img">
-                                    <path
-                                        d="M24 3.75 9.75 9v12.49c0 10.23 6.07 19.8 14.25 22.76 8.18-2.96 14.25-12.53 14.25-22.76V9L24 3.75Z"
-                                        fill="none"
-                                        stroke="#3B82F6"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2.5"
-                                    />
-                                    <path d="m16.5 24.38 5.25 5.25L31.5 18.38" fill="none" stroke="#3B82F6" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" />
-                                </svg>
-                            <% if host_profile_path %>
-                                </a>
-                            <% else %>
-                                </div>
-                            <% end %>
 
                             <p class="description-copy"><%= @listing.description %></p>
                         </div>
 
-                        <div class="col-lg-5 col-xl-5">
+                        <aside class="col-lg-5 col-xl-5 listing-sidebar" aria-label="Listing availability and contact">
                             <div class="card info-card availability-card">
                                 <div class="card-body p-4 p-xl-5">
                                     <div class="availability-label">Available from:</div>
@@ -702,7 +697,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </aside>
                     </section>
 
                     <section class="pt-4 listing-offset-section">

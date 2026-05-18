@@ -4,6 +4,7 @@
     <title>Page Not Found | NU Sublets</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;500;600&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -11,7 +12,13 @@
         :root {
             --nu-text: #000000;
             --nu-surface: #ffffff;
+            --nu-soft-surface: #f7f5fa;
             --nu-border: #d9d9d9;
+            --nu-muted: #5b5b5b;
+            --nu-accent: #4E2A84;
+            --nu-accent-dark: #3d1f68;
+            --nu-shadow-soft: 0 0 25px rgba(217, 217, 217, 0.55);
+            --nu-focus: rgba(78, 42, 132, 0.26);
         }
 
         * {
@@ -57,24 +64,24 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 24px;
         }
 
         .brand {
             display: flex;
             align-items: center;
-            color: #4e2a84;
+            color: var(--nu-accent);
             font-size: 1.25rem;
             font-weight: 700;
             line-height: 1.2;
+            white-space: nowrap;
         }
 
         .brand-mark {
             width: 32px;
             height: 32px;
             margin-right: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            flex: 0 0 auto;
         }
 
         .brand-mark img {
@@ -88,6 +95,7 @@
             align-items: center;
             justify-content: flex-end;
             gap: 28px;
+            flex-wrap: wrap;
         }
 
         .nav-link {
@@ -97,75 +105,125 @@
         }
 
         .brand:focus-visible,
-        .nav-link:focus-visible {
-            outline: 3px solid #4e2a84;
+        .nav-link:focus-visible,
+        .error-button:focus-visible,
+        .secondary-link:focus-visible {
+            outline: 3px solid var(--nu-focus);
             outline-offset: 4px;
         }
 
         .error-content {
-            width: min(100%, 1440px);
+            width: min(100%, 1200px);
             margin: 0 auto;
-            padding: 128px 64px 72px;
+            padding: 112px 48px 72px;
         }
 
-        .error-message {
-            width: 369px;
-            margin-left: clamp(0px, 16.5vw, 238px);
+        .error-panel {
+            max-width: 760px;
+            padding: 40px;
+            border: 1px solid var(--nu-border);
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ffffff 0%, var(--nu-soft-surface) 100%);
+            box-shadow: var(--nu-shadow-soft);
         }
 
         .error-code {
-            margin: 0 0 4px;
-            font-size: 76px;
-            font-weight: 700;
-            line-height: 1.12;
-            letter-spacing: 0;
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
+            margin-bottom: 28px;
+            padding: 8px 14px;
+            border: 1px solid rgba(78, 42, 132, 0.22);
+            border-radius: 999px;
+            color: var(--nu-accent);
+            background: #ffffff;
             font-family: "Rubik", Arial, sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .error-title {
+            max-width: 640px;
+            margin: 0 0 14px;
+            color: var(--nu-text);
+            font-family: "Rubik", Arial, sans-serif;
+            font-size: clamp(40px, 6vw, 76px);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: 0;
         }
 
         .error-copy {
-            margin: 0;
-            font-size: 28px;
-            font-weight: 400;
-            line-height: 1.12;
+            max-width: 560px;
+            margin: 0 0 32px;
+            color: var(--nu-muted);
+            font-size: 20px;
+            line-height: 1.5;
+        }
+
+        .error-actions {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
             font-family: "Rubik", Arial, sans-serif;
         }
 
-        @media (max-width: 900px) {
+        .error-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            padding: 12px 22px;
+            border-radius: 8px;
+            background: var(--nu-accent);
+            color: #ffffff;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .error-button:hover {
+            background: var(--nu-accent-dark);
+            color: #ffffff;
+        }
+
+        .secondary-link {
+            color: var(--nu-accent);
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        @media (max-width: 760px) {
             .topbar {
-                padding-inline: 20px;
+                padding: 14px 20px;
+            }
+
+            .topbar-inner {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 14px;
             }
 
             .topbar-nav {
-                gap: 24px;
+                justify-content: flex-start;
+                gap: 14px 20px;
             }
 
             .error-content {
-                padding: 96px 32px 64px;
+                padding: 72px 20px 48px;
             }
 
-            .error-message {
-                width: min(369px, 100%);
-                margin-left: clamp(0px, 10vw, 96px);
-            }
-
-            .error-code {
-                font-size: 68px;
+            .error-panel {
+                padding: 28px 22px;
             }
 
             .error-copy {
-                font-size: 26px;
+                font-size: 18px;
             }
         }
 
-        @media (max-width: 560px) {
-            .topbar {
-                padding-inline: 16px;
-            }
-
-            .topbar-nav {
-                gap: 20px;
-            }
-
+        @media (max-width: 480px) {
             .brand,
             .nav-link {
                 font-size: 14px;
@@ -176,22 +234,19 @@
                 height: 28px;
             }
 
-            .error-content {
-                padding: 72px 24px 48px;
+            .error-title {
+                font-size: 40px;
             }
 
-            .error-message {
-                margin-left: 0;
+            .error-actions {
+                align-items: stretch;
+                flex-direction: column;
             }
 
-            .error-code {
-                font-size: 56px;
-            }
-
-            .error-copy {
-                max-width: 320px;
-                font-size: 22px;
-                line-height: 1.18;
+            .error-button,
+            .secondary-link {
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
@@ -200,7 +255,7 @@
     <div class="error-page">
         <header class="topbar" aria-label="Site navigation">
             <div class="topbar-inner">
-                <a class="brand" href="/">
+                <a class="brand" href="/" aria-label="NU Sublets home">
                     <span class="brand-mark" aria-hidden="true">
                         <img src="/NUSublets%20Logo.svg" alt="">
                     </span>
@@ -217,9 +272,14 @@
         </header>
 
         <main class="error-content">
-            <section class="error-message" aria-labelledby="error-title">
-                <h1 class="error-code" id="error-title">404</h1>
-                <p class="error-copy">Sorry we can't seem to find the page you're looking for</p>
+            <section class="error-panel" aria-labelledby="error-title">
+                <span class="error-code">404</span>
+                <h1 class="error-title" id="error-title">We could not find that page.</h1>
+                <p class="error-copy">The listing or page may have moved, expired, or never existed. You can head home or keep searching for sublets.</p>
+                <div class="error-actions">
+                    <a class="error-button" href="/">Return to Home</a>
+                    <a class="secondary-link" href="/search-results">Search Sublets</a>
+                </div>
             </section>
         </main>
     </div>
