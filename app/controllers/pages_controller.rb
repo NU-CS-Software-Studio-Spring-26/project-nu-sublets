@@ -151,7 +151,8 @@ class PagesController < ApplicationController
       amenities: selected_listing_labels(:amenities, SubletListing::AMENITY_OPTIONS),
       preferences: selected_listing_labels(:preferences, SubletListing::PREFERENCE_OPTIONS),
       available_from: search_date_param("start-date"),
-      available_until: search_date_param("end-date")
+      available_until: search_date_param("end-date"),
+      photos: Array(params[:photos]).reject(&:blank?)
     }
   end
 

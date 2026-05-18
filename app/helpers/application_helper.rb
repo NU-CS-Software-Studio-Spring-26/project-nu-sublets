@@ -30,10 +30,16 @@ module ApplicationHelper
   end
 
   def apartment_listing_image_path(listing_or_index = nil, offset: 0)
+    if listing_or_index.respond_to?(:photos) && listing_or_index.photos.attached?
+      return url_for(listing_or_index.photos[offset % listing_or_index.photos.size])
+    end
+
     asset_path(APARTMENT_IMAGE_ASSETS[apartment_image_index(listing_or_index, offset)])
   end
 
   def apartment_gallery_image_paths(listing = nil)
+    return listing.photos.map { |photo| url_for(photo) } if listing.respond_to?(:photos) && listing.photos.attached?
+
     APARTMENT_IMAGE_ASSETS.each_with_index.map do |_asset, index|
       apartment_listing_image_path(listing, offset: index)
     end
