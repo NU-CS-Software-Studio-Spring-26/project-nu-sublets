@@ -145,3 +145,8 @@ Added photo previews to the Post Sublet form so users can see selected listing p
 - File type warning: `Photos must be PNG, JPG, or WebP files.`
 
 Server-side validation remains the source of truth for all upload limits and allowed file rules.
+
+### Post Sublet Description Character Counter
+Added a live description character counter to the Post Sublet form so users get immediate feedback while typing (for example, `0 / 1000 characters`). The counter highlights when users are approaching the limit and shows a friendly warning if they exceed the maximum.
+
+This improves form clarity and helps prevent overly long listing descriptions before submission. Server-side validation remains the source of truth.

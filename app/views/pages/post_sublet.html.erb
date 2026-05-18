@@ -672,6 +672,23 @@
                 font-weight: 600;
             }
 
+            .description-counter {
+                margin: 2px 0 0;
+                font-size: 14px;
+                line-height: 1.6;
+                color: var(--nu-muted);
+            }
+
+            .description-counter.is-near-limit {
+                color: #9a3412;
+                font-weight: 600;
+            }
+
+            .description-counter.is-over-limit {
+                color: #b42318;
+                font-weight: 600;
+            }
+
             .phone-field {
                 display: flex;
                 align-items: center;
@@ -871,7 +888,8 @@
 
                         <section class="section-block field-stack">
                             <h2 class="section-title">Description</h2>
-                            <textarea class="field-textarea" name="description" placeholder="Describe apartment here"><%= params[:description] %></textarea>
+                            <textarea class="field-textarea" name="description" placeholder="Describe apartment here" data-description-input><%= params[:description] %></textarea>
+                            <p class="description-counter" data-description-counter aria-live="polite">0 / 1000 characters</p>
                         </section>
 
                         <section class="section-block field-stack">
@@ -988,12 +1006,35 @@
                 const photoCount = document.querySelector("[data-photo-count]");
                 const photoStatus = document.querySelector("[data-photo-status]");
                 const photoDropzone = document.querySelector("[data-photo-dropzone]");
+                const descriptionInput = document.querySelector("[data-description-input]");
+                const descriptionCounter = document.querySelector("[data-description-counter]");
                 let photoPreviewUrls = [];
                 let selectedPhotos = [];
                 let photoWarnings = [];
                 const maxPhotos = 5;
                 const maxPhotoSize = 5 * 1024 * 1024;
                 const allowedPhotoTypes = new Set(["image/png", "image/jpeg", "image/webp"]);
+                const descriptionLimit = 1000;
+                const nearDescriptionLimit = 900;
+
+                const updateDescriptionCounter = () => {
+                    if (!descriptionInput || !descriptionCounter) return;
+
+                    const length = descriptionInput.value.length;
+                    descriptionCounter.classList.remove("is-near-limit", "is-over-limit");
+
+                    if (length > descriptionLimit) {
+                        descriptionCounter.textContent = `${length} / ${descriptionLimit} characters. Description must be 1000 characters or fewer.`;
+                        descriptionCounter.classList.add("is-over-limit");
+                        return;
+                    }
+
+                    descriptionCounter.textContent = `${length} / ${descriptionLimit} characters`;
+
+                    if (length >= nearDescriptionLimit) {
+                        descriptionCounter.classList.add("is-near-limit");
+                    }
+                };
 
                 const clearPhotoPreviewUrls = () => {
                     photoPreviewUrls.forEach((url) => URL.revokeObjectURL(url));
@@ -1102,6 +1143,11 @@
                     event.preventDefault();
                     addPhotos(event.dataTransfer?.files);
                 });
+
+                if (descriptionInput) {
+                    descriptionInput.addEventListener("input", updateDescriptionCounter);
+                    updateDescriptionCounter();
+                }
 
                 const amenities = <%= raw SubletListing::AMENITY_OPTIONS.to_json %>;
                 const preferences = <%= raw SubletListing::PREFERENCE_OPTIONS.to_json %>;
