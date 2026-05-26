@@ -16,3 +16,4 @@
 /config/master.key
 /.env
 /.env.*
+!/.env.example

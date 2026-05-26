@@ -159,6 +159,28 @@
                 background: var(--nu-white);
             }
 
+            .natural-search-field {
+                display: block;
+            }
+
+            .natural-search-input {
+                width: 100%;
+                min-height: 44px;
+                padding: 11px 14px;
+                border: 1px solid rgba(0, 0, 0, 0.16);
+                border-radius: 4px;
+                background: var(--nu-white);
+                color: var(--nu-text);
+                font-family: "Fustat", sans-serif;
+                font-size: 16px;
+                line-height: 1.35;
+            }
+
+            .natural-search-input:focus-visible {
+                border-color: var(--nu-button);
+                outline: 0;
+            }
+
             .date-picker-label {
                 display: block;
                 position: relative;
@@ -648,6 +670,11 @@
                             <h2 class="search-title" id="search-sublets-title">Search Sublets</h2>
 
                             <div class="form-stack">
+                                <label class="natural-search-field">
+                                    <span class="field-label form-label" id="natural-query-label">What are you looking for?</span>
+                                    <input class="natural-search-input form-control" type="search" name="natural_query" placeholder="Furnished studio under $1200 near campus" aria-labelledby="natural-query-label" maxlength="500" />
+                                </label>
+
                                 <label class="date-picker-label" data-date-picker>
                                     <span class="field-label form-label" id="move-in-label">Move In</span>
                                     <span class="date-field input-group">

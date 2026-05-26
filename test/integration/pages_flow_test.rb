@@ -4,11 +4,14 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
   include ActiveSupport::Testing::TimeHelpers
 
   setup do
+    @previous_openai_api_key = ENV["OPENAI_API_KEY"]
+    ENV["OPENAI_API_KEY"] = nil
     travel_to Date.new(2026, 5, 1)
   end
 
   teardown do
     travel_back
+    ENV["OPENAI_API_KEY"] = @previous_openai_api_key
   end
 
   test "home page is reachable" do
@@ -244,6 +247,19 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Please enter a move-in and a move-out date"
   end
 
+  test "home page includes natural language search input" do
+    get root_path
+
+    assert_select "form[action='#{search_results_path}'][method='get'] input[name='natural_query'][type='search']"
+  end
+
+  test "search results preserves natural language query in the toolbar" do
+    get search_results_path(natural_query: "furnished studio under $1200 near campus")
+
+    assert_select "input[name='natural_query'][value='furnished studio under $1200 near campus']"
+    assert_includes response.body, "Search: "
+  end
+
   test "search results shows invalid date order in the inline filter error" do
     get search_results_path("move-in": "09/11/2026", "move-out": "06/12/2026")
 
@@ -312,6 +328,73 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_no_match "Too Expensive Filter", response.body
     assert_select "input[name='amenities[]'][value='Gym'][checked]"
     assert_select "input[name='preferences[]'][value='Graduate student'][checked]"
+  end
+
+  test "natural language search filters listings through existing search behavior" do
+    user = User.create!(
+      name: "Natural Search Owner",
+      email: "natural.search.owner@u.northwestern.edu",
+      active: true
+    )
+    matching_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Natural Search Match",
+        price: 950,
+        bedrooms: 0,
+        bathrooms: 1,
+        furnished: true,
+        amenities: [ "Furnished", "Laundry" ],
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Too Expensive Natural Search",
+        price: 1500,
+        bedrooms: 0,
+        bathrooms: 1,
+        furnished: true,
+        amenities: [ "Furnished", "Laundry" ],
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    get search_results_path(natural_query: "furnished studio under $1200 with laundry")
+
+    assert_select "a[href='#{sublet_listing_path(matching_listing)}']", text: /Natural Search Match/
+    assert_no_match "Too Expensive Natural Search", response.body
+    assert_select "select[name='bedrooms'] option[value='0'][selected]"
+    assert_select "input[name='amenities[]'][value='Laundry'][checked]"
+  end
+
+  test "manual filters override natural language parsed filters" do
+    user = User.create!(
+      name: "Override Owner",
+      email: "override.owner@u.northwestern.edu",
+      active: true
+    )
+    matching_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Manual Override Match",
+        price: 1400,
+        bedrooms: 1,
+        bathrooms: 1,
+        furnished: true,
+        amenities: [ "Furnished" ],
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    get search_results_path(
+      natural_query: "furnished 1 bed under $1000",
+      max_price: "1500"
+    )
+
+    assert_select "a[href='#{sublet_listing_path(matching_listing)}']", text: /Manual Override Match/
+    assert_select "input[name='max_price'][value='1500']"
   end
 
   test "search results only include listings covering the requested dates" do

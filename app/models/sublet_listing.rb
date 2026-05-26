@@ -171,8 +171,15 @@ class SubletListing < ApplicationRecord
   def self.search_listings(filters = {})
     listings = all
 
-    listings = listings.where("title ILIKE ? OR description ILIKE ? OR address ILIKE ?",
-                             "%#{filters[:query]}%", "%#{filters[:query]}%", "%#{filters[:query]}%") if filters[:query].present?
+    if filters[:query].present?
+      query = "%#{sanitize_sql_like(filters[:query].to_s.downcase)}%"
+      listings = listings.where(
+        "LOWER(title) LIKE ? OR LOWER(description) LIKE ? OR LOWER(address) LIKE ?",
+        query,
+        query,
+        query
+      )
+    end
 
     min_price = normalize_numeric_filter(filters[:min_price])
     max_price = normalize_numeric_filter(filters[:max_price])
