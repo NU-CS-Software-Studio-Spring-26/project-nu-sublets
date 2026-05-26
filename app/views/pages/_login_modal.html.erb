@@ -81,6 +81,56 @@
         padding: 8px 16px;
     }
 
+    .password-input-wrap {
+        position: relative;
+        width: 100%;
+    }
+
+    .password-input-wrap .login-modal__field {
+        padding-right: 52px;
+    }
+
+    .password-visibility-toggle {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: 0;
+        border-radius: 4px;
+        background: transparent;
+        color: #5b5b5b;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
+
+    .password-visibility-toggle:hover,
+    .password-visibility-toggle:focus-visible {
+        color: #4E2A84;
+        outline: 3px solid rgba(78, 42, 132, 0.26);
+    }
+
+    .password-visibility-toggle svg {
+        width: 20px;
+        height: 20px;
+        display: block;
+    }
+
+    .password-visibility-toggle .eye-off-icon {
+        display: none;
+    }
+
+    .password-visibility-toggle[aria-pressed="true"] .eye-icon {
+        display: none;
+    }
+
+    .password-visibility-toggle[aria-pressed="true"] .eye-off-icon {
+        display: block;
+    }
+
     .login-modal__field::placeholder {
         color: #6b7280;
         opacity: 1;
@@ -231,7 +281,10 @@
 
         <%= form_with url: session_path, method: :post, local: true, class: "login-modal__form" do %>
             <%= email_field_tag :email, nil, class: "login-modal__field", placeholder: "Northwestern email", autocomplete: "email", required: true %>
-            <%= password_field_tag :password, nil, class: "login-modal__field", placeholder: "Password", autocomplete: "current-password", required: true %>
+            <div class="password-input-wrap">
+                <%= password_field_tag :password, nil, class: "login-modal__field", placeholder: "Password", autocomplete: "current-password", required: true, data: { password_toggle_input: true } %>
+                <%= render "shared/password_visibility_toggle" %>
+            </div>
             <%= submit_tag "Log in", class: "login-modal__submit" %>
         <% end %>
 
@@ -296,5 +349,19 @@
             }
         });
 
+        modal.querySelectorAll("[data-password-toggle]").forEach((toggle) => {
+            const input = toggle.closest(".password-input-wrap")?.querySelector("[data-password-toggle-input]");
+
+            toggle.addEventListener("click", () => {
+                if (!input) {
+                    return;
+                }
+
+                const isPassword = input.type === "password";
+                input.type = isPassword ? "text" : "password";
+                toggle.setAttribute("aria-pressed", String(isPassword));
+                toggle.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+            });
+        });
     })();
 </script>
