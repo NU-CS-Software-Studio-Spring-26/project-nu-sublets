@@ -168,6 +168,43 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{sublet_listing_path(listing)}'] img.listing-avatar[alt='Ryan Anderson profile photo'][src='https://example.com/ryan-anderson.jpg']"
   end
 
+  test "home page shows recently viewed listings after browsing listing pages" do
+    user = User.create!(
+      name: "Recent Viewer",
+      email: "recent.viewer@u.northwestern.edu",
+      active: true
+    )
+    first_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "First Recently Viewed",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    second_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Second Recently Viewed",
+        address: "910 Noyes St, Evanston, IL 60201",
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 9, 1)
+      )
+    )
+
+    get root_path
+
+    assert_select "#recently-viewed", count: 0
+
+    get sublet_listing_path(first_listing)
+    get sublet_listing_path(second_listing)
+    get root_path
+
+    assert_response :success
+    assert_select "#recently-viewed-title", text: "Recently Viewed"
+    assert_select "#recently-viewed-track a[href='#{sublet_listing_path(second_listing)}']"
+    assert_select "#recently-viewed-track a[href='#{sublet_listing_path(first_listing)}']"
+    assert_match(/Second Recently Viewed.*First Recently Viewed/m, response.body)
+  end
+
   test "signed in navigation shows the current user and logout" do
     sign_in_with_firebase_email("student@u.northwestern.edu")
 

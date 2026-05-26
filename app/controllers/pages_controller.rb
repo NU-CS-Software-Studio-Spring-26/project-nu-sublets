@@ -1,10 +1,13 @@
 class PagesController < ApplicationController
+  RECENTLY_VIEWED_LISTINGS_LIMIT = 6
+
   layout false
   before_action :authenticate_user!, only: %i[profile update_profile anotheruseraccount submit_sublet]
 
   def home
     @recommended_listings = SubletListing.includes(:user).find_available_listings.limit(6)
     @newest_listings = SubletListing.includes(:user).find_available_listings.order(created_at: :desc).limit(6)
+    @recently_viewed_listings = recently_viewed_listings
   end
 
   def listing
@@ -16,6 +19,7 @@ class PagesController < ApplicationController
 
     @listing ||= fallback_listing
     @listing_host = @listing.user || fallback_host
+    remember_recently_viewed_listing(@listing) if @listing.persisted?
   end
 
   def search_results
@@ -233,5 +237,22 @@ class PagesController < ApplicationController
       name: "Jane Doe",
       email: "janedoe@u.northwestern.edu"
     )
+  end
+
+  def recently_viewed_listings
+    ids = recently_viewed_listing_ids
+    listings_by_id = SubletListing.includes(:user).available.where(id: ids).index_by(&:id)
+
+    ids.filter_map { |id| listings_by_id[id] }
+  end
+
+  def remember_recently_viewed_listing(listing)
+    session[:recently_viewed_listing_ids] = ([ listing.id ] + recently_viewed_listing_ids).uniq.first(RECENTLY_VIEWED_LISTINGS_LIMIT)
+  end
+
+  def recently_viewed_listing_ids
+    Array(session[:recently_viewed_listing_ids]).filter_map do |id|
+      Integer(id, exception: false)
+    end.uniq.first(RECENTLY_VIEWED_LISTINGS_LIMIT)
   end
 end

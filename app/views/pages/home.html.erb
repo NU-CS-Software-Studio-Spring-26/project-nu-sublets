@@ -856,6 +856,39 @@
                     </div>
                 </section>
 
+                <% if @recently_viewed_listings.any? %>
+                <section class="section-block" id="recently-viewed" aria-labelledby="recently-viewed-title">
+                    <div class="section-inner">
+                        <h2 class="section-title" id="recently-viewed-title">Recently Viewed</h2>
+                        <div class="listing-carousel" role="region" aria-labelledby="recently-viewed-title" aria-roledescription="carousel">
+                            <button class="carousel-button prev" type="button" aria-label="Previous recently viewed sublets" aria-controls="recently-viewed-track" data-carousel-prev="recently-viewed-track">&#8249;</button>
+                            <div class="listing-track" id="recently-viewed-track" tabindex="0" aria-label="Recently viewed sublets" aria-describedby="carousel-keyboard-help" data-carousel-track>
+                                <% @recently_viewed_listings.each do |listing| %>
+                                    <% listing_host = listing.user %>
+                                    <% listing_name = listing.title.presence || listing.address.presence || "Sublet listing" %>
+                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="<%= listing_name %>, <%= number_to_currency(listing.price, precision: 0) %> per month">
+                                        <div class="listing-media">
+                                            <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+                                            <img class="listing-avatar" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
+                                        </div>
+                                        <div class="listing-body">
+                                            <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
+                                            <div class="listing-meta">
+                                                <span><%= pluralize(listing.bedrooms || 0, "bedroom") %></span>
+                                                <span><%= pluralize(listing.bathrooms || 0, "bathroom") %></span>
+                                                <span><%= listing.furnished? ? "Furnished" : "Unfurnished" %></span>
+                                            </div>
+                                            <p class="listing-address"><%= listing.address.presence || "Address coming soon" %></p>
+                                        </div>
+                                    </a>
+                                <% end %>
+                            </div>
+                            <button class="carousel-button next" type="button" aria-label="Next recently viewed sublets" aria-controls="recently-viewed-track" data-carousel-next="recently-viewed-track">&#8250;</button>
+                        </div>
+                    </div>
+                </section>
+                <% end %>
+
                 <section class="section-block" id="newest-sublets" aria-labelledby="newest-sublets-title">
                     <div class="section-inner">
                         <h2 class="section-title" id="newest-sublets-title">Newest Sublets</h2>
@@ -1362,6 +1395,7 @@
                 updateButtons();
             });
         </script>
+        <%= render "shared/skeleton_loaders" %>
     <%= render "shared/service_worker_registration" %>
 
     </body>

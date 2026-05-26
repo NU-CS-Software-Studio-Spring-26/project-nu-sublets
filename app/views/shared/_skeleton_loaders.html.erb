@@ -1,0 +1,283 @@
+<style>
+    .skeleton-surface {
+        position: relative;
+        overflow: hidden;
+        background: #eef0f3;
+    }
+
+    .skeleton-surface::after,
+    .skeleton-card .skeleton-block::after,
+    .skeleton-card .skeleton-line::after,
+    .skeleton-card .skeleton-avatar::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72), transparent);
+        animation: skeleton-shimmer 1.25s ease-in-out infinite;
+    }
+
+    .skeleton-image {
+        background: #eef0f3;
+        transition: background-color 160ms ease;
+    }
+
+    .skeleton-image.is-loaded {
+        background: transparent;
+    }
+
+    .skeleton-card {
+        display: block;
+        min-width: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: var(--nu-card-shadow, 3.682px 3.682px 3.682px rgba(166, 166, 166, 0.25));
+        pointer-events: none;
+    }
+
+    .listing-track .skeleton-card,
+    .favorite-listing-track .skeleton-card {
+        flex: 0 0 min(360px, calc(100vw - 56px));
+        scroll-snap-align: start;
+    }
+
+    .profile-list-stack .skeleton-card {
+        width: min(100%, 400px);
+    }
+
+    .skeleton-card .skeleton-media {
+        position: relative;
+        height: 190px;
+        overflow: visible;
+    }
+
+    .skeleton-card .skeleton-block {
+        position: relative;
+        height: 180px;
+        overflow: hidden;
+        background: #e8eaee;
+    }
+
+    .skeleton-card .skeleton-avatar {
+        position: absolute;
+        left: 12px;
+        bottom: -8px;
+        width: 50px;
+        height: 50px;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #e2e5ea;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .skeleton-card .skeleton-body {
+        display: grid;
+        gap: 8px;
+        padding: 8px 10px 12px;
+    }
+
+    .skeleton-card .skeleton-line {
+        position: relative;
+        height: 12px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: #e8eaee;
+    }
+
+    .skeleton-card .skeleton-line.price {
+        width: 44%;
+        height: 20px;
+    }
+
+    .skeleton-card .skeleton-line.title {
+        width: 68%;
+    }
+
+    .skeleton-card .skeleton-line.meta {
+        width: 82%;
+        height: 10px;
+    }
+
+    .skeleton-card .skeleton-line.address {
+        width: 56%;
+        height: 10px;
+    }
+
+    .map-card.is-skeleton-loading,
+    .gallery-main.is-skeleton-loading,
+    .gallery-tile.is-skeleton-loading,
+    .info-card.is-skeleton-loading {
+        min-height: 180px;
+        color: transparent;
+    }
+
+    .map-card.is-skeleton-loading *,
+    .gallery-main.is-skeleton-loading *,
+    .gallery-tile.is-skeleton-loading *,
+    .info-card.is-skeleton-loading * {
+        visibility: hidden;
+    }
+
+    @keyframes skeleton-shimmer {
+        100% {
+            transform: translateX(100%);
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .listing-track .skeleton-card,
+        .favorite-listing-track .skeleton-card {
+            flex-basis: min(300px, calc(100vw - 40px));
+        }
+
+        .skeleton-card .skeleton-media {
+            height: 216px;
+        }
+
+        .skeleton-card .skeleton-block {
+            height: 204px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .skeleton-surface::after,
+        .skeleton-card .skeleton-block::after,
+        .skeleton-card .skeleton-line::after,
+        .skeleton-card .skeleton-avatar::after {
+            animation: none;
+        }
+    }
+</style>
+
+<script>
+    (() => {
+        if (window.nuSubletsSkeletonLoadersLoaded) return;
+        window.nuSubletsSkeletonLoadersLoaded = true;
+
+        const listingContainerSelector = ".cards-grid, .listing-track, .favorite-listing-track, .profile-list-stack";
+        const imageSelector = [
+            ".listing-main-image",
+            ".listing-avatar",
+            ".listing-avatar-image",
+            ".gallery-photo",
+            ".host-avatar",
+            ".profile-avatar",
+            ".profile-sidebar-avatar",
+            ".account-avatar"
+        ].join(",");
+
+        const skeletonCard = () => {
+            const card = document.createElement("article");
+            card.className = "skeleton-card";
+            card.setAttribute("aria-hidden", "true");
+            card.innerHTML = `
+                <div class="skeleton-media">
+                    <div class="skeleton-block"></div>
+                    <div class="skeleton-avatar"></div>
+                </div>
+                <div class="skeleton-body">
+                    <div class="skeleton-line price"></div>
+                    <div class="skeleton-line title"></div>
+                    <div class="skeleton-line meta"></div>
+                    <div class="skeleton-line address"></div>
+                </div>
+            `;
+            return card;
+        };
+
+        const visibleChildren = (container) => Array.from(container.children).filter((child) => {
+            return !child.classList.contains("skeleton-card") && !child.hidden;
+        });
+
+        const skeletonCountFor = (container) => {
+            if (container.classList.contains("cards-grid")) return 6;
+            if (container.classList.contains("profile-list-stack")) return 3;
+            return 4;
+        };
+
+        const loadImages = () => {
+            document.querySelectorAll(imageSelector).forEach((image) => {
+                image.classList.add("skeleton-image");
+
+                const markLoaded = () => image.classList.add("is-loaded");
+
+                if (image.complete && image.naturalWidth > 0) {
+                    markLoaded();
+                    return;
+                }
+
+                image.addEventListener("load", markLoaded, { once: true });
+                image.addEventListener("error", markLoaded, { once: true });
+            });
+        };
+
+        const setListingContainerLoading = (container) => {
+            if (container.dataset.skeletonLoading === "true") return;
+            if (container.closest("[hidden]")) return;
+
+            const children = visibleChildren(container);
+            container.dataset.skeletonLoading = "true";
+            container.setAttribute("aria-busy", "true");
+
+            children.forEach((child) => {
+                child.hidden = true;
+            });
+
+            const count = Math.max(Math.min(children.length || skeletonCountFor(container), skeletonCountFor(container)), 2);
+
+            for (let index = 0; index < count; index += 1) {
+                container.appendChild(skeletonCard());
+            }
+        };
+
+        const setBlockLoading = (element) => {
+            if (!element || element.dataset.skeletonLoading === "true") return;
+
+            element.dataset.skeletonLoading = "true";
+            element.setAttribute("aria-busy", "true");
+            element.classList.add("skeleton-surface", "is-skeleton-loading");
+        };
+
+        const showSkeletons = () => {
+            document.body.classList.add("is-showing-skeletons");
+            document.querySelectorAll(listingContainerSelector).forEach(setListingContainerLoading);
+            document.querySelectorAll(".map-card, .gallery-main, .gallery-tile").forEach(setBlockLoading);
+        };
+
+        const shouldHandleLink = (link, event) => {
+            if (!link || event.defaultPrevented || event.button !== 0) return false;
+            if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return false;
+            if (link.target && link.target !== "_self") return false;
+            if (link.hasAttribute("download")) return false;
+            if (link.closest("[data-login-trigger], .favorite-button, [data-image-popup-trigger]")) return false;
+
+            const url = new URL(link.href, window.location.href);
+            if (url.origin !== window.location.origin) return false;
+            return !(url.pathname === window.location.pathname && url.hash);
+        };
+
+        document.addEventListener("click", (event) => {
+            const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
+
+            if (!shouldHandleLink(link, event)) return;
+            window.setTimeout(showSkeletons, 40);
+        });
+
+        document.addEventListener("submit", (event) => {
+            window.setTimeout(() => {
+                if (!event.defaultPrevented) showSkeletons();
+            }, 0);
+        });
+
+        document.addEventListener("turbo:before-visit", showSkeletons);
+        window.addEventListener("beforeunload", showSkeletons);
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", loadImages);
+        } else {
+            loadImages();
+        }
+    })();
+</script>
