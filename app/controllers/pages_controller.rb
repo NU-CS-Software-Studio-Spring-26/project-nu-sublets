@@ -19,14 +19,18 @@ class PagesController < ApplicationController
   end
 
   def search_results
-    @move_in = search_date_param("move-in")
-    @move_out = search_date_param("move-out")
-    @min_price = params[:min_price].to_s
-    @max_price = params[:max_price].to_s
-    @bedrooms = params[:bedrooms].to_s
-    @bathrooms = params[:bathrooms].to_s
-    @selected_amenities = Array(params[:amenities]).reject(&:blank?)
-    @selected_preferences = Array(params[:preferences]).reject(&:blank?)
+    @natural_query = params[:natural_query].to_s.squish.first(NaturalSearchParser::MAX_QUERY_LENGTH)
+    parsed_search_filters = NaturalSearchParser.new(@natural_query).parse
+    @search_params = merged_search_params(parsed_search_filters)
+
+    @move_in = search_date_value("move-in", @search_params["move-in"])
+    @move_out = search_date_value("move-out", @search_params["move-out"])
+    @min_price = @search_params["min_price"].to_s
+    @max_price = @search_params["max_price"].to_s
+    @bedrooms = @search_params["bedrooms"].to_s
+    @bathrooms = @search_params["bathrooms"].to_s
+    @selected_amenities = Array(@search_params["amenities"]).reject(&:blank?)
+    @selected_preferences = Array(@search_params["preferences"]).reject(&:blank?)
 
     if @move_in && @move_out && @move_out < @move_in
       @filter_error = "Move-out date must be after move-in date."
@@ -44,6 +48,7 @@ class PagesController < ApplicationController
         utilities_included: @selected_amenities.include?("Utilities included"),
         amenities: @selected_amenities,
         preferences: @selected_preferences,
+        query: @search_params["query"],
         available_only: true
       ).order(:price)
     end
@@ -129,12 +134,32 @@ class PagesController < ApplicationController
   private
 
   def search_date_param(key)
-    return if params[key].blank?
+    search_date_value(key, params[key])
+  end
 
-    Date.strptime(params[key], "%m/%d/%Y")
+  def search_date_value(key, value)
+    return if value.blank?
+
+    Date.strptime(value, "%m/%d/%Y")
   rescue Date::Error
     @filter_error = "Invalid date format for #{key.humanize}. Please use MM/DD/YYYY format."
     nil
+  end
+
+  def merged_search_params(parsed_filters)
+    explicit_filters = {
+      "query" => params[:query],
+      "move-in" => params["move-in"],
+      "move-out" => params["move-out"],
+      "min_price" => params[:min_price],
+      "max_price" => params[:max_price],
+      "bedrooms" => params[:bedrooms],
+      "bathrooms" => params[:bathrooms],
+      "amenities" => params[:amenities],
+      "preferences" => params[:preferences]
+    }.compact_blank
+
+    parsed_filters.merge(explicit_filters)
   end
 
   def sublet_listing_params
