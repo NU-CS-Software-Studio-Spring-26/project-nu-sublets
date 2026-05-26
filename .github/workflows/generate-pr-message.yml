@@ -1,0 +1,137 @@
+name: Generate PR Message
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Pull request number to update"
+        required: true
+        type: number
+
+permissions:
+  contents: read
+  pull-requests: write
+  models: read
+
+env:
+  PR_MESSAGE_MODEL: openai/gpt-4o-mini
+  PR_CONTEXT_MAX_BYTES: "60000"
+
+jobs:
+  generate:
+    name: Generate concise PR message
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Validate PR and check out branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          set -euo pipefail
+          gh pr view "$PR_NUMBER" --json number,title,body,baseRefName,headRefName,url > pr.json
+          gh pr checkout "$PR_NUMBER"
+
+      - name: Build PR context
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          PR_CONTEXT_MAX_BYTES: ${{ env.PR_CONTEXT_MAX_BYTES }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p tmp/pr-message
+
+          base_ref="$(node -e 'const fs = require("fs"); console.log(JSON.parse(fs.readFileSync("pr.json", "utf8")).baseRefName)')"
+          pr_title="$(node -e 'const fs = require("fs"); console.log(JSON.parse(fs.readFileSync("pr.json", "utf8")).title)')"
+          pr_url="$(node -e 'const fs = require("fs"); console.log(JSON.parse(fs.readFileSync("pr.json", "utf8")).url)')"
+
+          git fetch origin "$base_ref" --depth=100
+          base_sha="$(git merge-base "origin/$base_ref" HEAD)"
+          git diff --unified=2 "$base_sha"..HEAD > tmp/pr-message/full-diff.patch
+
+          {
+            echo "# Pull request"
+            echo
+            echo "Number: $PR_NUMBER"
+            echo "Title: $pr_title"
+            echo "URL: $pr_url"
+            echo "Base: $base_ref"
+            echo "Head SHA: $(git rev-parse HEAD)"
+            echo
+            echo "# Commits"
+            git log --oneline "$base_sha"..HEAD
+            echo
+            echo "# Changed files"
+            git diff --name-status "$base_sha"..HEAD
+            echo
+            echo "# Diff stat"
+            git diff --stat "$base_sha"..HEAD
+            echo
+            echo "# Diff excerpt"
+            head -c "$PR_CONTEXT_MAX_BYTES" tmp/pr-message/full-diff.patch
+          } > tmp/pr-message/context.md
+
+      - name: Generate PR message with GitHub Models
+        id: inference
+        uses: actions/ai-inference@v1
+        with:
+          token: ${{ github.token }}
+          prompt-file: .github/prompts/pr-message.prompt.yml
+          file_input: |
+            pr_context: tmp/pr-message/context.md
+          model: ${{ env.PR_MESSAGE_MODEL }}
+
+      - name: Update PR body
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          RESPONSE_FILE: ${{ steps.inference.outputs.response-file }}
+          RESPONSE_TEXT: ${{ steps.inference.outputs.response }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "${RESPONSE_FILE:-}" ] && [ -f "$RESPONSE_FILE" ]; then
+            cp "$RESPONSE_FILE" tmp/pr-message/generated.md
+          else
+            printf '%s\n' "$RESPONSE_TEXT" > tmp/pr-message/generated.md
+          fi
+
+          node <<'NODE'
+          const fs = require("fs");
+
+          const pr = JSON.parse(fs.readFileSync("pr.json", "utf8"));
+          const currentBody = pr.body || "";
+          const generated = fs.readFileSync("tmp/pr-message/generated.md", "utf8").trim();
+
+          if (!generated) {
+            throw new Error("AI inference returned an empty PR message.");
+          }
+
+          const startMarker = "<!-- ai-pr-message:start -->";
+          const endMarker = "<!-- ai-pr-message:end -->";
+          const block = `${startMarker}\n${generated}\n${endMarker}`;
+
+          let updatedBody;
+          if (currentBody.includes(startMarker) && currentBody.includes(endMarker)) {
+            const pattern = new RegExp(`${escapeRegExp(startMarker)}[\\s\\S]*?${escapeRegExp(endMarker)}`);
+            updatedBody = currentBody.replace(pattern, block);
+          } else if (currentBody.trim().length === 0) {
+            updatedBody = block;
+          } else {
+            updatedBody = `${block}\n\n${currentBody}`;
+          }
+
+          fs.writeFileSync("tmp/pr-message/body.md", updatedBody);
+
+          function escapeRegExp(value) {
+            return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          }
+          NODE
+
+          gh pr edit "$PR_NUMBER" --body-file tmp/pr-message/body.md
