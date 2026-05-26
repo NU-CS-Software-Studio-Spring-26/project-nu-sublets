@@ -1,7 +1,10 @@
 require "test_helper"
 
 class SubletListingTest < ActiveSupport::TestCase
+  include ActiveSupport::Testing::TimeHelpers
+
   def setup
+    travel_to Date.new(2026, 5, 1)
     @uploaded_files = []
     @user = User.create!(
       name: "Listing Owner",
@@ -10,6 +13,10 @@ class SubletListingTest < ActiveSupport::TestCase
       last_name: "Owner",
       active: true
     )
+  end
+
+  def teardown
+    travel_back
   end
 
   test "create_listing creates a valid listing" do

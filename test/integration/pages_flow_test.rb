@@ -1,6 +1,16 @@
 require "test_helper"
 
 class PagesFlowTest < ActionDispatch::IntegrationTest
+  include ActiveSupport::Testing::TimeHelpers
+
+  setup do
+    travel_to Date.new(2026, 5, 1)
+  end
+
+  teardown do
+    travel_back
+  end
+
   test "home page is reachable" do
     get root_path
 

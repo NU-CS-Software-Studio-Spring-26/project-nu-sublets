@@ -1,13 +1,17 @@
 require "test_helper"
 
 class AuthenticationFlowTest < ActionDispatch::IntegrationTest
+  include ActiveSupport::Testing::TimeHelpers
+
   setup do
+    travel_to Date.new(2026, 5, 1)
     Rails.application.env_config.delete("omniauth.auth")
     OmniAuth.config.test_mode = true
     OmniAuth.config.mock_auth[:google_oauth2] = nil
   end
 
   teardown do
+    travel_back
     Rails.application.env_config.delete("omniauth.auth")
     OmniAuth.config.mock_auth[:google_oauth2] = nil
     OmniAuth.config.test_mode = false
