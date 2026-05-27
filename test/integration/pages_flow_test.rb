@@ -147,6 +147,61 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a.listing-card[href]"
   end
 
+  test "home page includes category sublet carousels" do
+    get root_path
+
+    assert_response :success
+    assert_select "#budget-friendly-title", text: "Budget-Friendly Finds"
+    assert_select "#budget-friendly-track[data-carousel-track]"
+    assert_select "#furnished-ready-title", text: "Furnished & Move-In Ready"
+    assert_select "#furnished-ready-track[data-carousel-track]"
+    assert_select "#pet-friendly-title", text: "Pet-Friendly Picks"
+    assert_select "#pet-friendly-track[data-carousel-track]"
+  end
+
+  test "home category carousels use matching database listings" do
+    user = User.create!(
+      name: "Carousel Owner",
+      email: "carousel.owner@u.northwestern.edu",
+      active: true
+    )
+    budget_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Affordable Carousel Match",
+        price: 925,
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    furnished_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Furnished Carousel Match",
+        address: "910 Noyes St, Evanston, IL 60201",
+        price: 1250,
+        furnished: true,
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    pet_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Pet Carousel Match",
+        address: "1722 Oak Ave, Evanston, IL 60201",
+        price: 1350,
+        pets_allowed: true,
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    get root_path
+
+    assert_response :success
+    assert_select "#budget-friendly-track a[href='#{sublet_listing_path(budget_listing)}']", text: /Affordable Carousel Match/
+    assert_select "#furnished-ready-track a[href='#{sublet_listing_path(furnished_listing)}']", text: /Furnished Carousel Match/
+    assert_select "#pet-friendly-track a[href='#{sublet_listing_path(pet_listing)}']", text: /Pet Carousel Match/
+  end
+
   test "home browse cards use database listing owners and stored profile photos" do
     user = User.create!(
       name: "Ryan Anderson",

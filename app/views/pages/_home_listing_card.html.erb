@@ -1,0 +1,35 @@
+<% if local_assigns[:listing].present? %>
+    <% listing_host = listing.user %>
+    <% listing_name = listing.title.presence || listing.address.presence || "Sublet listing" %>
+    <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="<%= listing_name %>, <%= number_to_currency(listing.price, precision: 0) %> per month">
+        <div class="listing-media">
+            <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+            <img class="listing-avatar" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
+        </div>
+        <div class="listing-body">
+            <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
+            <div class="listing-meta">
+                <span><%= pluralize(listing.bedrooms || 0, "bedroom") %></span>
+                <span><%= pluralize(listing.bathrooms || 0, "bathroom") %></span>
+                <span><%= listing.furnished? ? "Furnished" : "Unfurnished" %></span>
+            </div>
+            <p class="listing-address"><%= listing.address.presence || "Address coming soon" %></p>
+        </div>
+    </a>
+<% else %>
+    <a class="listing-card" href="<%= listing_path %>" aria-label="<%= fallback.fetch(:aria_label) %>">
+        <div class="listing-media">
+            <img class="listing-main-image" src="<%= apartment_listing_image_path(fallback.fetch(:image_index)) %>" alt="<%= fallback.fetch(:image_alt) %>" />
+            <img class="listing-avatar" src="<%= fallback.fetch(:avatar_url) %>" alt="<%= fallback.fetch(:avatar_alt) %>" />
+        </div>
+        <div class="listing-body">
+            <p class="listing-price"><%= fallback.fetch(:price) %>/month</p>
+            <div class="listing-meta">
+                <% fallback.fetch(:meta).each do |meta_label| %>
+                    <span><%= meta_label %></span>
+                <% end %>
+            </div>
+            <p class="listing-address"><%= fallback.fetch(:address) %></p>
+        </div>
+    </a>
+<% end %>

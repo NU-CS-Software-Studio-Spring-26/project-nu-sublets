@@ -7,6 +7,9 @@ class PagesController < ApplicationController
   def home
     @recommended_listings = SubletListing.includes(:user).find_available_listings.limit(6)
     @newest_listings = SubletListing.includes(:user).find_available_listings.order(created_at: :desc).limit(6)
+    @budget_friendly_listings = SubletListing.includes(:user).find_available_listings.maximum_price(1000).limit(6)
+    @furnished_listings = SubletListing.includes(:user).find_available_listings.furnished_only.limit(6)
+    @pet_friendly_listings = SubletListing.includes(:user).find_available_listings.pets_allowed_only.limit(6)
     @recently_viewed_listings = recently_viewed_listings
   end
 
