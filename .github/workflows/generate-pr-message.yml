@@ -77,15 +77,50 @@ jobs:
             head -c "$PR_CONTEXT_MAX_BYTES" tmp/pr-message/full-diff.patch
           } > tmp/pr-message/context.md
 
+      - name: Build model prompt
+        run: |
+          set -euo pipefail
+
+          cat > tmp/pr-message/prompt.txt <<'EOF'
+          Draft a concise PR message from this context.
+
+          Required format:
+
+          ## Summary
+
+          1-2 sentences explaining the user-visible or engineering purpose.
+
+          ## Changes
+
+          - 3-5 bullets max.
+          - Group related edits; do not list every file.
+
+          ## Testing
+
+          - List test/check commands only if they are explicitly present in commits, workflow context, or changed files.
+          - If none are evident, write: Not run by generator.
+
+          Constraints:
+          - Markdown only.
+          - No preamble.
+          - No marketing language.
+          - No more than 180 words.
+          - Do not invent tests, files, features, risks, or implementation details.
+
+          PR context:
+          EOF
+
+          cat tmp/pr-message/context.md >> tmp/pr-message/prompt.txt
+
       - name: Generate PR message with GitHub Models
         id: inference
         uses: actions/ai-inference@v1
         with:
           token: ${{ github.token }}
-          prompt-file: .github/prompts/pr-message.prompt.yml
-          file_input: |
-            pr_context: tmp/pr-message/context.md
+          prompt-file: tmp/pr-message/prompt.txt
           model: ${{ env.PR_MESSAGE_MODEL }}
+          max-completion-tokens: 500
+          temperature: 0.2
 
       - name: Update PR body
         env:
