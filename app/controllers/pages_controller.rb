@@ -16,6 +16,12 @@ class PagesController < ApplicationController
 
     @listing ||= fallback_listing
     @listing_host = @listing.user || fallback_host
+    @listing_questions = if @listing.persisted?
+                           @listing.listing_questions.includes(:user).order(created_at: :desc)
+    else
+                           ListingQuestion.none
+    end
+    @listing_question = ListingQuestion.new
   end
 
   def search_results
