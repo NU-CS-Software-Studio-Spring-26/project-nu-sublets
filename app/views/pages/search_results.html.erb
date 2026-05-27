@@ -115,6 +115,29 @@
                 flex-wrap: wrap;
             }
 
+            .natural-search-filter {
+                flex: 1 1 320px;
+                min-width: min(100%, 280px);
+            }
+
+            .natural-search-input {
+                width: 100%;
+                min-height: 36px;
+                padding: 7px 12px;
+                border: 1px solid var(--nu-border);
+                border-radius: 4px;
+                background: #fff;
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 15px;
+                line-height: 1.15;
+            }
+
+            .natural-search-input:focus-visible {
+                border-color: var(--nu-accent);
+                outline: 0;
+            }
+
             .date-range {
                 display: inline-flex;
                 align-items: stretch;
@@ -1179,6 +1202,11 @@
             <section class="results-toolbar" aria-label="Search filters">
                 <div class="toolbar-inner">
                     <form class="filter-form" action="<%= search_results_path %>" method="get" data-search-filter-form novalidate>
+                        <label class="natural-search-filter">
+                            <span class="visually-hidden">Natural language search</span>
+                            <input class="natural-search-input" type="search" name="natural_query" value="<%= @natural_query %>" placeholder="Try: furnished 1 bed under $1200 near campus" maxlength="500" data-natural-query-input />
+                        </label>
+
                         <div class="date-range" role="group" aria-label="Selected dates">
                             <div class="date-filter" data-date-picker>
                                 <input class="date-filter-input" type="text" name="move-in" value="<%= @move_in&.strftime("%m/%d/%Y") %>" data-date-input />
@@ -1630,6 +1658,7 @@
                 if (filterForm) {
                     const moveInInput = filterForm.querySelector('input[name="move-in"]');
                     const moveOutInput = filterForm.querySelector('input[name="move-out"]');
+                    const naturalQueryInput = filterForm.querySelector('input[name="natural_query"]');
                     const error = filterForm.querySelector("[data-filter-error]");
                     const additionalControls = Array.from(filterForm.querySelectorAll("[data-filter-control]"));
                     const activeFilterSummary = filterForm.querySelector("[data-active-filter-summary]");
@@ -1651,6 +1680,7 @@
                         if (!activeFilterSummary) return;
 
                         const chips = [];
+                        const naturalQuery = naturalQueryInput?.value.trim();
                         const moveIn = moveInInput.value.trim();
                         const moveOut = moveOutInput.value.trim();
                         const minPrice = filterForm.querySelector('input[name="min_price"]')?.value.trim();
@@ -1659,6 +1689,10 @@
                         const bathrooms = filterForm.querySelector('select[name="bathrooms"]');
                         const checkedAmenities = Array.from(filterForm.querySelectorAll('input[name="amenities[]"]:checked'));
                         const checkedPreferences = Array.from(filterForm.querySelectorAll('input[name="preferences[]"]:checked'));
+
+                        if (naturalQuery) {
+                            chips.push(`Search: ${naturalQuery}`);
+                        }
 
                         if (moveIn || moveOut) {
                             chips.push(`Dates: ${moveIn || "move in"} to ${moveOut || "move out"}`);
@@ -1817,6 +1851,7 @@
                 });
             })();
         </script>
+        <%= render "shared/skeleton_loaders" %>
     <%= render "shared/service_worker_registration" %>
 
     </body>

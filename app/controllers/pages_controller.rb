@@ -1,10 +1,13 @@
 class PagesController < ApplicationController
+  RECENTLY_VIEWED_LISTINGS_LIMIT = 6
+
   layout false
   before_action :authenticate_user!, only: %i[profile update_profile anotheruseraccount submit_sublet]
 
   def home
     @recommended_listings = SubletListing.includes(:user).find_available_listings.limit(6)
     @newest_listings = SubletListing.includes(:user).find_available_listings.order(created_at: :desc).limit(6)
+    @recently_viewed_listings = recently_viewed_listings
   end
 
   def listing
@@ -16,23 +19,31 @@ class PagesController < ApplicationController
 
     @listing ||= fallback_listing
     @listing_host = @listing.user || fallback_host
+    remember_recently_viewed_listing(@listing) if @listing.persisted?
+  
     @listing_questions = if @listing.persisted?
                            @listing.listing_questions.includes(:user).order(created_at: :desc)
     else
                            ListingQuestion.none
     end
     @listing_question = ListingQuestion.new
+
+
   end
 
   def search_results
-    @move_in = search_date_param("move-in")
-    @move_out = search_date_param("move-out")
-    @min_price = params[:min_price].to_s
-    @max_price = params[:max_price].to_s
-    @bedrooms = params[:bedrooms].to_s
-    @bathrooms = params[:bathrooms].to_s
-    @selected_amenities = Array(params[:amenities]).reject(&:blank?)
-    @selected_preferences = Array(params[:preferences]).reject(&:blank?)
+    @natural_query = params[:natural_query].to_s.squish.first(NaturalSearchParser::MAX_QUERY_LENGTH)
+    parsed_search_filters = NaturalSearchParser.new(@natural_query).parse
+    @search_params = merged_search_params(parsed_search_filters)
+
+    @move_in = search_date_value("move-in", @search_params["move-in"])
+    @move_out = search_date_value("move-out", @search_params["move-out"])
+    @min_price = @search_params["min_price"].to_s
+    @max_price = @search_params["max_price"].to_s
+    @bedrooms = @search_params["bedrooms"].to_s
+    @bathrooms = @search_params["bathrooms"].to_s
+    @selected_amenities = Array(@search_params["amenities"]).reject(&:blank?)
+    @selected_preferences = Array(@search_params["preferences"]).reject(&:blank?)
 
     if @move_in && @move_out && @move_out < @move_in
       @filter_error = "Move-out date must be after move-in date."
@@ -50,6 +61,7 @@ class PagesController < ApplicationController
         utilities_included: @selected_amenities.include?("Utilities included"),
         amenities: @selected_amenities,
         preferences: @selected_preferences,
+        query: @search_params["query"],
         available_only: true
       ).order(:price)
     end
@@ -135,12 +147,32 @@ class PagesController < ApplicationController
   private
 
   def search_date_param(key)
-    return if params[key].blank?
+    search_date_value(key, params[key])
+  end
 
-    Date.strptime(params[key], "%m/%d/%Y")
+  def search_date_value(key, value)
+    return if value.blank?
+
+    Date.strptime(value, "%m/%d/%Y")
   rescue Date::Error
     @filter_error = "Invalid date format for #{key.humanize}. Please use MM/DD/YYYY format."
     nil
+  end
+
+  def merged_search_params(parsed_filters)
+    explicit_filters = {
+      "query" => params[:query],
+      "move-in" => params["move-in"],
+      "move-out" => params["move-out"],
+      "min_price" => params[:min_price],
+      "max_price" => params[:max_price],
+      "bedrooms" => params[:bedrooms],
+      "bathrooms" => params[:bathrooms],
+      "amenities" => params[:amenities],
+      "preferences" => params[:preferences]
+    }.compact_blank
+
+    parsed_filters.merge(explicit_filters)
   end
 
   def sublet_listing_params
@@ -214,5 +246,22 @@ class PagesController < ApplicationController
       name: "Jane Doe",
       email: "janedoe@u.northwestern.edu"
     )
+  end
+
+  def recently_viewed_listings
+    ids = recently_viewed_listing_ids
+    listings_by_id = SubletListing.includes(:user).available.where(id: ids).index_by(&:id)
+
+    ids.filter_map { |id| listings_by_id[id] }
+  end
+
+  def remember_recently_viewed_listing(listing)
+    session[:recently_viewed_listing_ids] = ([ listing.id ] + recently_viewed_listing_ids).uniq.first(RECENTLY_VIEWED_LISTINGS_LIMIT)
+  end
+
+  def recently_viewed_listing_ids
+    Array(session[:recently_viewed_listing_ids]).filter_map do |id|
+      Integer(id, exception: false)
+    end.uniq.first(RECENTLY_VIEWED_LISTINGS_LIMIT)
   end
 end
