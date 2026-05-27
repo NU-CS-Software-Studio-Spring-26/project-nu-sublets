@@ -20,15 +20,12 @@ class PagesController < ApplicationController
     @listing ||= fallback_listing
     @listing_host = @listing.user || fallback_host
     remember_recently_viewed_listing(@listing) if @listing.persisted?
-  
     @listing_questions = if @listing.persisted?
                            @listing.listing_questions.includes(:user).order(created_at: :desc)
     else
                            ListingQuestion.none
     end
     @listing_question = ListingQuestion.new
-
-
   end
 
   def search_results
