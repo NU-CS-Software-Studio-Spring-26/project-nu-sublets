@@ -388,6 +388,10 @@
                 padding-inline: 16px;
             }
 
+            .number-field {
+                padding-right: 12px;
+            }
+
             .prefix {
                 font-family: "Rubik", sans-serif;
                 font-size: 16px;
@@ -822,6 +826,9 @@
                         </div>
                     <% end %>
 
+                    <% selected_amenities = Array(params[:amenities]).reject(&:blank?) %>
+                    <% selected_preferences = Array(params[:preferences]).reject(&:blank?) %>
+
                     <%= form_with url: submit_sublet_path, method: :post, local: true, html: { multipart: true }, class: "post-card" do %>
                         <section class="section-block field-stack">
                             <div>
@@ -884,6 +891,21 @@
                                 <span class="prefix">$</span>
                                 <input class="field-input no-border" type="text" name="price" placeholder="Price" value="<%= params[:price] %>" />
                             </label>
+                        </section>
+
+                        <section class="section-block field-stack">
+                            <h2 class="section-title">Space</h2>
+                            <div class="field-grid two-col">
+                                <label class="field-stack">
+                                    <span class="field-label">Bedrooms</span>
+                                    <input class="field-input number-field" type="number" name="bedrooms" min="0" max="20" step="1" placeholder="0" value="<%= params[:bedrooms] %>" />
+                                </label>
+
+                                <label class="field-stack">
+                                    <span class="field-label">Bathrooms</span>
+                                    <input class="field-input number-field" type="number" name="bathrooms" min="0" max="20" step="1" placeholder="1" value="<%= params[:bathrooms] %>" />
+                                </label>
+                            </div>
                         </section>
 
                         <section class="section-block field-stack">
@@ -966,7 +988,7 @@
                             <h2 class="section-title">Phone</h2>
                             <label class="field-input phone-field">
                                 <span class="prefix">+1</span>
-                                <input class="field-input no-border rubik-input" type="tel" name="phone" aria-label="Phone number" />
+                                <input class="field-input no-border rubik-input" type="tel" name="phone" aria-label="Phone number" value="<%= params[:phone] %>" />
                             </label>
                         </section>
 
@@ -976,12 +998,12 @@
                                 <p class="section-helper">School email will be used to verify your student status</p>
                             </div>
 
-                            <input class="field-input" type="email" name="school-email" placeholder="ex: janedoe@u.northwestern.edu" />
+                            <input class="field-input" type="email" name="school-email" placeholder="ex: janedoe@u.northwestern.edu" value="<%= params["school-email"] %>" />
                         </section>
 
                         <section class="section-block">
                             <label class="checkbox-row">
-                                <input type="checkbox" name="terms" />
+                                <input type="checkbox" name="terms" <%= "checked" if params[:terms].present? %> />
                                 <span class="checkbox-copy">I agree to the Terms and Conditions and Privacy Policy.</span>
                             </label>
                         </section>
@@ -1151,6 +1173,8 @@
 
                 const amenities = <%= raw SubletListing::AMENITY_OPTIONS.to_json %>;
                 const preferences = <%= raw SubletListing::PREFERENCE_OPTIONS.to_json %>;
+                const initialAmenities = <%= raw selected_amenities.to_json %>;
+                const initialPreferences = <%= raw selected_preferences.to_json %>;
 
                 const normalize = (value) => value.toLowerCase().trim();
 
@@ -1162,7 +1186,8 @@
                     selectedSelector,
                     emptySelector,
                     fieldName,
-                    emptyResultsText
+                    emptyResultsText,
+                    initialItems = []
                 }) => {
                     const picker = document.querySelector(pickerSelector);
                     if (!picker) return;
@@ -1216,8 +1241,9 @@
                         });
                     };
 
-                    const addItem = (item) => {
+                    const addItem = (item, options = {}) => {
                         if (selectedItems.has(item)) return;
+                        const focusSearch = options.focusSearch ?? true;
 
                         selectedItems.add(item);
 
@@ -1255,7 +1281,7 @@
                         searchInput.value = "";
                         refreshEmptyState();
                         renderResults();
-                        searchInput.focus();
+                        if (focusSearch) searchInput.focus();
                     };
 
                     searchInput.addEventListener("focus", openDropdown);
@@ -1282,6 +1308,7 @@
                         if (!picker.contains(event.target)) closeDropdown();
                     });
 
+                    initialItems.filter((item) => items.includes(item)).forEach((item) => addItem(item, { focusSearch: false }));
                     renderResults();
                     refreshEmptyState();
                 };
@@ -1294,7 +1321,8 @@
                     selectedSelector: "[data-selected-amenities]",
                     emptySelector: "[data-empty-amenities]",
                     fieldName: "amenities[]",
-                    emptyResultsText: "No matching amenities"
+                    emptyResultsText: "No matching amenities",
+                    initialItems: initialAmenities
                 });
 
                 setupPicker({
@@ -1305,7 +1333,8 @@
                     selectedSelector: "[data-selected-preferences]",
                     emptySelector: "[data-empty-preferences]",
                     fieldName: "preferences[]",
-                    emptyResultsText: "No matching preferences"
+                    emptyResultsText: "No matching preferences",
+                    initialItems: initialPreferences
                 });
             })();
         </script>
