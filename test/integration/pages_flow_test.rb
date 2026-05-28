@@ -134,6 +134,17 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     assert_includes response.body, "Photos must be PNG, JPG, or WebP files."
     assert_select "input[name='street-address'][value='820 Noyes St']"
+    assert_select "input[name='city'][value='Evanston']"
+    assert_select "input[name='state'][value='IL']"
+    assert_select "input[name='zip-code'][value='60201']"
+    assert_select "input[name='start-date'][value='06/12/2026']"
+    assert_select "input[name='end-date'][value='09/11/2026']"
+    assert_select "input[name='price'][value='850']"
+    assert_select "input[name='bedrooms'][value='1']"
+    assert_select "input[name='bathrooms'][value='1']"
+    assert_select "textarea[name='description']", text: "Clean furnished room within walking distance of campus."
+    assert_includes response.body, 'const initialAmenities = ["Laundry","Gym"]'
+    assert_includes response.body, 'const initialPreferences = ["Graduate student","Quiet"]'
   end
 
   test "home page links to the other product views" do
@@ -1027,6 +1038,8 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     get post_sublet_path
 
     assert_select "form[action='#{submit_sublet_path}'][method='post']"
+    assert_select "input[type='number'][name='bedrooms'][min='0'][max='20']"
+    assert_select "input[type='number'][name='bathrooms'][min='0'][max='20']"
     assert_select "input[type='file'][name='photos[]'][accept='image/png,image/jpeg,image/webp'][multiple]"
     assert_includes response.body, "Upload up to 5 photos. PNG, JPG, or WebP only. 5 MB max per photo."
   end
