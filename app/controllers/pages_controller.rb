@@ -1,11 +1,13 @@
 class PagesController < ApplicationController
   RECENTLY_VIEWED_LISTINGS_LIMIT = 6
+  RECOMMENDED_LISTINGS_LIMIT = 6
 
   layout false
   before_action :authenticate_user!, only: %i[profile update_profile anotheruseraccount submit_sublet]
 
   def home
-    @recommended_listings = SubletListing.includes(:user).find_available_listings.limit(6)
+    prepare_recommendation_filters
+    @recommended_listings = recommended_listings
     @newest_listings = SubletListing.includes(:user).find_available_listings.order(created_at: :desc).limit(6)
     @recently_viewed_listings = recently_viewed_listings
   end
@@ -260,5 +262,56 @@ class PagesController < ApplicationController
     Array(session[:recently_viewed_listing_ids]).filter_map do |id|
       Integer(id, exception: false)
     end.uniq.first(RECENTLY_VIEWED_LISTINGS_LIMIT)
+  end
+
+  def prepare_recommendation_filters
+    @recommendation_move_in_value = params[:recommendation_move_in].to_s
+    @recommendation_move_out_value = params[:recommendation_move_out].to_s
+    @recommendation_bedrooms = params[:recommendation_bedrooms].to_s
+    @recommendation_bathrooms = params[:recommendation_bathrooms].to_s
+    @recommendation_amenities = Array(params[:recommendation_amenities]).select do |amenity|
+      SubletListing::AMENITY_OPTIONS.include?(amenity)
+    end
+
+    @recommendation_move_in = recommendation_date_value("move-in", @recommendation_move_in_value)
+    @recommendation_move_out = recommendation_date_value("move-out", @recommendation_move_out_value)
+
+    if @recommendation_move_in && @recommendation_move_out && @recommendation_move_out < @recommendation_move_in
+      @recommendation_filter_error = "Move-out date must be after move-in date."
+    end
+  end
+
+  def recommendation_filters_active?
+    @recommendation_move_in_value.present? ||
+      @recommendation_move_out_value.present? ||
+      @recommendation_bedrooms.present? ||
+      @recommendation_bathrooms.present? ||
+      @recommendation_amenities.any?
+  end
+  helper_method :recommendation_filters_active?
+
+  def recommended_listings
+    return SubletListing.none if @recommendation_filter_error.present?
+
+    SubletListing.search_listings(
+      move_in: @recommendation_move_in,
+      move_out: @recommendation_move_out,
+      bedrooms: @recommendation_bedrooms,
+      bathrooms: @recommendation_bathrooms,
+      furnished: @recommendation_amenities.include?("Furnished"),
+      pets_allowed: @recommendation_amenities.include?("Pet-friendly"),
+      utilities_included: @recommendation_amenities.include?("Utilities included"),
+      amenities: @recommendation_amenities,
+      available_only: true
+    ).includes(:user).order(:price).limit(RECOMMENDED_LISTINGS_LIMIT)
+  end
+
+  def recommendation_date_value(label, value)
+    return if value.blank?
+
+    Date.strptime(value, "%m/%d/%Y")
+  rescue Date::Error
+    @recommendation_filter_error = "Invalid date format for #{label}. Please use MM/DD/YYYY format."
+    nil
   end
 end
