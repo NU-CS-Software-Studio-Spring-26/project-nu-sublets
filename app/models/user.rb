@@ -20,6 +20,7 @@ class User < ApplicationRecord
   # Associations
   has_many :sublet_listings, dependent: :destroy
   has_many :listing_questions, dependent: :destroy
+  has_many :listing_reports, dependent: :destroy
   has_one_attached :profile_photo
   # has_many :applications, dependent: :destroy
 

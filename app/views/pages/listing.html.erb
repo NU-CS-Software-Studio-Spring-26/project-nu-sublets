@@ -216,6 +216,159 @@
                 overflow: hidden;
             }
 
+            .listing-alert {
+                margin: 0 0 1rem;
+                padding: 0.75rem 1rem;
+                border-radius: 6px;
+                font-family: "Rubik", sans-serif;
+                font-size: 0.9rem;
+            }
+
+            .listing-alert.notice {
+                border: 1px solid #bbf7d0;
+                background: #f0fdf4;
+                color: #166534;
+            }
+
+            .listing-alert.alert {
+                border: 1px solid #fecaca;
+                background: #fef2f2;
+                color: #991b1b;
+            }
+
+            .report-listing-button {
+                min-height: 40px;
+                border-color: var(--nu-border);
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+            }
+
+            .report-listing-button:hover,
+            .report-listing-button:focus-visible {
+                border-color: var(--nu-accent);
+                color: var(--nu-accent);
+            }
+
+            .report-listing-button:disabled {
+                opacity: 0.62;
+                cursor: not-allowed;
+            }
+
+            .report-modal {
+                position: fixed;
+                inset: 0;
+                z-index: 2600;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 24px;
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transition: opacity 0.2s ease, visibility 0.2s ease;
+            }
+
+            .report-modal.is-open {
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
+            }
+
+            .report-modal__backdrop {
+                position: absolute;
+                inset: 0;
+                background: rgba(17, 12, 20, 0.34);
+                backdrop-filter: blur(3px);
+            }
+
+            .report-modal__dialog {
+                position: relative;
+                z-index: 1;
+                width: min(100%, 600px);
+                padding: 32px 48px;
+                border-radius: 16px;
+                background: #fff;
+                box-shadow: 0 0 25px rgba(217, 217, 217, 0.5);
+            }
+
+            .report-modal__close {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                width: 36px;
+                height: 36px;
+                border: 0;
+                border-radius: 999px;
+                background: transparent;
+                color: #5f5f5f;
+                font-size: 24px;
+                line-height: 1;
+            }
+
+            .report-modal__title {
+                margin: 0 0 16px;
+                font-family: "Rubik", sans-serif;
+                font-size: 20px;
+                font-weight: 400;
+                line-height: 1.5;
+            }
+
+            .report-modal__textarea {
+                display: block;
+                width: 100%;
+                min-height: 234px;
+                margin-bottom: 16px;
+                padding: 8px 16px;
+                border: 1px solid #d9d9d9;
+                border-radius: 8px;
+                color: #000;
+                font-family: "Rubik", sans-serif;
+                font-size: 16px;
+                font-weight: 300;
+                line-height: 2;
+                resize: vertical;
+            }
+
+            .report-modal__textarea:focus-visible {
+                border-color: var(--nu-accent);
+                outline: 3px solid rgba(78, 42, 132, 0.18);
+            }
+
+            .report-modal__submit {
+                width: 100%;
+                min-height: 56px;
+                border: 0;
+                border-radius: 16px;
+                background: #9c51b6;
+                color: #fff;
+                font-family: "Rubik", sans-serif;
+                font-size: 16px;
+                font-weight: 600;
+                line-height: 1.5;
+            }
+
+            .report-modal__submit:hover,
+            .report-modal__submit:focus-visible {
+                background: #8e45aa;
+            }
+
+            body.report-modal-open {
+                overflow: hidden;
+            }
+
+            .listing-heading-row {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .listing-heading-copy {
+                min-width: min(100%, 320px);
+                flex: 1 1 420px;
+            }
+
             .listing-title {
                 margin: 0;
                 font-family: "Rubik", sans-serif;
@@ -637,6 +790,14 @@
                     max-height: 82vh;
                 }
 
+                .report-modal {
+                    padding: 16px;
+                }
+
+                .report-modal__dialog {
+                    padding: 28px 20px 24px;
+                }
+
                 .host-row {
                     align-items: flex-start;
                     flex-wrap: wrap;
@@ -718,6 +879,10 @@
                         <span>Back to search results</span>
                     </a>
 
+                    <% flash.each do |type, message| %>
+                        <p class="listing-alert <%= type %>" role="alert"><%= message %></p>
+                    <% end %>
+
                     <section class="row g-3 g-lg-4 align-items-stretch">
                         <div class="col-lg-6">
                             <div class="gallery-main">
@@ -754,9 +919,29 @@
 
                     <section class="row g-3 g-lg-4 pt-3 pt-lg-4">
                         <div class="col-lg-7 col-xl-7 listing-copy-column">
-                            <h1 class="listing-title"><%= @listing.title %></h1>
-                            <p class="listing-price"><%= number_to_currency(@listing.price, precision: 0) %>/month</p>
-                            <p class="listing-address"><%= @listing.address %></p>
+                            <div class="listing-heading-row">
+                                <div class="listing-heading-copy">
+                                    <h1 class="listing-title"><%= @listing.title %></h1>
+                                    <p class="listing-price"><%= number_to_currency(@listing.price, precision: 0) %>/month</p>
+                                    <p class="listing-address"><%= @listing.address %></p>
+                                </div>
+
+                                <% if @listing.persisted? %>
+                                    <% if user_signed_in? %>
+                                        <button class="btn btn-outline-secondary report-listing-button" type="button" data-report-modal-trigger aria-haspopup="dialog">
+                                            Report listing
+                                        </button>
+                                    <% else %>
+                                        <a class="btn btn-outline-secondary report-listing-button" href="#" data-login-trigger>
+                                            Report listing
+                                        </a>
+                                    <% end %>
+                                <% else %>
+                                    <button class="btn btn-outline-secondary report-listing-button" type="button" disabled title="Reports are available for posted listings.">
+                                        Report listing
+                                    </button>
+                                <% end %>
+                            </div>
                             <% if host_profile_path %>
                                 <a class="host-row" href="<%= host_profile_path %>" aria-label="View <%= host_name %>'s profile">
                             <% else %>
@@ -971,6 +1156,26 @@
             </div>
         </div>
 
+        <% if user_signed_in? && @listing.persisted? %>
+            <div id="report-modal" class="report-modal" data-report-modal aria-hidden="true">
+                <div class="report-modal__backdrop" data-report-modal-close></div>
+                <div class="report-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="report-modal-title">
+                    <button class="report-modal__close" type="button" aria-label="Close report popup" data-report-modal-close>&times;</button>
+                    <h2 class="report-modal__title" id="report-modal-title">Report Listing</h2>
+
+                    <%= form_with model: @listing_report, url: sublet_listing_reports_path(@listing), method: :post, local: true do |form| %>
+                        <%= form.text_area :description,
+                                           class: "report-modal__textarea",
+                                           maxlength: ListingReport::MAX_DESCRIPTION_LENGTH,
+                                           required: true,
+                                           placeholder: "Description",
+                                           aria: { label: "Describe the policy concern" } %>
+                        <%= form.submit "Send Report", class: "report-modal__submit" %>
+                    <% end %>
+                </div>
+            </div>
+        <% end %>
+
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
@@ -1020,6 +1225,54 @@
                 document.addEventListener("keydown", (event) => {
                     if (event.key === "Escape" && popup.classList.contains("is-open")) {
                         closePopup();
+                    }
+                });
+            })();
+        </script>
+        <script>
+            (() => {
+                const modal = document.querySelector("[data-report-modal]");
+                const triggers = document.querySelectorAll("[data-report-modal-trigger]");
+
+                if (!modal || triggers.length === 0 || modal.dataset.reportBound === "true") {
+                    return;
+                }
+
+                modal.dataset.reportBound = "true";
+                let activeTrigger = null;
+
+                const openModal = (trigger) => {
+                    activeTrigger = trigger;
+                    modal.classList.add("is-open");
+                    modal.setAttribute("aria-hidden", "false");
+                    document.body.classList.add("report-modal-open");
+                    modal.querySelector(".report-modal__textarea")?.focus();
+                };
+
+                const closeModal = () => {
+                    modal.classList.remove("is-open");
+                    modal.setAttribute("aria-hidden", "true");
+                    document.body.classList.remove("report-modal-open");
+                    activeTrigger?.focus();
+                };
+
+                triggers.forEach((trigger) => {
+                    trigger.addEventListener("click", () => openModal(trigger));
+                });
+
+                modal.querySelectorAll("[data-report-modal-close]").forEach((closeButton) => {
+                    closeButton.addEventListener("click", closeModal);
+                });
+
+                modal.addEventListener("click", (event) => {
+                    if (event.target === modal) {
+                        closeModal();
+                    }
+                });
+
+                document.addEventListener("keydown", (event) => {
+                    if (event.key === "Escape" && modal.classList.contains("is-open")) {
+                        closeModal();
                     }
                 });
             })();

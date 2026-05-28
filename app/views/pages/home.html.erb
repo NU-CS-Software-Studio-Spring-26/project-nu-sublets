@@ -21,53 +21,32 @@
                 --nu-muted-border: rgba(255, 255, 255, 0.28);
                 --nu-card-bg: rgba(58, 58, 58, 0.25);
                 --nu-button: #4E2A84;
-                .listing-card {
-                    flex-basis: min(340px, calc(100vw - 52px));
-                }
-                .recommendation-filter-form {
-                    grid-template-columns: repeat(2, minmax(0, 1fr));
-                }
-                .cta-shell {
-                    grid-template-columns: 1fr;
-                    height: auto;
-                    overflow: hidden;
-                }
-                .cta-image {
-                    height: auto;
-                    min-height: 240px;
-                    border-radius: 0 0 16px 16px;
-                }
-                .cta-copy {
-                    padding: 16px;
-                }
             }
 
             .topbar {
-                background: var(--nu-white);
+                background: #fff;
                 border-bottom: 1px solid #d9d9d9;
                 font-family: "Rubik", sans-serif;
                 padding: 0 24px;
-                }
+                min-height: 60px;
+                display: flex;
+                align-items: center;
+            }
 
-                .recommendation-filter-form {
-                    grid-template-columns: repeat(2, minmax(0, 1fr));
-                }
+            .topbar-inner {
+                max-width: 1200px;
+                width: 100%;
+                margin: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
 
-                .cta-shell {
-                    grid-template-columns: 1fr;
-                    height: auto;
-                    overflow: hidden;
-                }
-
-                .cta-image {
-                    height: auto;
-                    min-height: 240px;
-                    border-radius: 0 0 16px 16px;
-                }
-
-                .cta-copy {
-                    padding: 16px;
-                }
+            .brand,
+            .nav-link {
+                color: var(--nu-text);
+                font-size: 16px;
+                line-height: 1.2;
                 text-decoration: none;
             }
 

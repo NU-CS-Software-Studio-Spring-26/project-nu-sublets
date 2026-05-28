@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   patch "listings/:id" => "sublet_listings#update"
   delete "listings/:id" => "sublet_listings#destroy"
   post "listings/:sublet_listing_id/questions" => "listing_questions#create", as: :sublet_listing_questions
+  post "listings/:sublet_listing_id/reports" => "listing_reports#create", as: :sublet_listing_reports
   patch "listing-questions/:id" => "listing_questions#update", as: :listing_question
   delete "listing-questions/:id" => "listing_questions#destroy"
   get "search-results" => "pages#search_results", as: :search_results

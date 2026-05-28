@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_28_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_28_010000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -49,6 +49,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_28_000000) do
     t.integer "user_id", null: false
     t.index ["sublet_listing_id"], name: "index_listing_questions_on_sublet_listing_id"
     t.index ["user_id"], name: "index_listing_questions_on_user_id"
+  end
+
+  create_table "listing_reports", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description", null: false
+    t.string "status", default: "open", null: false
+    t.integer "sublet_listing_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["status"], name: "index_listing_reports_on_status"
+    t.index ["sublet_listing_id"], name: "index_listing_reports_on_sublet_listing_id"
+    t.index ["user_id"], name: "index_listing_reports_on_user_id"
   end
 
   create_table "sublet_listings", force: :cascade do |t|
@@ -98,5 +110,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_28_000000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "listing_questions", "sublet_listings"
   add_foreign_key "listing_questions", "users"
+  add_foreign_key "listing_reports", "sublet_listings"
+  add_foreign_key "listing_reports", "users"
   add_foreign_key "sublet_listings", "users"
 end

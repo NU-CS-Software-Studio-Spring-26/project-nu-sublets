@@ -31,6 +31,7 @@ class PagesController < ApplicationController
                            ListingQuestion.none
     end
     @listing_question = ListingQuestion.new
+    @listing_report = ListingReport.new
   end
 
   def search_results
