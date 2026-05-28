@@ -35,43 +35,29 @@ class PagesController < ApplicationController
   end
 
   def search_results
-    @natural_query = params[:natural_query].to_s.squish.first(NaturalSearchParser::MAX_QUERY_LENGTH)
-    parsed_search_filters = NaturalSearchParser.new(@natural_query).parse
-    @search_params = merged_search_params(parsed_search_filters)
-
-    @move_in = search_date_value("move-in", @search_params["move-in"])
-    @move_out = search_date_value("move-out", @search_params["move-out"])
-    @min_price = @search_params["min_price"].to_s
-    @max_price = @search_params["max_price"].to_s
-    @bedrooms = @search_params["bedrooms"].to_s
-    @bathrooms = @search_params["bathrooms"].to_s
-    @selected_amenities = Array(@search_params["amenities"]).reject(&:blank?)
-    @selected_preferences = Array(@search_params["preferences"]).reject(&:blank?)
-
-    if @move_in && @move_out && @move_out < @move_in
-      @filter_error = "Move-out date must be after move-in date."
-      listings = SubletListing.none
-    else
-      listings = SubletListing.search_listings(
-        move_in: @move_in,
-        move_out: @move_out,
-        min_price: @min_price,
-        max_price: @max_price,
-        bedrooms: @bedrooms,
-        bathrooms: @bathrooms,
-        furnished: @selected_amenities.include?("Furnished"),
-        pets_allowed: @selected_amenities.include?("Pet-friendly"),
-        utilities_included: @selected_amenities.include?("Utilities included"),
-        amenities: @selected_amenities,
-        preferences: @selected_preferences,
-        query: @search_params["query"],
-        available_only: true
-      ).order(:price)
-    end
-
+    listings = search_results_scope
     @total_listings_count = listings.count
-    @pagy, @listings = pagy(:offset, listings, limit: 12)
-    @map_listings = listings.limit(150)
+
+    respond_to do |format|
+      format.html do
+        @pagy, @listings = pagy(:offset, listings, limit: 12)
+        @map_listings = listings.limit(150)
+      end
+
+      format.pdf do
+        pdf = SearchResultsPdf.new(
+          listings: listings.includes(:user).to_a,
+          applied_filters: applied_search_filters,
+          generated_at: Time.zone.now,
+          base_url: request.base_url
+        ).render
+
+        send_data pdf,
+                  filename: "nu-sublets-search-results-#{Time.zone.today.iso8601}.pdf",
+                  type: "application/pdf",
+                  disposition: "attachment"
+      end
+    end
   end
 
   def saved; end
@@ -157,6 +143,89 @@ class PagesController < ApplicationController
 
   def search_date_param(key)
     search_date_value(key, params[key])
+  end
+
+  def search_results_scope
+    prepare_search_filters
+
+    if @move_in && @move_out && @move_out < @move_in
+      @filter_error = "Move-out date must be after move-in date."
+      SubletListing.none
+    else
+      sort_search_results(SubletListing.search_listings(search_listing_filters))
+    end
+  end
+
+  def prepare_search_filters
+    @natural_query = params[:natural_query].to_s.squish.first(NaturalSearchParser::MAX_QUERY_LENGTH)
+    parsed_search_filters = NaturalSearchParser.new(@natural_query).parse
+    @search_params = merged_search_params(parsed_search_filters)
+
+    @move_in = search_date_value("move-in", @search_params["move-in"])
+    @move_out = search_date_value("move-out", @search_params["move-out"])
+    @min_price = @search_params["min_price"].to_s
+    @max_price = @search_params["max_price"].to_s
+    @bedrooms = @search_params["bedrooms"].to_s
+    @bathrooms = @search_params["bathrooms"].to_s
+    @selected_amenities = Array(@search_params["amenities"]).reject(&:blank?)
+    @selected_preferences = Array(@search_params["preferences"]).reject(&:blank?)
+    @sort = params[:sort].presence || "price_asc"
+  end
+
+  def search_listing_filters
+    {
+      move_in: @move_in,
+      move_out: @move_out,
+      min_price: @min_price,
+      max_price: @max_price,
+      bedrooms: @bedrooms,
+      bathrooms: @bathrooms,
+      furnished: @selected_amenities.include?("Furnished"),
+      pets_allowed: @selected_amenities.include?("Pet-friendly"),
+      utilities_included: @selected_amenities.include?("Utilities included"),
+      amenities: @selected_amenities,
+      preferences: @selected_preferences,
+      query: @search_params["query"],
+      available_only: true
+    }
+  end
+
+  def sort_search_results(listings)
+    case @sort
+    when "price_desc"
+      listings.order(price: :desc)
+    when "newest"
+      listings.order(created_at: :desc)
+    when "available_from"
+      listings.order(:available_from, :price)
+    else
+      listings.order(:price)
+    end
+  end
+
+  def applied_search_filters
+    filters = []
+    filters << [ "Natural search", @natural_query ] if @natural_query.present?
+    filters << [ "Search", @search_params["query"] ] if @search_params["query"].present?
+    filters << [ "Move in", @move_in.strftime("%m/%d/%Y") ] if @move_in
+    filters << [ "Move out", @move_out.strftime("%m/%d/%Y") ] if @move_out
+    filters << [ "Minimum rent", "$#{@min_price}" ] if @min_price.present?
+    filters << [ "Maximum rent", "$#{@max_price}" ] if @max_price.present?
+    filters << [ "Bedrooms", @bedrooms == "0" ? "Studio" : @bedrooms ] if @bedrooms.present?
+    filters << [ "Bathrooms", @bathrooms ] if @bathrooms.present?
+    filters << [ "Amenities", @selected_amenities.join(", ") ] if @selected_amenities.any?
+    filters << [ "Preferences", @selected_preferences.join(", ") ] if @selected_preferences.any?
+    filters << [ "Sort", sort_label(@sort) ] if @sort.present?
+    filters
+  end
+
+  def sort_label(sort)
+    {
+      "price_asc" => "Price: low to high",
+      "price_desc" => "Price: high to low",
+      "newest" => "Newest first",
+      "available_from" => "Soonest available"
+    }.fetch(sort, sort.to_s.humanize)
   end
 
   def search_date_value(key, value)
