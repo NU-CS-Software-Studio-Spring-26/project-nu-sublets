@@ -872,7 +872,7 @@
                                 <% @recommended_listings.each do |listing| %>
                                     <% listing_host = listing.user %>
                                     <% listing_name = listing.title.presence || listing.address.presence || "Sublet listing" %>
-                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="<%= listing_name %>, <%= number_to_currency(listing.price, precision: 0) %> per month">
+                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="<%= listing_name %>, <%= number_to_currency(listing.price, precision: 0) %> per month" <%= listing_compare_data_attributes(listing) %>>
                                         <div class="listing-media">
                                             <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
                                             <img class="listing-avatar" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
@@ -1018,7 +1018,7 @@
                                 <% @recently_viewed_listings.each do |listing| %>
                                     <% listing_host = listing.user %>
                                     <% listing_name = listing.title.presence || listing.address.presence || "Sublet listing" %>
-                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="<%= listing_name %>, <%= number_to_currency(listing.price, precision: 0) %> per month">
+                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="<%= listing_name %>, <%= number_to_currency(listing.price, precision: 0) %> per month" <%= listing_compare_data_attributes(listing) %>>
                                         <div class="listing-media">
                                             <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
                                             <img class="listing-avatar" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
@@ -1244,13 +1244,14 @@
                                 <% @newest_listings.each do |listing| %>
                                     <% listing_host = listing.user %>
                                     <% listing_name = listing.title.presence || listing.address.presence || "Sublet listing" %>
-                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="<%= listing_name %>, <%= number_to_currency(listing.price, precision: 0) %> per month">
+                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="<%= listing_name %>, <%= number_to_currency(listing.price, precision: 0) %> per month" <%= listing_compare_data_attributes(listing) %>>
                                         <div class="listing-media">
                                             <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
                                             <img class="listing-avatar" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
                                         </div>
                                         <div class="listing-body">
                                             <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
+                                            <p class="listing-card-title"><%= listing.title %></p>
                                             <div class="listing-meta">
                                                 <span><%= pluralize(listing.bedrooms || 0, "bedroom") %></span>
                                                 <span><%= pluralize(listing.bathrooms || 0, "bathroom") %></span>
@@ -1375,6 +1376,7 @@
         ></script>
         <%= render "login_modal" %>
         <%= render "favorite_listings" %>
+        <%= render "compare_listings" %>
         <script>
             (() => {
                 const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" });

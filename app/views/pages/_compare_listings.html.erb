@@ -1,0 +1,786 @@
+<style>
+    .compare-card-button {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        z-index: 3;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+        padding: 7px 12px;
+        border: 1px solid rgba(78, 42, 132, 0.18);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.96);
+        color: #4E2A84;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+        font-family: "Rubik", sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+        cursor: pointer;
+        transition: background-color 160ms ease, color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .compare-card-button:hover,
+    .compare-card-button:focus-visible {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+        outline: 0;
+    }
+
+    .compare-card-button:focus-visible {
+        box-shadow: 0 0 0 3px rgba(156, 81, 182, 0.35), 0 8px 20px rgba(0, 0, 0, 0.18);
+    }
+
+    .compare-card-button.is-selected {
+        border-color: #4E2A84;
+        background: #4E2A84;
+        color: #fff;
+    }
+
+    .compare-tray[hidden],
+    .compare-modal[hidden] {
+        display: none;
+    }
+
+    .compare-tray {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        left: 16px;
+        z-index: 2400;
+        font-family: "Rubik", sans-serif;
+    }
+
+    .compare-tray-inner {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 14px;
+        align-items: center;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 12px;
+        border: 1px solid rgba(78, 42, 132, 0.14);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.2);
+    }
+
+    .compare-tray-title {
+        margin: 0;
+        color: #000;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.15;
+        white-space: nowrap;
+    }
+
+    .compare-tray-count {
+        display: block;
+        margin-top: 4px;
+        color: #495057;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .compare-tray-items {
+        display: flex;
+        gap: 10px;
+        min-width: 0;
+        overflow-x: auto;
+        padding: 2px;
+    }
+
+    .compare-tray-item {
+        display: grid;
+        grid-template-columns: 54px minmax(130px, 1fr) auto;
+        gap: 9px;
+        align-items: center;
+        flex: 0 0 min(260px, 76vw);
+        min-width: 0;
+        padding: 7px;
+        border: 1px solid #d9d9d9;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+    .compare-tray-thumb {
+        width: 54px;
+        height: 42px;
+        border-radius: 6px;
+        object-fit: cover;
+        background: #f2f2f2;
+    }
+
+    .compare-tray-name,
+    .compare-tray-rent {
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .compare-tray-name {
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .compare-tray-rent {
+        color: #495057;
+        font-size: 12px;
+        line-height: 1.2;
+    }
+
+    .compare-remove-button,
+    .compare-clear-button,
+    .compare-open-button,
+    .compare-modal-close {
+        border-radius: 8px;
+        font-family: "Rubik", sans-serif;
+        font-weight: 700;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .compare-remove-button {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #d9d9d9;
+        background: #fff;
+        color: #000;
+        font-size: 18px;
+    }
+
+    .compare-tray-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .compare-clear-button,
+    .compare-open-button {
+        min-height: 38px;
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .compare-clear-button {
+        border: 1px solid #d9d9d9;
+        background: #fff;
+        color: #000;
+    }
+
+    .compare-open-button {
+        border: 0;
+        background: #4E2A84;
+        color: #fff;
+    }
+
+    .compare-open-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .compare-message {
+        grid-column: 2 / 4;
+        margin: -4px 0 0;
+        color: #9f1d20;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.25;
+    }
+
+    .compare-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        font-family: "Rubik", sans-serif;
+    }
+
+    .compare-modal-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.58);
+    }
+
+    .compare-modal-dialog {
+        position: relative;
+        z-index: 1;
+        width: min(1120px, 100%);
+        max-height: min(820px, 92vh);
+        overflow: hidden;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 26px 80px rgba(0, 0, 0, 0.35);
+    }
+
+    .compare-modal-header {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 20px 20px 14px;
+        border-bottom: 1px solid #d9d9d9;
+    }
+
+    .compare-modal-title {
+        margin: 0;
+        color: #000;
+        font-size: 22px;
+        font-weight: 800;
+        line-height: 1.15;
+    }
+
+    .compare-modal-subtitle {
+        margin: 5px 0 0;
+        color: #495057;
+        font-size: 13px;
+        line-height: 1.35;
+    }
+
+    .compare-modal-close {
+        flex: 0 0 auto;
+        min-width: 38px;
+        min-height: 38px;
+        border: 1px solid #d9d9d9;
+        background: #fff;
+        color: #000;
+        font-size: 20px;
+    }
+
+    .comparison-table-wrap {
+        max-height: calc(92vh - 110px);
+        overflow: auto;
+        padding: 18px 20px 20px;
+    }
+
+    .comparison-table {
+        width: 100%;
+        min-width: 760px;
+        border-collapse: separate;
+        border-spacing: 0;
+        color: #000;
+        font-size: 14px;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+        min-width: 190px;
+        padding: 13px 14px;
+        border-right: 1px solid #d9d9d9;
+        border-bottom: 1px solid #d9d9d9;
+        vertical-align: top;
+    }
+
+    .comparison-table th:first-child,
+    .comparison-table td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        min-width: 160px;
+        background: #f8f6fa;
+        font-weight: 800;
+    }
+
+    .comparison-table thead th {
+        border-top: 1px solid #d9d9d9;
+        background: #fff;
+    }
+
+    .comparison-table thead th:first-child {
+        z-index: 2;
+        border-left: 1px solid #d9d9d9;
+        background: #f8f6fa;
+    }
+
+    .comparison-table tbody td:first-child {
+        border-left: 1px solid #d9d9d9;
+    }
+
+    .comparison-listing-heading {
+        display: grid;
+        gap: 9px;
+    }
+
+    .comparison-listing-thumb {
+        width: 100%;
+        height: 116px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: #f2f2f2;
+    }
+
+    .comparison-listing-title {
+        color: #000;
+        font-weight: 800;
+        line-height: 1.2;
+        text-decoration: none;
+    }
+
+    .comparison-listing-rent {
+        color: #495057;
+        font-size: 13px;
+        line-height: 1.2;
+    }
+
+    .comparison-remove-link {
+        justify-self: start;
+        border: 0;
+        padding: 0;
+        background: transparent;
+        color: #4E2A84;
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: underline;
+    }
+
+    .comparison-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .comparison-tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        padding: 5px 8px;
+        border: 1px solid rgba(78, 42, 132, 0.14);
+        border-radius: 999px;
+        background: #f8f6fa;
+        color: #000;
+        font-size: 12px;
+        line-height: 1.1;
+    }
+
+    body.compare-modal-open {
+        overflow: hidden;
+    }
+
+    @media (max-width: 767.98px) {
+        .compare-tray {
+            right: 10px;
+            bottom: 10px;
+            left: 10px;
+        }
+
+        .compare-tray-inner {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .compare-tray-actions {
+            justify-content: stretch;
+        }
+
+        .compare-clear-button,
+        .compare-open-button {
+            flex: 1 1 0;
+        }
+
+        .compare-message {
+            grid-column: auto;
+        }
+
+        .compare-modal {
+            align-items: stretch;
+            padding: 10px;
+        }
+
+        .compare-modal-dialog {
+            max-height: 100%;
+        }
+
+        .compare-modal-header {
+            padding: 16px;
+        }
+
+        .comparison-table-wrap {
+            padding: 14px 16px 18px;
+        }
+    }
+</style>
+
+<div class="compare-tray" data-compare-tray hidden>
+    <div class="compare-tray-inner">
+        <p class="compare-tray-title">
+            Compare listings
+            <span class="compare-tray-count" data-compare-count>0 of 3 selected</span>
+        </p>
+        <div class="compare-tray-items" data-compare-tray-items aria-label="Selected listings to compare"></div>
+        <div class="compare-tray-actions">
+            <button class="compare-clear-button" type="button" data-compare-clear>Clear all</button>
+            <button class="compare-open-button" type="button" data-compare-open disabled>Compare</button>
+        </div>
+        <p class="compare-message" data-compare-message role="alert" hidden>You can compare up to 3 listings at a time.</p>
+    </div>
+</div>
+
+<div class="compare-modal" data-compare-modal hidden aria-hidden="true">
+    <div class="compare-modal-backdrop" data-compare-modal-close></div>
+    <div class="compare-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="compare-modal-title">
+        <div class="compare-modal-header">
+            <div>
+                <h2 class="compare-modal-title" id="compare-modal-title">Compare Listings</h2>
+                <p class="compare-modal-subtitle">Review rent, location, dates, room details, and amenities side by side.</p>
+            </div>
+            <button class="compare-modal-close" type="button" aria-label="Close comparison" data-compare-modal-close>&times;</button>
+        </div>
+        <div class="comparison-table-wrap" data-comparison-table></div>
+    </div>
+</div>
+
+<script>
+    (() => {
+        const storageKey = "nuSublets.compareListings";
+        const maxListings = 3;
+        const limitMessage = "You can compare up to 3 listings at a time.";
+        const rows = [
+            ["Rent", "rentLabel"],
+            ["Location/address", "location"],
+            ["Distance to campus", "distanceToCampus"],
+            ["Available start date", "availableFrom"],
+            ["Available end date", "availableUntil"],
+            ["Room type", "roomType"],
+            ["Furnished/unfurnished", "furnished"],
+            ["Utilities included", "utilitiesIncluded"],
+            ["Amenities", "amenities"],
+            ["Pet-friendly", "petFriendly"],
+            ["Parking", "parking"],
+            ["Laundry", "laundry"]
+        ];
+
+        const escapeHtml = (value) => String(value || "").replace(/[&<>"']/g, (character) => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[character]);
+
+        const normalizeListing = (listing) => ({
+            id: String(listing?.id || ""),
+            href: listing?.href || "#",
+            title: listing?.title || "Sublet listing",
+            titleOrAddress: listing?.titleOrAddress || listing?.title || listing?.address || "Sublet listing",
+            address: listing?.address || "Not listed",
+            thumbnailUrl: listing?.thumbnailUrl || "",
+            thumbnailAlt: listing?.thumbnailAlt || "Sublet listing",
+            rent: listing?.rent || "N/A",
+            rentLabel: listing?.rentLabel || listing?.rent || "N/A",
+            location: listing?.location || listing?.address || "Not listed",
+            distanceToCampus: listing?.distanceToCampus || "N/A",
+            availableFrom: listing?.availableFrom || "N/A",
+            availableUntil: listing?.availableUntil || "N/A",
+            roomType: listing?.roomType || "N/A",
+            furnished: listing?.furnished || "N/A",
+            utilitiesIncluded: listing?.utilitiesIncluded || "N/A",
+            amenities: Array.isArray(listing?.amenities) && listing.amenities.length > 0 ? listing.amenities : ["Not listed"],
+            petFriendly: listing?.petFriendly || "N/A",
+            parking: listing?.parking || "N/A",
+            laundry: listing?.laundry || "N/A"
+        });
+
+        const uniqueListings = (listings) => {
+            const seen = new Set();
+            return listings.map(normalizeListing).filter((listing) => {
+                if (!listing.id || seen.has(listing.id)) {
+                    return false;
+                }
+
+                seen.add(listing.id);
+                return true;
+            }).slice(0, maxListings);
+        };
+
+        const readComparedListings = () => {
+            try {
+                const listings = JSON.parse(localStorage.getItem(storageKey));
+                return uniqueListings(Array.isArray(listings) ? listings : []);
+            } catch (_error) {
+                return [];
+            }
+        };
+
+        const writeComparedListings = (listings) => {
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(uniqueListings(listings)));
+            } catch (_error) {
+                return;
+            }
+        };
+
+        let comparedListings = readComparedListings();
+        let messageTimer = null;
+
+        const selectedIds = () => new Set(comparedListings.map((listing) => listing.id));
+
+        const parseCardListing = (card) => {
+            try {
+                const listing = normalizeListing(JSON.parse(card.dataset.compareListing || "{}"));
+                return listing.id ? listing : null;
+            } catch (_error) {
+                return null;
+            }
+        };
+
+        const showMessage = (message) => {
+            const messageElement = document.querySelector("[data-compare-message]");
+            if (!messageElement) return;
+
+            messageElement.textContent = message;
+            messageElement.hidden = false;
+            window.clearTimeout(messageTimer);
+            messageTimer = window.setTimeout(() => {
+                messageElement.hidden = true;
+            }, 3600);
+        };
+
+        const explicitCompareButtonsFor = (container) => Array.from(container.querySelectorAll("[data-compare-trigger]"));
+
+        const updateCompareButton = (button, selected, listing) => {
+            const defaultLabel = button.dataset.compareDefaultLabel || "Compare";
+            const selectedLabel = button.dataset.compareSelectedLabel || "Selected";
+
+            button.classList.toggle("is-selected", selected);
+            button.setAttribute("aria-pressed", selected ? "true" : "false");
+            button.setAttribute("aria-label", selected ? `Remove ${listing.titleOrAddress} from comparison` : `Compare ${listing.titleOrAddress}`);
+            button.textContent = selected ? selectedLabel : defaultLabel;
+        };
+
+        const updateCardButtons = () => {
+            const ids = selectedIds();
+
+            document.querySelectorAll("[data-compare-listing]").forEach((card) => {
+                const listing = parseCardListing(card);
+                const explicitButtons = explicitCompareButtonsFor(card);
+                const buttons = explicitButtons.length > 0 ? explicitButtons : Array.from(card.querySelectorAll(".compare-card-button"));
+
+                if (!listing || buttons.length === 0) return;
+
+                const selected = ids.has(listing.id);
+                buttons.forEach((button) => updateCompareButton(button, selected, listing));
+            });
+        };
+
+        const removeListing = (listingId) => {
+            comparedListings = comparedListings.filter((listing) => listing.id !== String(listingId));
+            writeComparedListings(comparedListings);
+            renderAll();
+        };
+
+        const clearListings = () => {
+            comparedListings = [];
+            writeComparedListings(comparedListings);
+            renderAll();
+            closeModal();
+        };
+
+        const renderTray = () => {
+            const tray = document.querySelector("[data-compare-tray]");
+            const itemsContainer = document.querySelector("[data-compare-tray-items]");
+            const count = document.querySelector("[data-compare-count]");
+            const openButton = document.querySelector("[data-compare-open]");
+
+            if (!tray || !itemsContainer || !count || !openButton) return;
+
+            tray.hidden = comparedListings.length === 0;
+            count.textContent = `${comparedListings.length} of ${maxListings} selected`;
+            openButton.disabled = comparedListings.length === 0;
+
+            itemsContainer.innerHTML = comparedListings.map((listing) => `
+                <article class="compare-tray-item">
+                    ${listing.thumbnailUrl ? `<img class="compare-tray-thumb" src="${escapeHtml(listing.thumbnailUrl)}" alt="${escapeHtml(listing.thumbnailAlt)}" />` : `<div class="compare-tray-thumb" aria-hidden="true"></div>`}
+                    <div>
+                        <p class="compare-tray-name">${escapeHtml(listing.titleOrAddress)}</p>
+                        <p class="compare-tray-rent">${escapeHtml(listing.rentLabel)}</p>
+                    </div>
+                    <button class="compare-remove-button" type="button" aria-label="Remove ${escapeHtml(listing.titleOrAddress)}" data-compare-remove="${escapeHtml(listing.id)}">&times;</button>
+                </article>
+            `).join("");
+
+            itemsContainer.querySelectorAll("[data-compare-remove]").forEach((button) => {
+                button.addEventListener("click", () => removeListing(button.dataset.compareRemove));
+            });
+        };
+
+        const renderTableValue = (listing, key) => {
+            if (key === "amenities") {
+                return `<div class="comparison-tags">${listing.amenities.map((amenity) => `<span class="comparison-tag">${escapeHtml(amenity)}</span>`).join("")}</div>`;
+            }
+
+            return escapeHtml(listing[key] || "N/A");
+        };
+
+        const renderComparison = () => {
+            const tableContainer = document.querySelector("[data-comparison-table]");
+            if (!tableContainer) return;
+
+            if (comparedListings.length === 0) {
+                tableContainer.innerHTML = `<p>No listings selected.</p>`;
+                return;
+            }
+
+            tableContainer.innerHTML = `
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Attribute</th>
+                            ${comparedListings.map((listing) => `
+                                <th scope="col">
+                                    <div class="comparison-listing-heading">
+                                        ${listing.thumbnailUrl ? `<img class="comparison-listing-thumb" src="${escapeHtml(listing.thumbnailUrl)}" alt="${escapeHtml(listing.thumbnailAlt)}" />` : ""}
+                                        <a class="comparison-listing-title" href="${escapeHtml(listing.href)}">${escapeHtml(listing.titleOrAddress)}</a>
+                                        <span class="comparison-listing-rent">${escapeHtml(listing.rentLabel)}</span>
+                                        <button class="comparison-remove-link" type="button" data-compare-remove="${escapeHtml(listing.id)}">Remove</button>
+                                    </div>
+                                </th>
+                            `).join("")}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows.map(([label, key]) => `
+                            <tr>
+                                <td>${escapeHtml(label)}</td>
+                                ${comparedListings.map((listing) => `<td>${renderTableValue(listing, key)}</td>`).join("")}
+                            </tr>
+                        `).join("")}
+                    </tbody>
+                </table>
+            `;
+
+            tableContainer.querySelectorAll("[data-compare-remove]").forEach((button) => {
+                button.addEventListener("click", () => removeListing(button.dataset.compareRemove));
+            });
+        };
+
+        const openModal = () => {
+            const modal = document.querySelector("[data-compare-modal]");
+            if (!modal) return;
+
+            renderComparison();
+            modal.hidden = false;
+            modal.setAttribute("aria-hidden", "false");
+            document.body.classList.add("compare-modal-open");
+            modal.querySelector("[data-compare-modal-close]")?.focus();
+        };
+
+        function closeModal() {
+            const modal = document.querySelector("[data-compare-modal]");
+            if (!modal) return;
+
+            modal.hidden = true;
+            modal.setAttribute("aria-hidden", "true");
+            document.body.classList.remove("compare-modal-open");
+        }
+
+        const toggleListing = (listing) => {
+            const existing = comparedListings.some((selected) => selected.id === listing.id);
+
+            if (existing) {
+                removeListing(listing.id);
+                return;
+            }
+
+            if (comparedListings.length >= maxListings) {
+                showMessage(limitMessage);
+                return;
+            }
+
+            comparedListings = uniqueListings([...comparedListings, listing]);
+            writeComparedListings(comparedListings);
+            renderAll();
+        };
+
+        const bindCardButtons = () => {
+            document.querySelectorAll("[data-compare-listing]").forEach((card) => {
+                const listing = parseCardListing(card);
+
+                if (!listing) return;
+
+                const explicitButtons = explicitCompareButtonsFor(card);
+                if (explicitButtons.length > 0) {
+                    explicitButtons.forEach((button) => bindCompareButton(button, listing));
+                    return;
+                }
+
+                const media = card.querySelector(".listing-media");
+                if (!media) return;
+
+                let button = media.querySelector(".compare-card-button");
+                if (!button) {
+                    button = document.createElement("span");
+                    button.className = "compare-card-button";
+                    button.setAttribute("role", "button");
+                    button.setAttribute("tabindex", "0");
+                    media.appendChild(button);
+                }
+
+                bindCompareButton(button, listing);
+            });
+        };
+
+        const bindCompareButton = (button, listing) => {
+            if (button.dataset.compareBound === "true") return;
+
+            button.dataset.compareBound = "true";
+
+            const activate = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                toggleListing(listing);
+            };
+
+            button.addEventListener("click", activate);
+            button.addEventListener("keydown", (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                    activate(event);
+                }
+            });
+        };
+
+        function renderAll() {
+            comparedListings = uniqueListings(comparedListings);
+            renderTray();
+            renderComparison();
+            updateCardButtons();
+        }
+
+        const initializeCompareListings = () => {
+            bindCardButtons();
+            renderAll();
+
+            document.querySelector("[data-compare-open]")?.addEventListener("click", openModal);
+            document.querySelector("[data-compare-clear]")?.addEventListener("click", clearListings);
+            document.querySelectorAll("[data-compare-modal-close]").forEach((button) => {
+                button.addEventListener("click", closeModal);
+            });
+
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape") {
+                    closeModal();
+                }
+            });
+        };
+
+        window.addEventListener("storage", (event) => {
+            if (event.key !== storageKey) return;
+
+            comparedListings = readComparedListings();
+            renderAll();
+        });
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", initializeCompareListings, { once: true });
+        } else {
+            initializeCompareListings();
+        }
+    })();
+</script>

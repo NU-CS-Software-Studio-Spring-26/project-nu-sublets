@@ -83,7 +83,57 @@ module ApplicationHelper
     end
   end
 
+  def listing_compare_data_attributes(listing)
+    tag.attributes(data: { compare_listing: listing_compare_payload(listing).to_json })
+  end
+
   private
+
+  def listing_compare_payload(listing)
+    amenities = listing.displayed_amenities
+    persisted_listing = listing.persisted?
+
+    {
+      id: persisted_listing ? listing.id.to_s : fallback_compare_listing_id(listing),
+      href: persisted_listing ? sublet_listing_path(listing) : listing_path,
+      title: listing.title.presence || listing.short_address.presence || "Sublet listing",
+      titleOrAddress: listing.title.presence || listing.address.presence || "Sublet listing",
+      address: listing.address.presence || "Not listed",
+      thumbnailUrl: apartment_listing_image_path(listing),
+      thumbnailAlt: listing.title.presence || "Sublet listing",
+      rent: number_to_currency(listing.price, precision: 0),
+      rentLabel: "#{number_to_currency(listing.price, precision: 0)}/month",
+      location: listing.address.presence || "Not listed",
+      distanceToCampus: "N/A",
+      availableFrom: listing.available_from&.strftime("%b %-d, %Y") || "N/A",
+      availableUntil: listing.available_until&.strftime("%b %-d, %Y") || "N/A",
+      roomType: listing_room_type(listing),
+      furnished: listing.furnished? ? "Furnished" : "Unfurnished",
+      utilitiesIncluded: listing.utilities_included? ? "Included" : "Not included",
+      amenities: amenities.presence || [ "Not listed" ],
+      petFriendly: listing.pets_allowed? ? "Yes" : "No",
+      parking: amenities.include?("Parking") ? "Listed" : "Not listed",
+      laundry: amenities.any? { |amenity| amenity.match?(/laundry/i) } ? "Listed" : "Not listed"
+    }
+  end
+
+  def listing_room_type(listing)
+    return "Studio" if listing.bedrooms.to_i.zero?
+
+    pluralize(listing.bedrooms, "bedroom")
+  end
+
+  def fallback_compare_listing_id(listing)
+    digest_input = [
+      listing.title,
+      listing.address,
+      listing.price,
+      listing.available_from,
+      listing.available_until
+    ].join("|")
+
+    "preview-#{Digest::MD5.hexdigest(digest_input)[0, 12]}"
+  end
 
   def placeholder_profile_photo_url?(url)
     PLACEHOLDER_PROFILE_PHOTO_URLS.include?(url)

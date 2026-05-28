@@ -243,10 +243,23 @@
                 font-family: "Rubik", sans-serif;
             }
 
+            .listing-action-group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                justify-content: flex-end;
+            }
+
             .report-listing-button:hover,
             .report-listing-button:focus-visible {
                 border-color: var(--nu-accent);
                 color: var(--nu-accent);
+            }
+
+            .listing-compare-button.is-selected {
+                border-color: var(--nu-accent);
+                background: var(--nu-accent);
+                color: #fff;
             }
 
             .report-listing-button:disabled {
@@ -926,21 +939,32 @@
                                     <p class="listing-address"><%= @listing.address %></p>
                                 </div>
 
-                                <% if @listing.persisted? %>
-                                    <% if user_signed_in? %>
-                                        <button class="btn btn-outline-secondary report-listing-button" type="button" data-report-modal-trigger aria-haspopup="dialog">
+                                <div class="listing-action-group" <%= listing_compare_data_attributes(@listing) %>>
+                                    <button
+                                        class="btn btn-outline-secondary report-listing-button listing-compare-button"
+                                        type="button"
+                                        data-compare-trigger
+                                        data-compare-default-label="Compare listing"
+                                        data-compare-selected-label="Selected for comparison"
+                                    >
+                                        Compare listing
+                                    </button>
+                                    <% if @listing.persisted? %>
+                                        <% if user_signed_in? %>
+                                            <button class="btn btn-outline-secondary report-listing-button" type="button" data-report-modal-trigger aria-haspopup="dialog">
+                                                Report listing
+                                            </button>
+                                        <% else %>
+                                            <a class="btn btn-outline-secondary report-listing-button" href="#" data-login-trigger>
+                                                Report listing
+                                            </a>
+                                        <% end %>
+                                    <% else %>
+                                        <button class="btn btn-outline-secondary report-listing-button" type="button" disabled title="Reports are available for posted listings.">
                                             Report listing
                                         </button>
-                                    <% else %>
-                                        <a class="btn btn-outline-secondary report-listing-button" href="#" data-login-trigger>
-                                            Report listing
-                                        </a>
                                     <% end %>
-                                <% else %>
-                                    <button class="btn btn-outline-secondary report-listing-button" type="button" disabled title="Reports are available for posted listings.">
-                                        Report listing
-                                    </button>
-                                <% end %>
+                                </div>
                             </div>
                             <% if host_profile_path %>
                                 <a class="host-row" href="<%= host_profile_path %>" aria-label="View <%= host_name %>'s profile">
@@ -1278,6 +1302,7 @@
             })();
         </script>
         <%= render "login_modal" %>
+        <%= render "compare_listings" %>
         <%= render "shared/skeleton_loaders" %>
     <%= render "shared/service_worker_registration" %>
 
