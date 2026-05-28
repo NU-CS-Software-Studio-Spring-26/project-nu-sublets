@@ -86,6 +86,12 @@ class PagesController < ApplicationController
       return
     end
 
+    if current_user.email_changed?
+      @profile_errors = [ "Email changes require signing in with your Northwestern Google account." ]
+      render :profile, status: :unprocessable_entity
+      return
+    end
+
     if current_user.save
       sync_name_parts
       redirect_to profile_path(tab: "settings", saved: "1")

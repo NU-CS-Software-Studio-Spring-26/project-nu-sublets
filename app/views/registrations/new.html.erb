@@ -91,85 +91,10 @@
                 margin: 0 0 24px;
             }
 
-            .auth-form,
-            .auth-field {
-                display: grid;
-            }
-
-            .auth-form {
-                gap: 16px;
-            }
-
-            .auth-field {
-                gap: 7px;
-            }
-
-            .auth-label {
-                font-family: "Rubik", sans-serif;
-                font-size: 14px;
-                font-weight: 600;
-            }
-
-            .auth-input {
-                width: 100%;
-                min-height: 46px;
-                border: 1px solid #d9d9d9;
-                border-radius: 6px;
-                padding: 8px 12px;
-                font: inherit;
-            }
-
-            .password-input-wrap {
-                position: relative;
-                width: 100%;
-            }
-
-            .password-input-wrap .auth-input {
-                padding-right: 48px;
-            }
-
-            .password-visibility-toggle {
-                position: absolute;
-                top: 50%;
-                right: 10px;
+            .auth-button {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                width: 32px;
-                height: 32px;
-                border: 0;
-                border-radius: 4px;
-                background: transparent;
-                color: #5b5b5b;
-                transform: translateY(-50%);
-                cursor: pointer;
-            }
-
-            .password-visibility-toggle:hover,
-            .password-visibility-toggle:focus-visible {
-                color: #4E2A84;
-                outline: 3px solid rgba(78, 42, 132, 0.26);
-            }
-
-            .password-visibility-toggle svg {
-                width: 20px;
-                height: 20px;
-                display: block;
-            }
-
-            .password-visibility-toggle .eye-off-icon {
-                display: none;
-            }
-
-            .password-visibility-toggle[aria-pressed="true"] .eye-icon {
-                display: none;
-            }
-
-            .password-visibility-toggle[aria-pressed="true"] .eye-off-icon {
-                display: block;
-            }
-
-            .auth-button {
                 width: 100%;
                 min-height: 48px;
                 border: 0;
@@ -179,16 +104,25 @@
                 font-family: "Rubik", sans-serif;
                 font-size: 16px;
                 font-weight: 600;
+                text-decoration: none;
             }
 
             .auth-alert {
                 margin: 0 0 16px;
                 border-radius: 6px;
                 padding: 10px 12px;
-                background: #fff3f3;
-                color: #9f1d1d;
                 font-family: "Rubik", sans-serif;
                 font-size: 14px;
+            }
+
+            .auth-alert.alert {
+                background: #fff3f3;
+                color: #9f1d1d;
+            }
+
+            .auth-alert.notice {
+                background: #ecfdf3;
+                color: #166534;
             }
 
             .auth-switch {
@@ -225,41 +159,17 @@
             <main class="auth-main">
                 <section class="auth-card" aria-labelledby="signup-title">
                     <h1 class="auth-title" id="signup-title">Create your account</h1>
-                    <p class="auth-copy">Use your Northwestern email and a password of at least 8 characters.</p>
+                    <p class="auth-copy">Use Google sign-in with your Northwestern account. This verifies that you control the school email before your account is created.</p>
 
-                    <% if flash[:alert].present? %>
-                        <p class="auth-alert" role="alert"><%= flash[:alert] %></p>
+                    <% flash.each do |type, message| %>
+                        <p class="auth-alert <%= type %>" role="alert"><%= message %></p>
                     <% end %>
 
-                    <%= form_with model: @user, url: signup_path, method: :post, local: true, class: "auth-form" do |form| %>
-                        <div class="auth-field">
-                            <%= form.label :name, "Name", class: "auth-label" %>
-                            <%= form.text_field :name, class: "auth-input", autocomplete: "name", required: true %>
-                        </div>
-
-                        <div class="auth-field">
-                            <%= form.label :email, "Northwestern email", class: "auth-label" %>
-                            <%= form.email_field :email, class: "auth-input", autocomplete: "email", required: true %>
-                        </div>
-
-                        <div class="auth-field">
-                            <%= form.label :password, "Password", class: "auth-label" %>
-                            <div class="password-input-wrap">
-                                <%= form.password_field :password, class: "auth-input", autocomplete: "new-password", required: true, data: { password_toggle_input: true } %>
-                                <%= render "shared/password_visibility_toggle" %>
-                            </div>
-                        </div>
-
-                        <div class="auth-field">
-                            <%= form.label :password_confirmation, "Password confirmation", class: "auth-label" %>
-                            <div class="password-input-wrap">
-                                <%= form.password_field :password_confirmation, class: "auth-input", autocomplete: "new-password", required: true, data: { password_toggle_input: true } %>
-                                <%= render "shared/password_visibility_toggle" %>
-                            </div>
-                        </div>
-
-                        <%= form.submit "Sign up", class: "auth-button" %>
-                    <% end %>
+                    <%= button_to "Sign up with Google",
+                                  google_oauth_configured? ? "/auth/google_oauth2" : google_oauth_path,
+                                  method: :post,
+                                  class: "auth-button",
+                                  data: { turbo: false } %>
 
                     <p class="auth-switch">
                         Already have an account?
@@ -270,24 +180,6 @@
 
             <%= render "shared/footer" %>
         </div>
-        <script>
-            (() => {
-                document.querySelectorAll("[data-password-toggle]").forEach((toggle) => {
-                    const input = toggle.closest(".password-input-wrap")?.querySelector("[data-password-toggle-input]");
-
-                    toggle.addEventListener("click", () => {
-                        if (!input) {
-                            return;
-                        }
-
-                        const isPassword = input.type === "password";
-                        input.type = isPassword ? "text" : "password";
-                        toggle.setAttribute("aria-pressed", String(isPassword));
-                        toggle.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
-                    });
-                });
-            })();
-        </script>
     <%= render "shared/service_worker_registration" %>
 
     </body>

@@ -17,8 +17,8 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     OmniAuth.config.test_mode = false
   end
 
-  test "successful local signup with a Northwestern email" do
-    assert_difference("User.count", 1) do
+  test "local password signup is disabled even with a Northwestern email" do
+    assert_no_difference("User.count") do
       post signup_path, params: {
         user: {
           name: "Local Student",
@@ -29,10 +29,18 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
       }
     end
 
-    user = User.find_by!(email: "local.student@u.northwestern.edu")
-    assert_not_nil user.password_digest
-    assert_not_equal "password123", user.password_digest
-    assert_redirected_to profile_path
+    assert_redirected_to login_path
+    follow_redirect!
+    assert_includes response.body, "Use Google sign-in with your Northwestern account to create an account."
+  end
+
+  test "unconfirmed local login is blocked" do
+    user = create_password_user(email: "unconfirmed.student@u.northwestern.edu", password: "password123", confirmed: false)
+
+    post session_path, params: { email: user.email, password: "password123" }
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, "Use Google sign-in with your Northwestern account to verify before logging in."
   end
 
   test "login page shows Google sign in without setup warning" do
@@ -46,6 +54,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     end
 
     assert_select "form[action='#{google_action}'] button", text: "Sign in with Google"
+    assert_select "form[action='#{session_path}']", count: 0
     assert_no_match "Google sign-in is not configured yet", response.body
   end
 
@@ -57,7 +66,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Google sign-in is unavailable until OAuth credentials are configured."
   end
 
-  test "rejects local signup with a non Northwestern email" do
+  test "local password signup is disabled with a non Northwestern email" do
     assert_no_difference("User.count") do
       post signup_path, params: {
         user: {
@@ -69,8 +78,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_response :unprocessable_entity
-    assert_includes response.body, "Email must be a Northwestern email"
+    assert_redirected_to login_path
   end
 
   test "successful local login" do
@@ -117,6 +125,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     user = User.find_by!(email: "google.student@u.northwestern.edu")
     assert_equal "google_oauth2", user.provider
     assert_equal "google-123", user.uid
+    assert user.confirmed?
     assert_redirected_to profile_path
   end
 
@@ -145,6 +154,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     existing_user.reload
     assert_equal "google_oauth2", existing_user.provider
     assert_equal "google-456", existing_user.uid
+    assert existing_user.confirmed?
     assert_redirected_to profile_path
   end
 
@@ -181,12 +191,13 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
 
   private
 
-  def create_password_user(email:, password: "password123")
+  def create_password_user(email:, password: "password123", confirmed: true)
     User.create!(
       name: "Test Student",
       email: email,
       password: password,
       password_confirmation: password,
+      confirmed_at: (Time.current if confirmed),
       active: true
     )
   end
