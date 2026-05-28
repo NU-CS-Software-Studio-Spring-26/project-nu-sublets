@@ -512,6 +512,105 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "input[name='preferences[]'][value='Graduate student'][checked]"
   end
 
+  test "search results page includes pdf export link preserving filters" do
+    get search_results_path(
+      "move-in": "06/12/2026",
+      "move-out": "09/11/2026",
+      max_price: "1200",
+      amenities: [ "Laundry" ],
+      sort: "price_desc"
+    )
+
+    assert_select "a.export-pdf-link[href*='format=pdf']", text: "Export PDF"
+    assert_select "a.export-pdf-link[href*='max_price=1200']"
+    assert_select "a.export-pdf-link[href*='amenities%5B%5D=Laundry']"
+    assert_select "a.export-pdf-link[href*='sort=price_desc']"
+  end
+
+  test "search results pdf route returns pdf content" do
+    user = User.create!(
+      name: "PDF Owner",
+      email: "pdf.owner@u.northwestern.edu",
+      active: true
+    )
+    user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "PDF Route Match",
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 8, 31)
+      )
+    )
+
+    get search_results_path(format: :pdf, "move-in": "06/12/2026", "move-out": "08/01/2026")
+
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+    assert response.body.start_with?("%PDF")
+  end
+
+  test "search results pdf export respects filtered and available listings" do
+    user = User.create!(
+      name: "PDF Filter Owner",
+      email: "pdf.filter.owner@u.northwestern.edu",
+      active: true
+    )
+    matching_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "PDF Filter Match",
+        price: 950,
+        amenities: [ "Laundry", "Gym" ],
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 8, 31)
+      )
+    )
+    user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "PDF Missing Gym",
+        price: 950,
+        amenities: [ "Laundry" ],
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 8, 31)
+      )
+    )
+    user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "PDF Outside Requested Dates",
+        price: 950,
+        amenities: [ "Laundry", "Gym" ],
+        available_from: Date.new(2026, 9, 1),
+        available_until: Date.new(2026, 12, 31)
+      )
+    )
+
+    captured_listings = nil
+    fake_pdf = Class.new do
+      def render
+        "%PDF-1.4\n"
+      end
+    end
+
+    original_new = SearchResultsPdf.method(:new)
+    SearchResultsPdf.define_singleton_method(:new) do |listings:, **|
+      captured_listings = listings
+      fake_pdf.new
+    end
+
+    begin
+      get search_results_path(
+        format: :pdf,
+        "move-in": "06/12/2026",
+        "move-out": "08/01/2026",
+        amenities: [ "Laundry", "Gym" ],
+        max_price: "1200"
+      )
+    ensure
+      SearchResultsPdf.define_singleton_method(:new) { |*args, **kwargs| original_new.call(*args, **kwargs) }
+    end
+
+    assert_response :success
+    assert_equal [ matching_listing.id ], captured_listings.map(&:id)
+  end
+
   test "natural language search filters listings through existing search behavior" do
     user = User.create!(
       name: "Natural Search Owner",
