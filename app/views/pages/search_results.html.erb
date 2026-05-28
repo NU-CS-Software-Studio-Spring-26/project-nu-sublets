@@ -1323,7 +1323,7 @@
                                 <% if @listings.any? %>
                                   <% @listings.each do |listing| %>
                                       <% listing_host = listing.user %>
-                                      <article class="listing-card">
+                                      <article class="listing-card" <%= listing_compare_data_attributes(listing) %>>
                                           <div class="listing-media">
                                               <a class="listing-card-link listing-media-link" href="<%= sublet_listing_path(listing) %>">
                                                   <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title %>" />
@@ -1444,6 +1444,7 @@
         ></script>
         <%= render "login_modal" %>
         <%= render "favorite_listings" %>
+        <%= render "compare_listings" %>
         <script>
             (() => {
                 const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" });

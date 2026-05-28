@@ -399,6 +399,40 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet/
   end
 
+  test "browse and search pages expose compare listing data and tray" do
+    user = User.create!(
+      name: "Compare Owner",
+      email: "compare.owner@u.northwestern.edu",
+      active: true
+    )
+    listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Compare Ready Listing",
+        pets_allowed: true,
+        utilities_included: true,
+        amenities: [ "Laundry", "Parking" ],
+        available_from: Date.new(2026, 6, 12),
+        available_until: Date.new(2026, 9, 11)
+      )
+    )
+
+    get root_path
+
+    assert_response :success
+    assert_select "[data-compare-tray]"
+    assert_select "[data-compare-modal]"
+    assert_select "a[href='#{sublet_listing_path(listing)}'][data-compare-listing]"
+    assert_includes response.body, "nuSublets.compareListings"
+    assert_includes response.body, "You can compare up to 3 listings at a time."
+    assert_includes response.body, "Utilities included"
+
+    get search_results_path
+
+    assert_response :success
+    assert_select "article.listing-card[data-compare-listing]"
+    assert_select "a[href='#{sublet_listing_path(listing)}']", text: /Compare Ready Listing/
+  end
+
   test "saved page renders the saved listings shell" do
     get saved_path
 
@@ -682,6 +716,19 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{search_results_path}']", text: /Back to search results/
     assert_select "a[href='#{user_profile_path(user)}']", text: /Detail Owner/
     assert_select "a[href='#{user_profile_path(user)}'] img.host-avatar[alt='Detail Owner profile photo'][src='https://example.com/detail-owner.jpg']"
+    assert_select ".listing-action-group[data-compare-listing]"
+    assert_select "button[data-compare-trigger]", text: "Compare listing"
+    assert_select "[data-compare-tray]"
+    assert_select "[data-compare-modal]"
+  end
+
+  test "listing fallback page has a clickable compare button" do
+    get listing_path
+
+    assert_response :success
+    assert_select ".listing-action-group[data-compare-listing]"
+    assert_select "button[data-compare-trigger]", text: "Compare listing"
+    assert_select "button[data-compare-trigger][disabled]", count: 0
   end
 
   test "listing page displays public questions and host answers" do
