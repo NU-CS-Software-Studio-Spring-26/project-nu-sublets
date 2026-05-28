@@ -50,4 +50,9 @@ class UserTest < ActiveSupport::TestCase
 
     assert_equal "Jane Doe", user.full_name
   end
+
+  test "confirmed reflects confirmed_at presence" do
+    assert User.new(confirmed_at: Time.current).confirmed?
+    assert_not User.new.confirmed?
+  end
 end

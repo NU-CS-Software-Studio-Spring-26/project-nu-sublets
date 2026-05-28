@@ -21,28 +21,25 @@
                 --nu-muted-border: rgba(255, 255, 255, 0.28);
                 --nu-card-bg: rgba(58, 58, 58, 0.25);
                 --nu-button: #4E2A84;
-                --nu-button-soft: rgba(78, 42, 132, 0.4);
-                --nu-shadow: 3.682px 3.682px 3.682px rgba(166, 166, 166, 0.25);
-            }
-
-            * {
-                box-sizing: border-box;
-            }
-
-            body {
-                margin: 0;
-                background: var(--nu-white);
-                color: var(--nu-text);
-                font-family: "Fustat", sans-serif;
-            }
-
-            img {
-                display: block;
-                max-width: 100%;
-            }
-
-            .page-shell {
-                min-height: 100vh;
+                .listing-card {
+                    flex-basis: min(340px, calc(100vw - 52px));
+                }
+                .recommendation-filter-form {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+                .cta-shell {
+                    grid-template-columns: 1fr;
+                    height: auto;
+                    overflow: hidden;
+                }
+                .cta-image {
+                    height: auto;
+                    min-height: 240px;
+                    border-radius: 0 0 16px 16px;
+                }
+                .cta-copy {
+                    padding: 16px;
+                }
             }
 
             .topbar {
@@ -50,28 +47,27 @@
                 border-bottom: 1px solid #d9d9d9;
                 font-family: "Rubik", sans-serif;
                 padding: 0 24px;
-                min-height: 60px;
-                display: flex;
-                align-items: center;
-                position: sticky;
-                top: 0;
-                z-index: 1000;
-            }
+                }
 
-            .topbar-inner {
-                max-width: 1200px;
-                width: 100%;
-                margin: 0 auto;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
+                .recommendation-filter-form {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
 
-            .brand,
-            .nav-link {
-                color: var(--nu-text);
-                font-size: 16px;
-                line-height: 1.2;
+                .cta-shell {
+                    grid-template-columns: 1fr;
+                    height: auto;
+                    overflow: hidden;
+                }
+
+                .cta-image {
+                    height: auto;
+                    min-height: 240px;
+                    border-radius: 0 0 16px 16px;
+                }
+
+                .cta-copy {
+                    padding: 16px;
+                }
                 text-decoration: none;
             }
 
@@ -320,26 +316,25 @@
             }
 
             .search-button,
-            .cta-button {
-                border: 0;
-                color: var(--nu-white);
-                font-family: "Rubik", sans-serif;
-                transition: transform 0.2s ease, opacity 0.2s ease;
-            }
+                .recommendation-filter-form {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
 
-            .search-button {
-                width: 100%;
-                border-radius: 12px;
-                padding: 14px 18px;
-                font-size: 16px;
-                line-height: 1.1;
-                background: var(--nu-button);
-            }
+                .cta-shell {
+                    grid-template-columns: 1fr;
+                    height: auto;
+                    overflow: hidden;
+                }
 
-            .cta-button {
-                border-radius: 8px;
-                padding: 5px 8px;
-                font-size: 15px;
+                .cta-image {
+                    height: auto;
+                    min-height: 240px;
+                    border-radius: 0 0 16px 16px;
+                }
+
+                .cta-copy {
+                    padding: 16px;
+                }
                 font-weight: 600;
                 line-height: 1.1;
                 background: var(--nu-button);
@@ -363,6 +358,120 @@
                 font-size: 24px;
                 font-weight: 600;
                 line-height: 1.15;
+            }
+
+            .recommendation-filter-form {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(130px, 1fr)) auto auto;
+                gap: 10px;
+                align-items: end;
+                margin: 0 0 16px;
+                padding: 12px;
+                border: 1px solid rgba(78, 42, 132, 0.12);
+                border-radius: 8px;
+                background: var(--nu-white);
+                box-shadow: var(--nu-shadow);
+            }
+
+            .recommendation-filter-field {
+                display: grid;
+                gap: 5px;
+                min-width: 0;
+            }
+
+            .recommendation-filter-label {
+                font-family: "Rubik", sans-serif;
+                font-size: 11px;
+                font-weight: 700;
+                line-height: 1.1;
+                color: var(--nu-muted);
+                text-transform: uppercase;
+            }
+
+            .recommendation-filter-input,
+            .recommendation-filter-select {
+                min-height: 38px;
+                width: 100%;
+                border: 1px solid rgba(0, 0, 0, 0.16);
+                border-radius: 8px;
+                padding: 8px 10px;
+                background: var(--nu-white);
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                line-height: 1.2;
+            }
+
+            .recommendation-amenities {
+                grid-column: 1 / -1;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin: 0;
+                padding: 0;
+                border: 0;
+            }
+
+            .recommendation-amenity {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                min-height: 32px;
+                padding: 6px 9px;
+                border: 1px solid rgba(78, 42, 132, 0.16);
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.9);
+                font-family: "Rubik", sans-serif;
+                font-size: 12px;
+                line-height: 1.1;
+                white-space: nowrap;
+            }
+
+            .recommendation-filter-button,
+            .recommendation-clear-link {
+                min-height: 38px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px;
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                font-weight: 700;
+                line-height: 1.1;
+                text-decoration: none;
+            }
+
+            .recommendation-filter-button {
+                border: 0;
+                padding: 8px 14px;
+                background: var(--nu-button);
+                color: var(--nu-white);
+            }
+
+            .recommendation-clear-link {
+                padding: 8px 10px;
+                color: var(--nu-purple);
+            }
+
+            .recommendation-filter-error,
+            .recommendation-empty {
+                margin: 0 0 14px;
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                line-height: 1.35;
+            }
+
+            .recommendation-filter-error {
+                color: #9f1d20;
+                font-weight: 700;
+            }
+
+            .recommendation-empty {
+                padding: 16px;
+                border: 1px solid rgba(78, 42, 132, 0.12);
+                border-radius: 8px;
+                background: var(--nu-white);
+                color: var(--nu-muted);
             }
 
             .listing-carousel {
@@ -563,37 +672,53 @@
                 }
 
                 .search-card {
-                    max-width: 528px;
-                    margin-top: 0;
-                }
+                    @media (max-width: 991.98px) {
+                        .hero {
+                            padding: 24px 20px 32px;
+                        }
 
-                .listing-card {
-                    flex-basis: min(340px, calc(100vw - 52px));
-                }
+                        .hero-grid {
+                            grid-template-columns: 1fr;
+                        }
 
-                .cta-copy {
-                    padding: 16px;
-                }
-            }
+                        .headline {
+                            margin: 24px 0 0;
+                            max-width: 520px;
+                        }
 
-            @media (max-width: 767.98px) {
-                .topbar {
-                    padding-inline: 16px;
-                }
+                        .hero-browse-button {
+                            margin-left: 0;
+                        }
 
-                .brand,
-                .nav-link {
-                    font-size: 14px;
-                }
+                        .search-card {
+                            max-width: 528px;
+                            margin-top: 0;
+                        }
 
-                .topbar-nav {
-                    gap: 20px;
-                }
+                        .listing-card {
+                            flex-basis: min(340px, calc(100vw - 52px));
+                        }
 
-                .hero,
-                .section-block,
-                .cta-section {
-                    padding-inline: 16px;
+                        .recommendation-filter-form {
+                            grid-template-columns: repeat(2, minmax(0, 1fr));
+                        }
+
+                        .cta-shell {
+                            grid-template-columns: 1fr;
+                            height: auto;
+                            overflow: hidden;
+                        }
+
+                        .cta-image {
+                            height: auto;
+                            min-height: 240px;
+                            border-radius: 0 0 16px 16px;
+                        }
+
+                        .cta-copy {
+                            padding: 16px;
+                        }
+                    }
                 }
 
                 .headline {
@@ -602,6 +727,14 @@
 
                 .listing-card {
                     flex-basis: min(300px, calc(100vw - 40px));
+                }
+
+                .recommendation-filter-form {
+                    grid-template-columns: 1fr;
+                }
+
+                .recommendation-amenities {
+                    grid-column: auto;
                 }
 
                 .listing-media {
@@ -700,6 +833,51 @@
                 <section class="section-block" id="recommendations" aria-labelledby="recommendations-title">
                     <div class="section-inner">
                         <h2 class="section-title" id="recommendations-title">Sublets We Think You&rsquo;d Like</h2>
+                        <form class="recommendation-filter-form" action="<%= root_path(anchor: "recommendations") %>" method="get" aria-label="Filter recommended sublets">
+                            <label class="recommendation-filter-field">
+                                <span class="recommendation-filter-label">Move in</span>
+                                <input class="recommendation-filter-input" type="text" name="recommendation_move_in" value="<%= @recommendation_move_in_value %>" placeholder="MM/DD/YYYY" inputmode="numeric" />
+                            </label>
+                            <label class="recommendation-filter-field">
+                                <span class="recommendation-filter-label">Move out</span>
+                                <input class="recommendation-filter-input" type="text" name="recommendation_move_out" value="<%= @recommendation_move_out_value %>" placeholder="MM/DD/YYYY" inputmode="numeric" />
+                            </label>
+                            <label class="recommendation-filter-field">
+                                <span class="recommendation-filter-label">Bedrooms</span>
+                                <select class="recommendation-filter-select" name="recommendation_bedrooms">
+                                    <option value="">Any bedrooms</option>
+                                    <% (0..5).each do |count| %>
+                                        <option value="<%= count %>" <%= "selected" if @recommendation_bedrooms == count.to_s %>><%= count.zero? ? "Studio" : pluralize(count, "bedroom") %></option>
+                                    <% end %>
+                                </select>
+                            </label>
+                            <label class="recommendation-filter-field">
+                                <span class="recommendation-filter-label">Bathrooms</span>
+                                <select class="recommendation-filter-select" name="recommendation_bathrooms">
+                                    <option value="">Any bathrooms</option>
+                                    <% (0..5).each do |count| %>
+                                        <option value="<%= count %>" <%= "selected" if @recommendation_bathrooms == count.to_s %>><%= pluralize(count, "bathroom") %></option>
+                                    <% end %>
+                                </select>
+                            </label>
+                            <button class="recommendation-filter-button" type="submit">Apply</button>
+                            <a class="recommendation-clear-link" href="<%= root_path(anchor: "recommendations") %>">Clear</a>
+                            <fieldset class="recommendation-amenities">
+                                <legend class="visually-hidden">Amenities</legend>
+                                <% SubletListing::AMENITY_OPTIONS.each do |amenity| %>
+                                    <label class="recommendation-amenity">
+                                        <input type="checkbox" name="recommendation_amenities[]" value="<%= amenity %>" <%= "checked" if @recommendation_amenities.include?(amenity) %> />
+                                        <span><%= amenity %></span>
+                                    </label>
+                                <% end %>
+                            </fieldset>
+                        </form>
+                        <% if @recommendation_filter_error.present? %>
+                            <p class="recommendation-filter-error" data-recommendation-filter-error><%= @recommendation_filter_error %></p>
+                        <% end %>
+                        <% if recommendation_filters_active? && @recommended_listings.empty? && @recommendation_filter_error.blank? %>
+                            <p class="recommendation-empty">No recommended sublets match those filters. Clear filters to see more available listings.</p>
+                        <% end %>
                         <div class="listing-carousel" role="region" aria-labelledby="recommendations-title" aria-roledescription="carousel">
                             <button class="carousel-button prev" type="button" aria-label="Previous recommended sublets" aria-controls="recommendations-track" data-carousel-prev="recommendations-track">&#8249;</button>
                             <div class="listing-track" id="recommendations-track" tabindex="0" aria-label="Recommended sublets" aria-describedby="carousel-keyboard-help" data-carousel-track>
@@ -723,7 +901,7 @@
                                         </div>
                                     </a>
                                 <% end %>
-                            <% else %>
+                            <% elsif !recommendation_filters_active? && @recommendation_filter_error.blank? %>
                             <a class="listing-card" href="<%= listing_path %>" aria-label="820 Noyes Street sublet, $850 per month">
                                 <div class="listing-media">
                                     <img class="listing-main-image" src="<%= apartment_listing_image_path(0) %>" alt="Bedroom listing" />

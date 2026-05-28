@@ -75,6 +75,7 @@ class SubletListing < ApplicationRecord
 
   # Associations
   belongs_to :user
+  has_many :listing_questions, dependent: :destroy
   has_many_attached :photos
 
   serialize :amenities, coder: JSON, type: Array

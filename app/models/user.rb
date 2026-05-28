@@ -19,6 +19,7 @@ class User < ApplicationRecord
 
   # Associations
   has_many :sublet_listings, dependent: :destroy
+  has_many :listing_questions, dependent: :destroy
   has_one_attached :profile_photo
   # has_many :applications, dependent: :destroy
 
@@ -62,6 +63,7 @@ class User < ApplicationRecord
       provider: auth["provider"],
       uid: auth["uid"],
       profile_photo_url: auth.dig("info", "image").presence || user.profile_photo_url,
+      confirmed_at: user.confirmed_at || Time.current,
       active: true
     )
     user.save!
@@ -96,6 +98,10 @@ class User < ApplicationRecord
 
   def display_name
     name.present? ? name : email.split("@").first
+  end
+
+  def confirmed?
+    confirmed_at.present?
   end
 
   def active_listings_count

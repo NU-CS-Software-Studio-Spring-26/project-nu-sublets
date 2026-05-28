@@ -223,6 +223,96 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{sublet_listing_path(listing)}'] img.listing-avatar[alt='Ryan Anderson profile photo'][src='https://example.com/ryan-anderson.jpg']"
   end
 
+  test "home page includes recommendation filter controls" do
+    get root_path
+
+    assert_select "form[action='#{root_path(anchor: "recommendations")}'][method='get'][aria-label='Filter recommended sublets']"
+    assert_select "input[name='recommendation_move_in']"
+    assert_select "input[name='recommendation_move_out']"
+    assert_select "select[name='recommendation_bedrooms']"
+    assert_select "select[name='recommendation_bathrooms']"
+    assert_select "input[name='recommendation_amenities[]'][value='Laundry']"
+  end
+
+  test "home recommendation filters narrow recommended carousel without changing newest carousel" do
+    user = User.create!(
+      name: "Recommendation Owner",
+      email: "recommendation.owner@u.northwestern.edu",
+      active: true
+    )
+    matching_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Filtered Recommendation Match",
+        price: 900,
+        bedrooms: 2,
+        bathrooms: 1,
+        amenities: [ "Laundry", "Gym" ],
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 10, 1)
+      )
+    )
+    missing_bedroom = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Filtered Recommendation Wrong Bedroom",
+        price: 800,
+        bedrooms: 1,
+        bathrooms: 1,
+        amenities: [ "Laundry", "Gym" ],
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 10, 1)
+      )
+    )
+    missing_amenity = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Filtered Recommendation Missing Gym",
+        price: 700,
+        bedrooms: 2,
+        bathrooms: 1,
+        amenities: [ "Laundry" ],
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 10, 1)
+      )
+    )
+    outside_window = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Filtered Recommendation Wrong Window",
+        price: 600,
+        bedrooms: 2,
+        bathrooms: 1,
+        amenities: [ "Laundry", "Gym" ],
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 8, 1)
+      )
+    )
+
+    get root_path(
+      recommendation_move_in: "06/12/2026",
+      recommendation_move_out: "09/11/2026",
+      recommendation_bedrooms: "2",
+      recommendation_bathrooms: "1",
+      recommendation_amenities: [ "Laundry", "Gym" ]
+    )
+
+    assert_select "#recommendations-track a[href='#{sublet_listing_path(matching_listing)}']"
+    assert_select "#recommendations-track a[href='#{sublet_listing_path(missing_bedroom)}']", count: 0
+    assert_select "#recommendations-track a[href='#{sublet_listing_path(missing_amenity)}']", count: 0
+    assert_select "#recommendations-track a[href='#{sublet_listing_path(outside_window)}']", count: 0
+    assert_select "#newest-track a[href='#{sublet_listing_path(missing_bedroom)}']"
+    assert_select "input[name='recommendation_move_in'][value='06/12/2026']"
+    assert_select "select[name='recommendation_bedrooms'] option[value='2'][selected]"
+    assert_select "input[name='recommendation_amenities[]'][value='Gym'][checked]"
+  end
+
+  test "home recommendation filters show inline error for invalid date order" do
+    get root_path(
+      recommendation_move_in: "09/11/2026",
+      recommendation_move_out: "06/12/2026"
+    )
+
+    assert_select "[data-recommendation-filter-error]", text: "Move-out date must be after move-in date."
+    assert_select "#recommendations-track a.listing-card", count: 0
+  end
+
   test "home page shows recently viewed listings after browsing listing pages" do
     user = User.create!(
       name: "Recent Viewer",
@@ -594,11 +684,172 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{user_profile_path(user)}'] img.host-avatar[alt='Detail Owner profile photo'][src='https://example.com/detail-owner.jpg']"
   end
 
+  test "listing page displays public questions and host answers" do
+    host = User.create!(
+      name: "Question Host",
+      email: "question.host@u.northwestern.edu",
+      active: true
+    )
+    renter = User.create!(
+      name: "Question Renter",
+      email: "question.renter@u.northwestern.edu",
+      active: true
+    )
+    listing = host.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Question Board Listing",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    listing.listing_questions.create!(
+      user: renter,
+      body: "Are utilities included?",
+      answer: "Yes, utilities are included.",
+      answered_at: Time.current
+    )
+
+    get sublet_listing_path(listing)
+
+    assert_response :success
+    assert_select "#questions", text: /Questions & Answers/
+    assert_includes response.body, "Are utilities included?"
+    assert_includes response.body, "Yes, utilities are included."
+    assert_includes response.body, "Asked by Question Renter"
+    assert_includes response.body, "Answered by Question Host"
+  end
+
+  test "signed out users cannot post listing questions" do
+    host = User.create!(name: "Question Host", email: "signedout.host@u.northwestern.edu", active: true)
+    listing = host.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Signed Out Question Listing",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    assert_no_difference("ListingQuestion.count") do
+      post sublet_listing_questions_path(listing), params: { listing_question: { body: "Is this available?" } }
+    end
+
+    assert_redirected_to login_path
+  end
+
+  test "logged in non owner can ask a listing question" do
+    host = User.create!(name: "Question Host", email: "ask.host@u.northwestern.edu", active: true)
+    listing = host.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Askable Listing",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    sign_in_with_firebase_email("ask.renter@u.northwestern.edu")
+
+    assert_difference("ListingQuestion.count", 1) do
+      post sublet_listing_questions_path(listing), params: { listing_question: { body: "Is parking available?" } }
+    end
+
+    assert_redirected_to sublet_listing_path(listing, anchor: "questions")
+    assert_equal "Is parking available?", ListingQuestion.order(:created_at).last.body
+  end
+
+  test "listing owner cannot ask a question on their own listing" do
+    host = User.create!(name: "Question Host", email: "owner.ask.host@u.northwestern.edu", active: true)
+    listing = host.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Owner Question Listing",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    sign_in_with_firebase_email(host.email)
+
+    assert_no_difference("ListingQuestion.count") do
+      post sublet_listing_questions_path(listing), params: { listing_question: { body: "Can I ask myself?" } }
+    end
+
+    assert_redirected_to sublet_listing_path(listing)
+  end
+
+  test "listing owner can answer a question but unrelated user cannot" do
+    host = User.create!(name: "Answer Host", email: "answer.host@u.northwestern.edu", active: true)
+    renter = User.create!(name: "Answer Renter", email: "answer.renter@u.northwestern.edu", active: true)
+    listing = host.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Answerable Listing",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    question = listing.listing_questions.create!(user: renter, body: "Is the lease flexible?")
+
+    sign_in_with_firebase_email("unrelated.answer@u.northwestern.edu")
+    patch listing_question_path(question), params: { listing_question: { answer: "Not my listing." } }
+
+    assert_redirected_to sublet_listing_path(listing)
+    assert_nil question.reload.answer
+
+    sign_in_with_firebase_email(host.email)
+    patch listing_question_path(question), params: { listing_question: { answer: "Yes, dates are flexible." } }
+
+    assert_redirected_to sublet_listing_path(listing, anchor: "questions")
+    assert_equal "Yes, dates are flexible.", question.reload.answer
+    assert_not_nil question.answered_at
+  end
+
+  test "question author and listing owner can delete questions" do
+    host = User.create!(name: "Delete Host", email: "delete.host@u.northwestern.edu", active: true)
+    renter = User.create!(name: "Delete Renter", email: "delete.renter@u.northwestern.edu", active: true)
+    listing = host.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Deletable Listing",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    author_question = listing.listing_questions.create!(user: renter, body: "Can I delete this?")
+    host_question = listing.listing_questions.create!(user: renter, body: "Can host delete this?")
+
+    sign_in_with_firebase_email(renter.email)
+    assert_difference("ListingQuestion.count", -1) do
+      delete listing_question_path(author_question)
+    end
+
+    sign_in_with_firebase_email(host.email)
+    assert_difference("ListingQuestion.count", -1) do
+      delete listing_question_path(host_question)
+    end
+  end
+
+  test "unrelated user cannot delete another users listing question" do
+    host = User.create!(name: "Guard Host", email: "guard.host@u.northwestern.edu", active: true)
+    renter = User.create!(name: "Guard Renter", email: "guard.renter@u.northwestern.edu", active: true)
+    listing = host.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Guarded Listing",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    question = listing.listing_questions.create!(user: renter, body: "Can anyone delete this?")
+
+    sign_in_with_firebase_email("unrelated.delete@u.northwestern.edu")
+
+    assert_no_difference("ListingQuestion.count") do
+      delete listing_question_path(question)
+    end
+
+    assert_redirected_to sublet_listing_path(listing)
+  end
+
   test "browse listing avatar links to the listing owner's public profile" do
     user = User.create!(
       name: "Profile Owner",
       email: "profile.owner@u.northwestern.edu",
       profile_photo_url: "https://example.com/profile-owner.jpg",
+      confirmed_at: Time.current,
       active: true
     )
     listing = user.sublet_listings.create!(

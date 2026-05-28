@@ -71,6 +71,12 @@ class SessionsController < ApplicationController
     user = User.find_by(email: params[:email].to_s.strip.downcase)
 
     if user&.authenticate(params[:password].to_s)
+      unless user.confirmed?
+        flash.now[:alert] = "Use Google sign-in with your Northwestern account to verify before logging in."
+        render "pages/login", status: :unprocessable_entity
+        return
+      end
+
       start_session_for(user)
       redirect_to profile_path, notice: "Logged in successfully."
     else
@@ -93,6 +99,7 @@ class SessionsController < ApplicationController
       first_name: decoded_token["given_name"].presence || name_parts.first,
       last_name: decoded_token["family_name"].presence || name_parts.drop(1).join(" ").presence,
       profile_photo_url: decoded_token["picture"].presence,
+      confirmed_at: Time.current,
       active: true
     }.compact
   end

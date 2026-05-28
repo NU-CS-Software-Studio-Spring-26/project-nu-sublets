@@ -1079,13 +1079,15 @@
                                     <img class="profile-sidebar-avatar" src="<%= user_avatar_url(user, size: 320) %>" alt="<%= user.display_name %> profile photo" />
                                     <p class="profile-sidebar-name"><%= user.display_name %></p>
                                 </div>
-                                <div class="profile-sidebar-verified">
-                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                        <path d="M12 2.75 5 5.33v6.14c0 5.03 2.98 9.73 7 11.18 4.02-1.45 7-6.15 7-11.18V5.33L12 2.75Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" />
-                                        <path d="m8.75 12.15 2.2 2.2 4.3-4.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
-                                    </svg>
-                                    <span>Verified Northwestern student</span>
-                                </div>
+                                <% if user.confirmed? %>
+                                    <div class="profile-sidebar-verified">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            <path d="M12 2.75 5 5.33v6.14c0 5.03 2.98 9.73 7 11.18 4.02-1.45 7-6.15 7-11.18V5.33L12 2.75Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" />
+                                            <path d="m8.75 12.15 2.2 2.2 4.3-4.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
+                                        </svg>
+                                        <span>Verified Northwestern student</span>
+                                    </div>
+                                <% end %>
                                 <div class="visually-hidden">
                                     Hi <%= first_name %>. Student / renter. Preferred Contact. Usually responds within 2 days.
                                     <a href="#">Report profile</a>
