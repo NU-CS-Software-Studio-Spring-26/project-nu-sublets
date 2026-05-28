@@ -704,6 +704,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
       name: "Profile Owner",
       email: "profile.owner@u.northwestern.edu",
       profile_photo_url: "https://example.com/profile-owner.jpg",
+      confirmed_at: Time.current,
       active: true
     )
     listing = user.sublet_listings.create!(
