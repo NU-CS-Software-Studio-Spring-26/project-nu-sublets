@@ -168,6 +168,96 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{sublet_listing_path(listing)}'] img.listing-avatar[alt='Ryan Anderson profile photo'][src='https://example.com/ryan-anderson.jpg']"
   end
 
+  test "home page includes recommendation filter controls" do
+    get root_path
+
+    assert_select "form[action='#{root_path(anchor: "recommendations")}'][method='get'][aria-label='Filter recommended sublets']"
+    assert_select "input[name='recommendation_move_in']"
+    assert_select "input[name='recommendation_move_out']"
+    assert_select "select[name='recommendation_bedrooms']"
+    assert_select "select[name='recommendation_bathrooms']"
+    assert_select "input[name='recommendation_amenities[]'][value='Laundry']"
+  end
+
+  test "home recommendation filters narrow recommended carousel without changing newest carousel" do
+    user = User.create!(
+      name: "Recommendation Owner",
+      email: "recommendation.owner@u.northwestern.edu",
+      active: true
+    )
+    matching_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Filtered Recommendation Match",
+        price: 900,
+        bedrooms: 2,
+        bathrooms: 1,
+        amenities: [ "Laundry", "Gym" ],
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 10, 1)
+      )
+    )
+    missing_bedroom = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Filtered Recommendation Wrong Bedroom",
+        price: 800,
+        bedrooms: 1,
+        bathrooms: 1,
+        amenities: [ "Laundry", "Gym" ],
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 10, 1)
+      )
+    )
+    missing_amenity = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Filtered Recommendation Missing Gym",
+        price: 700,
+        bedrooms: 2,
+        bathrooms: 1,
+        amenities: [ "Laundry" ],
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 10, 1)
+      )
+    )
+    outside_window = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Filtered Recommendation Wrong Window",
+        price: 600,
+        bedrooms: 2,
+        bathrooms: 1,
+        amenities: [ "Laundry", "Gym" ],
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 8, 1)
+      )
+    )
+
+    get root_path(
+      recommendation_move_in: "06/12/2026",
+      recommendation_move_out: "09/11/2026",
+      recommendation_bedrooms: "2",
+      recommendation_bathrooms: "1",
+      recommendation_amenities: [ "Laundry", "Gym" ]
+    )
+
+    assert_select "#recommendations-track a[href='#{sublet_listing_path(matching_listing)}']"
+    assert_select "#recommendations-track a[href='#{sublet_listing_path(missing_bedroom)}']", count: 0
+    assert_select "#recommendations-track a[href='#{sublet_listing_path(missing_amenity)}']", count: 0
+    assert_select "#recommendations-track a[href='#{sublet_listing_path(outside_window)}']", count: 0
+    assert_select "#newest-track a[href='#{sublet_listing_path(missing_bedroom)}']"
+    assert_select "input[name='recommendation_move_in'][value='06/12/2026']"
+    assert_select "select[name='recommendation_bedrooms'] option[value='2'][selected]"
+    assert_select "input[name='recommendation_amenities[]'][value='Gym'][checked]"
+  end
+
+  test "home recommendation filters show inline error for invalid date order" do
+    get root_path(
+      recommendation_move_in: "09/11/2026",
+      recommendation_move_out: "06/12/2026"
+    )
+
+    assert_select "[data-recommendation-filter-error]", text: "Move-out date must be after move-in date."
+    assert_select "#recommendations-track a.listing-card", count: 0
+  end
+
   test "home page shows recently viewed listings after browsing listing pages" do
     user = User.create!(
       name: "Recent Viewer",
