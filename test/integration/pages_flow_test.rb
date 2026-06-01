@@ -472,6 +472,9 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Please enter a move-in date"
     assert_includes response.body, "Please enter a move-out date"
     assert_includes response.body, "Please enter a move-in and a move-out date"
+    assert_includes response.body, "const validateDateRange = () =>"
+    assert_includes response.body, "moveOutDate <= moveInDate"
+    assert_select "button[data-filter-submit]"
   end
 
   test "home page includes natural language search input" do
@@ -493,6 +496,13 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "[data-filter-error]", text: "Move-out date must be after move-in date."
     assert_select "[data-filter-error][hidden]", count: 0
     assert_select ".flash-error", count: 0
+  end
+
+  test "search results rejects matching move in and move out dates" do
+    get search_results_path("move-in": "06/12/2026", "move-out": "06/12/2026")
+
+    assert_select "[data-filter-error]", text: "Move-out date must be after move-in date."
+    assert_select "[data-filter-error][hidden]", count: 0
   end
 
   test "search results filters by price space amenities and preferences" do

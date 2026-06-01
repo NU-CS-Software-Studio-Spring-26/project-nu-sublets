@@ -172,6 +172,10 @@
                 outline: 0;
             }
 
+            .date-filter.is-invalid .date-filter-toggle {
+                border-color: #b42318;
+            }
+
             .date-filter-input {
                 position: absolute;
                 width: 1px;
@@ -1324,7 +1328,7 @@
                             </div>
                         </details>
 
-                        <button class="filter-button" type="submit">
+                        <button class="filter-button" type="submit" data-filter-submit>
                             <svg class="filter-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                 <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                             </svg>
@@ -1695,8 +1699,10 @@
                     const moveOutInput = filterForm.querySelector('input[name="move-out"]');
                     const naturalQueryInput = filterForm.querySelector('input[name="natural_query"]');
                     const error = filterForm.querySelector("[data-filter-error]");
+                    const filterButton = filterForm.querySelector("[data-filter-submit]");
                     const additionalControls = Array.from(filterForm.querySelectorAll("[data-filter-control]"));
                     const activeFilterSummary = filterForm.querySelector("[data-active-filter-summary]");
+                    const dateRangeErrorMessage = "Move-out date must be after move-in date.";
 
                     const hasAdditionalFilter = () => additionalControls.some((control) => {
                         if (control.type === "checkbox") {
@@ -1705,6 +1711,48 @@
 
                         return control.value.trim().length > 0;
                     });
+
+                    const setFilterError = (message) => {
+                        if (!error) return;
+
+                        error.textContent = message;
+                        error.hidden = message.length === 0;
+                    };
+
+                    const setDateRangeInvalid = (isInvalid) => {
+                        [moveInInput, moveOutInput].forEach((input) => {
+                            input.setAttribute("aria-invalid", isInvalid ? "true" : "false");
+                            input.closest("[data-date-picker]")?.classList.toggle("is-invalid", isInvalid);
+                        });
+
+                        if (filterButton) {
+                            filterButton.disabled = isInvalid;
+                        }
+                    };
+
+                    const dateRangeIsInvalid = () => {
+                        const moveInDate = parseDate(moveInInput.value);
+                        const moveOutDate = parseDate(moveOutInput.value);
+
+                        return Boolean(moveInDate && moveOutDate && moveOutDate <= moveInDate);
+                    };
+
+                    const validateDateRange = () => {
+                        const isInvalid = dateRangeIsInvalid();
+
+                        setDateRangeInvalid(isInvalid);
+
+                        if (isInvalid) {
+                            setFilterError(dateRangeErrorMessage);
+                            return false;
+                        }
+
+                        if (error?.textContent === dateRangeErrorMessage) {
+                            setFilterError("");
+                        }
+
+                        return true;
+                    };
 
                     const selectedOptionText = (control) => {
                         const selectedOption = control.options?.[control.selectedIndex];
@@ -1766,47 +1814,45 @@
                         });
                     };
 
-                    filterForm.addEventListener("input", updateActiveFilterSummary);
-                    filterForm.addEventListener("change", updateActiveFilterSummary);
+                    filterForm.addEventListener("input", () => {
+                        updateActiveFilterSummary();
+                        validateDateRange();
+                    });
+                    filterForm.addEventListener("change", () => {
+                        updateActiveFilterSummary();
+                        validateDateRange();
+                    });
                     updateActiveFilterSummary();
+                    validateDateRange();
 
                     filterForm.addEventListener("submit", (event) => {
+                        if (!validateDateRange()) {
+                            event.preventDefault();
+                            return;
+                        }
+
                         const hasMoveIn = moveInInput.value.trim().length > 0;
                         const hasMoveOut = moveOutInput.value.trim().length > 0;
 
                         if (hasMoveIn && hasMoveOut) {
-                            const moveInDate = parseDate(moveInInput.value);
-                            const moveOutDate = parseDate(moveOutInput.value);
-
-                            if (moveInDate && moveOutDate && moveOutDate < moveInDate) {
-                                event.preventDefault();
-                                error.textContent = "Move-out date must be after move-in date.";
-                                error.hidden = false;
-                                return;
-                            }
-
-                            error.hidden = true;
-                            error.textContent = "";
+                            setFilterError("");
                             return;
                         }
 
                         if (!hasMoveIn && !hasMoveOut && hasAdditionalFilter()) {
-                            error.hidden = true;
-                            error.textContent = "";
+                            setFilterError("");
                             return;
                         }
 
                         event.preventDefault();
 
                         if (!hasMoveIn && !hasMoveOut) {
-                            error.textContent = "Please enter a move-in and a move-out date";
+                            setFilterError("Please enter a move-in and a move-out date");
                         } else if (!hasMoveIn) {
-                            error.textContent = "Please enter a move-in date";
+                            setFilterError("Please enter a move-in date");
                         } else {
-                            error.textContent = "Please enter a move-out date";
+                            setFilterError("Please enter a move-out date");
                         }
-
-                        error.hidden = false;
                     });
                 }
 

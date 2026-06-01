@@ -148,7 +148,7 @@ class PagesController < ApplicationController
   def search_results_scope
     prepare_search_filters
 
-    if @move_in && @move_out && @move_out < @move_in
+    if @move_in && @move_out && @move_out <= @move_in
       @filter_error = "Move-out date must be after move-in date."
       SubletListing.none
     else
