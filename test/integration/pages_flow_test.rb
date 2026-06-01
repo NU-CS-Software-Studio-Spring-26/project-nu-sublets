@@ -410,6 +410,19 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet/
   end
 
+  test "search results clears skeleton state before navigation cache restoration" do
+    get search_results_path
+
+    assert_response :success
+    assert_includes response.body, "const clearSkeletons = () =>"
+    assert_includes response.body, 'document.addEventListener("turbo:before-cache", clearSkeletons)'
+    assert_includes response.body, 'document.addEventListener("turbo:load", clearSkeletons)'
+    assert_includes response.body, 'document.addEventListener("turbo:render", clearSkeletons)'
+    assert_includes response.body, 'window.addEventListener("pageshow", clearSkeletons)'
+    assert_includes response.body, "window.clearTimeout(pendingSkeletonTimer)"
+    refute_includes response.body, 'window.addEventListener("beforeunload", showSkeletons)'
+  end
+
   test "browse and search pages expose compare listing data and tray" do
     user = User.create!(
       name: "Compare Owner",
