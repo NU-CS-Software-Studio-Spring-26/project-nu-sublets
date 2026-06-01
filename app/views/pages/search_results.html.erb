@@ -823,6 +823,14 @@
                 transform: scale(1.16);
             }
 
+            .map-stage[data-zoom="4"] .map-canvas {
+                transform: scale(1.3);
+            }
+
+            .map-stage[data-zoom="5"] .map-canvas {
+                transform: scale(1.48);
+            }
+
             .map-water {
                 position: absolute;
                 top: 0;
@@ -839,9 +847,16 @@
                 right: 24%;
                 width: 30%;
                 height: 18%;
-                border: 1px solid rgba(62, 27, 75, 0.16);
+                border: 1px solid rgba(62, 27, 75, 0.22);
                 border-radius: 14px;
-                background: rgba(156, 81, 182, 0.12);
+                background: rgba(156, 81, 182, 0.07);
+                pointer-events: none;
+            }
+
+            .map-stage[data-zoom="4"] .map-campus,
+            .map-stage[data-zoom="5"] .map-campus {
+                border-style: dashed;
+                background: rgba(156, 81, 182, 0.035);
             }
 
             .map-road {
@@ -882,38 +897,100 @@
                 pointer-events: none;
             }
 
+            .map-campus-landmark {
+                position: absolute;
+                z-index: 2;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                padding: 4px 7px;
+                border: 1px solid rgba(78, 42, 132, 0.26);
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.88);
+                color: var(--nu-purple);
+                font-family: "Rubik", sans-serif;
+                font-size: 11px;
+                font-weight: 800;
+                line-height: 1;
+                opacity: 0;
+                pointer-events: none;
+                transform: translate(-50%, -50%) scale(0.94);
+                transition: opacity 0.18s ease, transform 0.18s ease;
+            }
+
+            .map-campus-landmark::before {
+                content: "";
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: var(--nu-accent);
+            }
+
+            .map-stage[data-zoom="3"] .map-campus-landmark,
+            .map-stage[data-zoom="4"] .map-campus-landmark,
+            .map-stage[data-zoom="5"] .map-campus-landmark {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            .map-stage[data-zoom="5"] .map-campus-landmark {
+                font-size: 12px;
+            }
+
             .map-controls {
                 position: absolute;
-                top: 12px;
-                right: 12px;
+                top: 14px;
+                right: 14px;
                 z-index: 4;
                 display: grid;
+                grid-template-columns: 42px;
                 overflow: hidden;
                 border: 1px solid rgba(0, 0, 0, 0.12);
-                border-radius: 6px;
+                border-radius: 8px;
                 background: #fff;
-                box-shadow: 0 5px 14px rgba(0, 0, 0, 0.16);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
             }
 
             .map-zoom-button {
-                width: 36px;
-                height: 36px;
+                width: 42px;
+                height: 42px;
                 border: 0;
                 background: #fff;
                 color: var(--nu-text);
                 font-family: "Rubik", sans-serif;
-                font-size: 22px;
+                font-size: 24px;
+                font-weight: 800;
                 line-height: 1;
+                cursor: pointer;
             }
 
+            .map-zoom-status,
             .map-zoom-button + .map-zoom-button {
                 border-top: 1px solid var(--nu-border);
+            }
+
+            .map-zoom-status {
+                min-height: 26px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--nu-muted);
+                font-family: "Rubik", sans-serif;
+                font-size: 11px;
+                font-weight: 800;
+                line-height: 1;
             }
 
             .map-zoom-button:hover,
             .map-zoom-button:focus-visible {
                 background: #f5f1f7;
                 outline: 0;
+            }
+
+            .map-zoom-button:disabled {
+                cursor: default;
+                color: rgba(0, 0, 0, 0.28);
+                background: #f8f7f5;
             }
 
             .map-pin {
@@ -977,6 +1054,13 @@
             .map-stage[data-zoom="3"] .map-pin {
                 min-width: 72px;
                 min-height: 42px;
+                font-size: 18px;
+            }
+
+            .map-stage[data-zoom="4"] .map-pin,
+            .map-stage[data-zoom="5"] .map-pin {
+                min-width: 78px;
+                min-height: 44px;
                 font-size: 18px;
             }
 
@@ -1403,6 +1487,11 @@
 
                         <aside class="map-card" aria-label="Map of listings">
                             <% map_groups = listing_map_groups(@map_listings) %>
+                            <% campus_landmarks = [
+                                { name: "Tech", x: 62, y: 30 },
+                                { name: "Norris", x: 68, y: 38 },
+                                { name: "SPAC", x: 58, y: 24 }
+                            ] %>
                             <div class="map-stage" data-map-stage data-zoom="1" aria-label="Sublet map">
                                 <div class="map-canvas" data-map-canvas>
                                     <div class="map-water" aria-hidden="true"></div>
@@ -1418,6 +1507,12 @@
                                     <span class="map-label" style="top: 24%; right: 31%">Northwestern</span>
                                     <span class="map-label" style="top: 48%; right: 5%">Lake Michigan</span>
                                     <span class="map-label" style="bottom: 18%; left: 10%">Evanston</span>
+
+                                    <div class="map-campus-landmarks" aria-label="Northwestern campus landmarks" data-campus-landmarks>
+                                        <% campus_landmarks.each do |landmark| %>
+                                            <span class="map-campus-landmark" style="left: <%= landmark[:x] %>%; top: <%= landmark[:y] %>%"><%= landmark[:name] %></span>
+                                        <% end %>
+                                    </div>
 
                                     <% map_groups.each_with_index do |group, index| %>
                                         <% listings = group[:listings] %>
@@ -1465,6 +1560,7 @@
 
                                 <div class="map-controls" aria-label="Map zoom controls">
                                     <button class="map-zoom-button" type="button" aria-label="Zoom in" data-map-zoom-in>+</button>
+                                    <span class="map-zoom-status" aria-live="polite" data-map-zoom-status>1x</span>
                                     <button class="map-zoom-button" type="button" aria-label="Zoom out" data-map-zoom-out>&minus;</button>
                                 </div>
                             </div>
@@ -1874,6 +1970,11 @@
                 let zoom = Number.parseInt(stage.dataset.zoom || "1", 10);
                 const pins = Array.from(stage.querySelectorAll("[data-map-pin]"));
                 const popups = Array.from(stage.querySelectorAll("[data-map-popup]"));
+                const zoomInButton = stage.querySelector("[data-map-zoom-in]");
+                const zoomOutButton = stage.querySelector("[data-map-zoom-out]");
+                const zoomStatus = stage.querySelector("[data-map-zoom-status]");
+                const minZoom = 1;
+                const maxZoom = 5;
 
                 const closePopups = () => {
                     pins.forEach((pin) => pin.setAttribute("aria-expanded", "false"));
@@ -1883,17 +1984,31 @@
                 };
 
                 const setZoom = (nextZoom) => {
-                    zoom = Math.min(3, Math.max(1, nextZoom));
+                    zoom = Math.min(maxZoom, Math.max(minZoom, nextZoom));
                     stage.dataset.zoom = String(zoom);
+
+                    if (zoomStatus) {
+                        zoomStatus.textContent = `${zoom}x`;
+                    }
+
+                    if (zoomInButton) {
+                        zoomInButton.disabled = zoom >= maxZoom;
+                    }
+
+                    if (zoomOutButton) {
+                        zoomOutButton.disabled = zoom <= minZoom;
+                    }
                 };
 
-                stage.querySelector("[data-map-zoom-in]")?.addEventListener("click", () => {
+                zoomInButton?.addEventListener("click", () => {
                     setZoom(zoom + 1);
                 });
 
-                stage.querySelector("[data-map-zoom-out]")?.addEventListener("click", () => {
+                zoomOutButton?.addEventListener("click", () => {
                     setZoom(zoom - 1);
                 });
+
+                setZoom(zoom);
 
                 pins.forEach((pin) => {
                     pin.addEventListener("click", (event) => {

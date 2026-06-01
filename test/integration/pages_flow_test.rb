@@ -821,6 +821,11 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "[data-map-pin]", count: 2
     assert_select "[data-map-pin]", text: "$850"
     assert_select "[data-map-pin].count-pin", text: "2"
+    assert_select "[data-map-zoom-status]", text: "1x"
+    assert_select "[data-campus-landmarks] .map-campus-landmark", text: "Tech"
+    assert_select "[data-campus-landmarks] .map-campus-landmark", text: "Norris"
+    assert_select "[data-campus-landmarks] .map-campus-landmark", text: "SPAC"
+    assert_includes response.body, "const maxZoom = 5"
     assert_select "[data-map-popup] a[href='#{sublet_listing_path(single_listing)}']", text: /Single Address Listing/
     assert_select "[data-map-popup] a[href='#{sublet_listing_path(grouped_listing)}']", text: /Apartment Option A/
   end
