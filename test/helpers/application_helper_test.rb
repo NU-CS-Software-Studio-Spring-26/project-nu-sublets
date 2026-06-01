@@ -24,4 +24,23 @@ class ApplicationHelperTest < ActionView::TestCase
 
     assert_equal "https://example.com/real-photo.jpg", user_avatar_url(user, size: 100)
   end
+
+  test "listing map places hinman avenue addresses on land" do
+    listing = SubletListing.new(address: "1401 Hinman Ave, Evanston, IL 60201")
+
+    group = listing_map_groups([ listing ]).first
+
+    assert_operator group[:x], :<, ApplicationHelper::EVANSTON_MAP_WATER_START_X
+    assert_in_delta 70, group[:x], 0.1
+  end
+
+  test "listing map uses address number for north south street placement" do
+    south_listing = SubletListing.new(address: "700 Hinman Ave, Evanston, IL 60201")
+    north_listing = SubletListing.new(address: "2200 Hinman Ave, Evanston, IL 60201")
+
+    south_group, north_group = listing_map_groups([ south_listing, north_listing ])
+
+    assert_operator south_group[:y], :>, north_group[:y]
+    assert_equal south_group[:x], north_group[:x]
+  end
 end
