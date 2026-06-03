@@ -841,6 +841,22 @@
                 outline: 3px solid var(--nu-focus);
             }
 
+            .account-checkbox-field {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                line-height: 1.45;
+            }
+
+            .account-checkbox-field input {
+                width: 18px;
+                height: 18px;
+                margin-top: 2px;
+                accent-color: var(--nu-accent, #4E2A84);
+            }
+
             .password-input-wrap {
                 position: relative;
                 width: 100%;
@@ -1194,6 +1210,23 @@
                                 <div class="account-field">
                                     <%= form.label :email, "Email", class: "account-label" %>
                                     <%= form.email_field :email, class: "account-input", required: true %>
+                                </div>
+
+                                <div class="account-field">
+                                    <%= form.label :phone_number, "Phone Number", class: "account-label" %>
+                                    <%= form.telephone_field :phone_number, class: "account-input", placeholder: "Optional" %>
+                                </div>
+
+                                <div class="account-field">
+                                    <p class="account-label">Contact Privacy</p>
+                                    <label class="account-checkbox-field">
+                                        <%= form.check_box :show_email_to_students %>
+                                        <span>Show my email to signed-in Northwestern students.</span>
+                                    </label>
+                                    <label class="account-checkbox-field">
+                                        <%= form.check_box :show_phone_to_students %>
+                                        <span>Show my phone number to signed-in Northwestern students.</span>
+                                    </label>
                                 </div>
 
                                 <button class="account-action" type="button" aria-expanded="<%= password_fields_open %>" aria-controls="password-fields" data-password-section-toggle><%= password_fields_open ? "Cancel Password Change" : "Change Password" %></button>

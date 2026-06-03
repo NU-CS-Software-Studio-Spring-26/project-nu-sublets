@@ -402,6 +402,34 @@
                 text-decoration: none;
             }
 
+            .profile-action-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .profile-action-link {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 42px;
+                border-radius: 8px;
+                padding: 0 16px;
+                background: var(--nu-accent);
+                color: #fff;
+                font-family: "Rubik", sans-serif;
+                font-size: 15px;
+                font-weight: 700;
+                text-decoration: none;
+            }
+
+            .profile-action-link.secondary {
+                border: 1px solid var(--nu-border);
+                background: #fff;
+                color: var(--nu-text);
+            }
+
             @media (max-width: 991.98px) {
                 .profile-grid {
                     grid-template-columns: minmax(0, 1fr);
@@ -522,13 +550,37 @@
                             <% end %>
 
                             <p class="bio-copy">
-                                Hi <%= first_name %>, this is your NU Sublets profile. You&rsquo;re signed in with your Northwestern account and can manage your listings, contact details, and posting activity from here.
+                                <%= user.bio.presence || "#{user.display_name} is a verified Northwestern student on NU Sublets." %>
                             </p>
+
+                            <div class="profile-action-row">
+                                <% if user_signed_in? && current_user.id != user.id %>
+                                    <%= button_to "Chat with #{first_name}", conversations_path, method: :post, params: { recipient_id: user.id }, class: "profile-action-link", form: { style: "display: inline" } %>
+                                <% elsif !user_signed_in? %>
+                                    <a class="profile-action-link" href="<%= login_path %>">Log in to chat</a>
+                                <% end %>
+                            </div>
 
                             <div class="profile-meta" aria-label="Profile details">
                                 <div class="profile-meta-item">
-                                    <p class="profile-meta-label">Northwestern Email</p>
-                                    <p class="profile-meta-value"><%= user.email %></p>
+                                    <p class="profile-meta-label">Email</p>
+                                    <p class="profile-meta-value">
+                                        <% if user.email_visible_to?(current_user) %>
+                                            <a href="mailto:<%= user.email %>"><%= user.email %></a>
+                                        <% else %>
+                                            Hidden by profile setting
+                                        <% end %>
+                                    </p>
+                                </div>
+                                <div class="profile-meta-item">
+                                    <p class="profile-meta-label">Phone</p>
+                                    <p class="profile-meta-value">
+                                        <% if user.phone_visible_to?(current_user) %>
+                                            <a href="tel:<%= user.phone_number.gsub(/\D/, "") %>"><%= user.phone_number %></a>
+                                        <% else %>
+                                            Hidden by profile setting
+                                        <% end %>
+                                    </p>
                                 </div>
                                 <div class="profile-meta-item">
                                     <p class="profile-meta-label">Display Name</p>

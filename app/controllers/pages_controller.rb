@@ -273,7 +273,18 @@ class PagesController < ApplicationController
   end
 
   def profile_params
-    params.require(:user).permit(:name, :email, :profile_photo_url, :profile_photo, :bio, :password, :password_confirmation)
+    params.require(:user).permit(
+      :name,
+      :email,
+      :profile_photo_url,
+      :profile_photo,
+      :bio,
+      :phone_number,
+      :show_email_to_students,
+      :show_phone_to_students,
+      :password,
+      :password_confirmation
+    )
   end
 
   def sync_name_parts
