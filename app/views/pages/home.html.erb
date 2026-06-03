@@ -295,28 +295,30 @@
             }
 
             .search-button,
-                .recommendation-filter-form {
-                    grid-template-columns: repeat(2, minmax(0, 1fr));
-                }
-
-                .cta-shell {
-                    grid-template-columns: 1fr;
-                    height: auto;
-                    overflow: hidden;
-                }
-
-                .cta-image {
-                    height: auto;
-                    min-height: 240px;
-                    border-radius: 0 0 16px 16px;
-                }
-
-                .cta-copy {
-                    padding: 16px;
-                }
+            .cta-button {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 44px;
+                border: 0;
+                border-radius: 8px;
+                padding: 11px 18px;
+                color: var(--nu-white);
+                font-family: "Rubik", sans-serif;
+                font-size: 16px;
                 font-weight: 600;
                 line-height: 1.1;
                 background: var(--nu-button);
+                text-decoration: none;
+                transition: opacity 0.2s ease, transform 0.2s ease;
+            }
+
+            .search-button {
+                width: 100%;
+            }
+
+            .cta-button {
+                white-space: nowrap;
             }
 
             .search-button:hover,
@@ -597,43 +599,54 @@
             }
 
             .cta-section {
-                margin-top: 20px;
-                background: var(--nu-surface);
-                padding: 10px 0 10px 20px;
+                padding: 24px 24px 0;
+                background: transparent;
+            }
+
+            .cta-inner {
+                width: 100%;
+                max-width: 1200px;
             }
 
             .cta-shell {
                 display: flex;
                 align-items: center;
-                min-height: 132px;
-                overflow: hidden;
-                border-radius: 16px;
+                justify-content: space-between;
+                gap: 20px;
+                padding: 20px 24px;
+                border: 1px solid rgba(78, 42, 132, 0.14);
+                border-radius: 8px;
                 background: var(--nu-white);
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
             }
 
             .cta-copy {
-                align-self: center;
-                position: relative;
-                z-index: 1;
+                display: grid;
+                gap: 5px;
                 min-width: 0;
-                padding: 14px 16px;
-                background: var(--nu-white);
             }
 
             .cta-title {
-                margin: 0 0 6px;
-                max-width: 320px;
+                margin: 0;
                 font-family: "Rubik", sans-serif;
-                font-size: clamp(1.2rem, 1.8vw, 1.4rem);
-                font-weight: 500;
-                line-height: 1.02;
+                font-size: clamp(1.25rem, 2vw, 1.6rem);
+                font-weight: 600;
+                line-height: 1.15;
             }
 
             .cta-subtitle {
-                margin: 0 0 6px;
+                margin: 0;
+                max-width: 620px;
+                color: rgba(0, 0, 0, 0.68);
                 font-family: "Rubik", sans-serif;
-                font-size: clamp(0.9rem, 1.4vw, 1.05rem);
-                line-height: 1.1;
+                font-size: 15px;
+                line-height: 1.35;
+            }
+
+            .cta-actions {
+                display: flex;
+                flex: 0 0 auto;
+                align-items: center;
             }
 
             .bottom-space {
@@ -659,53 +672,8 @@
                 }
 
                 .search-card {
-                    @media (max-width: 991.98px) {
-                        .hero {
-                            padding: 24px 20px 32px;
-                        }
-
-                        .hero-grid {
-                            grid-template-columns: 1fr;
-                        }
-
-                        .headline {
-                            margin: 24px 0 0;
-                            max-width: 520px;
-                        }
-
-                        .hero-browse-button {
-                            margin-left: 0;
-                        }
-
-                        .search-card {
-                            max-width: 528px;
-                            margin-top: 0;
-                        }
-
-                        .listing-card {
-                            flex-basis: min(340px, calc(100vw - 52px));
-                        }
-
-                        .recommendation-filter-form {
-                            grid-template-columns: repeat(2, minmax(0, 1fr));
-                        }
-
-                        .cta-shell {
-                            grid-template-columns: 1fr;
-                            height: auto;
-                            overflow: hidden;
-                        }
-
-                        .cta-image {
-                            height: auto;
-                            min-height: 240px;
-                            border-radius: 0 0 16px 16px;
-                        }
-
-                        .cta-copy {
-                            padding: 16px;
-                        }
-                    }
+                    max-width: 528px;
+                    margin-top: 0;
                 }
 
                 .headline {
@@ -730,6 +698,22 @@
 
                 .listing-main-image {
                     height: 204px;
+                }
+
+                .cta-section {
+                    padding: 24px 20px 0;
+                }
+
+                .cta-shell {
+                    align-items: flex-start;
+                    flex-direction: column;
+                    gap: 14px;
+                    padding: 18px;
+                }
+
+                .cta-actions,
+                .cta-button {
+                    width: 100%;
                 }
 
                 .bottom-space {
@@ -996,8 +980,10 @@
                     <div class="cta-inner">
                         <div class="cta-shell">
                             <div class="cta-copy">
-                                <h2 class="cta-title" id="post-sublet-title">Looking For Someone to Sublet Your Room?</h2>
-                                <p class="cta-subtitle">List your sublet here</p>
+                                <h2 class="cta-title" id="post-sublet-title">Looking for someone to sublet your room?</h2>
+                                <p class="cta-subtitle">Create a Northwestern-only listing and reach students already browsing nearby sublets.</p>
+                            </div>
+                            <div class="cta-actions">
                                 <% if user_signed_in? %>
                                     <a class="cta-button btn btn-primary" href="<%= post_sublet_path %>">Create a Posting</a>
                                 <% else %>

@@ -1255,17 +1255,20 @@
         </script>
         <script>
             (() => {
-                const modal = document.querySelector("[data-report-modal]");
-                const triggers = document.querySelectorAll("[data-report-modal-trigger]");
+                const namespace = window.NuSublets || (window.NuSublets = {});
 
-                if (!modal || triggers.length === 0 || modal.dataset.reportBound === "true") {
+                if (namespace.reportModalReady) {
+                    namespace.initializeReportModal?.();
                     return;
                 }
 
-                modal.dataset.reportBound = "true";
+                namespace.reportModalReady = true;
+                const boundTriggers = new WeakSet();
+                const boundCloseButtons = new WeakSet();
+                const boundModals = new WeakSet();
                 let activeTrigger = null;
 
-                const openModal = (trigger) => {
+                const openModal = (modal, trigger) => {
                     activeTrigger = trigger;
                     modal.classList.add("is-open");
                     modal.setAttribute("aria-hidden", "false");
@@ -1273,32 +1276,68 @@
                     modal.querySelector(".report-modal__textarea")?.focus();
                 };
 
-                const closeModal = () => {
+                const closeModal = (modal) => {
                     modal.classList.remove("is-open");
                     modal.setAttribute("aria-hidden", "true");
                     document.body.classList.remove("report-modal-open");
                     activeTrigger?.focus();
+                    activeTrigger = null;
                 };
 
-                triggers.forEach((trigger) => {
-                    trigger.addEventListener("click", () => openModal(trigger));
-                });
+                const initializeReportModal = () => {
+                    const modal = document.querySelector("[data-report-modal]");
+                    const triggers = document.querySelectorAll("[data-report-modal-trigger]");
 
-                modal.querySelectorAll("[data-report-modal-close]").forEach((closeButton) => {
-                    closeButton.addEventListener("click", closeModal);
-                });
-
-                modal.addEventListener("click", (event) => {
-                    if (event.target === modal) {
-                        closeModal();
+                    if (!modal || triggers.length === 0) {
+                        return;
                     }
-                });
+
+                    triggers.forEach((trigger) => {
+                        if (boundTriggers.has(trigger)) return;
+
+                        boundTriggers.add(trigger);
+                        trigger.addEventListener("click", (event) => {
+                            event.preventDefault();
+                            openModal(modal, trigger);
+                        });
+                    });
+
+                    modal.querySelectorAll("[data-report-modal-close]").forEach((closeButton) => {
+                        if (boundCloseButtons.has(closeButton)) return;
+
+                        boundCloseButtons.add(closeButton);
+                        closeButton.addEventListener("click", () => closeModal(modal));
+                    });
+
+                    if (!boundModals.has(modal)) {
+                        boundModals.add(modal);
+                        modal.addEventListener("click", (event) => {
+                            if (event.target === modal) {
+                                closeModal(modal);
+                            }
+                        });
+                    }
+                };
 
                 document.addEventListener("keydown", (event) => {
-                    if (event.key === "Escape" && modal.classList.contains("is-open")) {
-                        closeModal();
+                    const modal = document.querySelector("[data-report-modal]");
+
+                    if (event.key === "Escape" && modal?.classList.contains("is-open")) {
+                        closeModal(modal);
                     }
                 });
+
+                document.addEventListener("turbo:load", initializeReportModal);
+                document.addEventListener("turbo:before-cache", () => {
+                    const modal = document.querySelector("[data-report-modal]");
+
+                    if (modal) {
+                        closeModal(modal);
+                    }
+                });
+
+                namespace.initializeReportModal = initializeReportModal;
+                initializeReportModal();
             })();
         </script>
         <%= render "login_modal" %>

@@ -192,47 +192,82 @@
 
 <script>
     (() => {
-        const modal = document.querySelector("[data-login-modal]");
+        const namespace = window.NuSublets || (window.NuSublets = {});
 
-        if (!modal || modal.dataset.loginBound === "true") {
+        if (namespace.loginModalReady) {
+            namespace.initializeLoginModal?.();
             return;
         }
 
-        modal.dataset.loginBound = "true";
-        const openModal = () => {
+        namespace.loginModalReady = true;
+        const boundTriggers = new WeakSet();
+        const boundCloseButtons = new WeakSet();
+        const boundModals = new WeakSet();
+
+        const openModal = (modal) => {
             modal.classList.add("is-open");
             modal.setAttribute("aria-hidden", "false");
             document.body.classList.add("login-modal-open");
         };
 
-        const closeModal = () => {
+        const closeModal = (modal) => {
             modal.classList.remove("is-open");
             modal.setAttribute("aria-hidden", "true");
             document.body.classList.remove("login-modal-open");
         };
 
-        document.querySelectorAll("[data-login-trigger]").forEach((trigger) => {
-            trigger.addEventListener("click", (event) => {
-                event.preventDefault();
-                openModal();
-            });
-        });
+        const initializeLoginModal = () => {
+            const modal = document.querySelector("[data-login-modal]");
 
-        modal.querySelectorAll("[data-login-close]").forEach((closeButton) => {
-            closeButton.addEventListener("click", closeModal);
-        });
-
-        modal.addEventListener("click", (event) => {
-            if (event.target === modal) {
-                closeModal();
+            if (!modal) {
+                return;
             }
-        });
+
+            document.querySelectorAll("[data-login-trigger]").forEach((trigger) => {
+                if (boundTriggers.has(trigger)) return;
+
+                boundTriggers.add(trigger);
+                trigger.addEventListener("click", (event) => {
+                    event.preventDefault();
+                    openModal(modal);
+                });
+            });
+
+            modal.querySelectorAll("[data-login-close]").forEach((closeButton) => {
+                if (boundCloseButtons.has(closeButton)) return;
+
+                boundCloseButtons.add(closeButton);
+                closeButton.addEventListener("click", () => closeModal(modal));
+            });
+
+            if (!boundModals.has(modal)) {
+                boundModals.add(modal);
+                modal.addEventListener("click", (event) => {
+                    if (event.target === modal) {
+                        closeModal(modal);
+                    }
+                });
+            }
+        };
 
         document.addEventListener("keydown", (event) => {
-            if (event.key === "Escape" && modal.classList.contains("is-open")) {
-                closeModal();
+            const modal = document.querySelector("[data-login-modal]");
+
+            if (event.key === "Escape" && modal?.classList.contains("is-open")) {
+                closeModal(modal);
             }
         });
 
+        document.addEventListener("turbo:load", initializeLoginModal);
+        document.addEventListener("turbo:before-cache", () => {
+            const modal = document.querySelector("[data-login-modal]");
+
+            if (modal) {
+                closeModal(modal);
+            }
+        });
+
+        namespace.initializeLoginModal = initializeLoginModal;
+        initializeLoginModal();
     })();
 </script>
