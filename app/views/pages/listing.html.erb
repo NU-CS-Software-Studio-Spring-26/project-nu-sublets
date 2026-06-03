@@ -1024,10 +1024,12 @@
                                             </svg>
                                             <span>Phone:</span>
                                         </div>
-                                        <% if @listing_host.phone_visible_to?(current_user) %>
+                                        <% if user_signed_in? && @listing_host.phone_visible_to?(current_user) %>
                                             <a class="contact-link" href="tel:<%= @listing_host.phone_number.gsub(/\D/, "") %>"><%= @listing_host.phone_number %></a>
-                                        <% else %>
+                                        <% elsif user_signed_in? %>
                                             <span class="contact-link">Hidden by profile setting</span>
+                                        <% else %>
+                                            <span class="contact-link">Log in to request contact details</span>
                                         <% end %>
 
                                         <div class="contact-label">
@@ -1037,10 +1039,12 @@
                                             </svg>
                                             <span>Email:</span>
                                         </div>
-                                        <% if @listing_host.email_visible_to?(current_user) %>
+                                        <% if user_signed_in? && @listing_host.email_visible_to?(current_user) %>
                                             <a class="contact-link" href="mailto:<%= host_email %>"><%= host_email %></a>
-                                        <% else %>
+                                        <% elsif user_signed_in? %>
                                             <span class="contact-link">Hidden by profile setting</span>
+                                        <% else %>
+                                            <span class="contact-link">Log in to email the host</span>
                                         <% end %>
                                     </div>
                                     <div class="d-flex gap-2 flex-wrap mt-4">
