@@ -1,0 +1,73 @@
+<% content_for :title, "#{@other_participant.display_name} | Chat | NU Sublets" %>
+
+<div class="chat-page" data-conversation-id="<%= @conversation.id %>" data-current-user-id="<%= current_user.id %>">
+  <header class="chat-topbar">
+    <a class="chat-brand" href="<%= root_path %>"><%= render "shared/brand_logo" %></a>
+    <nav class="chat-nav" aria-label="Main navigation">
+      <a href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
+      <a href="<%= search_results_path %>">Search</a>
+      <a href="<%= saved_path %>">Saved</a>
+      <a href="<%= post_sublet_path %>">Post Sublet</a>
+      <%= render "pages/auth_nav" %>
+    </nav>
+  </header>
+
+  <main class="chat-shell">
+    <section class="chat-panel conversation-panel" aria-labelledby="conversation-title">
+      <div class="conversation-header">
+        <a class="conversation-back-link" href="<%= conversations_path %>">Back to messages</a>
+        <div class="conversation-person">
+          <img src="<%= user_avatar_url(@other_participant, size: 112) %>" alt="<%= @other_participant.display_name %> profile photo" />
+          <div>
+            <h1 id="conversation-title"><%= @other_participant.display_name %></h1>
+            <p>Verified Northwestern student</p>
+            <% if @conversation.sublet_listing.present? %>
+              <a href="<%= sublet_listing_path(@conversation.sublet_listing) %>"><%= @conversation.sublet_listing.title %></a>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <aside class="contact-privacy-card" aria-label="Shared contact information">
+        <h2>Contact details</h2>
+        <dl>
+          <div>
+            <dt>Email</dt>
+            <dd>
+              <% if @other_participant.email_visible_to?(current_user) %>
+                <a href="mailto:<%= @other_participant.email %>"><%= @other_participant.email %></a>
+              <% else %>
+                Hidden by profile setting
+              <% end %>
+            </dd>
+          </div>
+          <div>
+            <dt>Phone</dt>
+            <dd>
+              <% if @other_participant.phone_visible_to?(current_user) %>
+                <a href="tel:<%= @other_participant.phone_number.gsub(/\D/, "") %>"><%= @other_participant.phone_number %></a>
+              <% else %>
+                Hidden by profile setting
+              <% end %>
+            </dd>
+          </div>
+        </dl>
+      </aside>
+
+      <% if flash[:alert].present? %>
+        <p class="chat-alert error" role="alert"><%= flash[:alert] %></p>
+      <% end %>
+
+      <div class="message-list" data-message-list aria-live="polite">
+        <% @messages.each do |message| %>
+          <%= render "message", message: message %>
+        <% end %>
+      </div>
+
+      <%= form_with model: [ @conversation, @message ], local: true, class: "message-form", data: { chat_form: true } do |form| %>
+        <%= form.text_area :body, maxlength: Message::MAX_BODY_LENGTH, required: true, placeholder: "Send a message", aria: { label: "Message" }, data: { message_input: true } %>
+        <%= form.submit "Send" %>
+      <% end %>
+    </section>
+  </main>
+</div>
