@@ -858,6 +858,18 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "button[data-compare-trigger]", text: "Compare listing"
     assert_select "[data-compare-tray]"
     assert_select "[data-compare-modal]"
+    assert_not_includes response.body, user.email
+    assert_not_includes response.body, "mailto:#{user.email}"
+    assert_not_includes response.body, "+1 (123) 456-7890"
+    assert_not_includes response.body, "tel:+11234567890"
+    assert_includes response.body, "Log in to email the host"
+
+    sign_in_with_firebase_email("detail.viewer@u.northwestern.edu")
+    get sublet_listing_path(listing)
+
+    assert_response :success
+    assert_includes response.body, user.email
+    assert_includes response.body, "mailto:#{user.email}"
   end
 
   test "listing fallback page has a clickable compare button" do
@@ -1054,12 +1066,24 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
 
     get user_profile_path(user)
 
+    assert_redirected_to login_path
+    assert_not_includes response.body, user.email
+
+    sign_in_with_firebase_email("profile.viewer@u.northwestern.edu")
+    get user_profile_path(user)
+
     assert_response :success
     assert_select "h1", text: "Profile Owner"
     assert_select "img.profile-avatar[alt='Profile Owner profile avatar'][src='https://example.com/profile-owner.jpg']"
     assert_includes response.body, "Verified Northwestern student"
     assert_select "a[href='#{sublet_listing_path(listing)}']", text: /Owner Profile Link/
     assert_select "a[href='#{sublet_listing_path(listing)}'] img.listing-avatar[alt='Profile Owner listing avatar'][src='https://example.com/profile-owner.jpg']"
+  end
+
+  test "signed out users cannot view another user account page" do
+    get another_user_account_path
+
+    assert_redirected_to login_path
   end
 
   test "post sublet page uses the submit endpoint" do
