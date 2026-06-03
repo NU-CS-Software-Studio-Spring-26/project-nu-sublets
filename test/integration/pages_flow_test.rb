@@ -368,6 +368,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "a[href='#{profile_path}']", text: "Profile", count: 1
+    assert_select "a[href='#{conversations_path}']", text: "Chat", count: 1
     assert_select "form[action='#{session_path}'] button", text: "Log out"
     assert_select "a[data-login-trigger]", text: "Create a Posting", count: 0
     assert_select "a[href='#{post_sublet_path}']", text: "Create a Posting"
@@ -399,7 +400,8 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: "Test Student"
     assert_select ".profile-card"
     assert_select ".section-title", text: "Current Listings"
-    assert_includes response.body, "student@u.northwestern.edu"
+    assert_includes response.body, "Hidden by profile setting"
+    assert_not_includes response.body, "student@u.northwestern.edu"
   end
 
   test "search results page links into listing and home" do

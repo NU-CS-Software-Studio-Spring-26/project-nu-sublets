@@ -1,0 +1,126 @@
+require "test_helper"
+
+class ConversationsTest < ActionDispatch::IntegrationTest
+  include ActiveSupport::Testing::TimeHelpers
+
+  setup do
+    travel_to Time.zone.local(2026, 5, 1, 12, 0, 0)
+    @host = User.create!(
+      name: "Chat Host",
+      email: "chat.host@u.northwestern.edu",
+      active: true,
+      confirmed_at: Time.current,
+      phone_number: "+1 (847) 555-1200"
+    )
+    @listing = @host.sublet_listings.create!(valid_listing_attributes)
+  end
+
+  teardown do
+    travel_back
+  end
+
+  test "signed out users cannot view conversations" do
+    get conversations_path
+
+    assert_redirected_to login_path
+  end
+
+  test "signed in user can start a listing conversation" do
+    sign_in_with_firebase_email("chat.renter@u.northwestern.edu")
+
+    assert_difference("Conversation.count", 1) do
+      post conversations_path, params: { recipient_id: @host.id, sublet_listing_id: @listing.id }
+    end
+
+    conversation = Conversation.order(:created_at).last
+    assert_equal @listing, conversation.sublet_listing
+    assert_redirected_to conversation_path(conversation)
+  end
+
+  test "starting the same conversation reuses it" do
+    sign_in_with_firebase_email("chat.reuse@u.northwestern.edu")
+
+    assert_difference("Conversation.count", 1) do
+      post conversations_path, params: { recipient_id: @host.id, sublet_listing_id: @listing.id }
+      post conversations_path, params: { recipient_id: @host.id, sublet_listing_id: @listing.id }
+    end
+  end
+
+  test "only participants can view and post messages" do
+    renter = sign_in_with_firebase_email("chat.participant@u.northwestern.edu")
+    conversation = Conversation.between(renter, @host, listing: @listing)
+    conversation.save!
+
+    get conversation_path(conversation)
+    assert_response :success
+
+    assert_difference("Message.count", 1) do
+      post conversation_messages_path(conversation), params: { message: { body: "Is this still available?" } }
+    end
+
+    sign_in_with_firebase_email("chat.outsider@u.northwestern.edu")
+
+    get conversation_path(conversation)
+    assert_response :not_found
+
+    assert_no_difference("Message.count") do
+      post conversation_messages_path(conversation), params: { message: { body: "I should not post." } }
+    end
+    assert_response :not_found
+  end
+
+  test "contact details are hidden by default and visible when enabled" do
+    sign_in_with_firebase_email("chat.viewer@u.northwestern.edu")
+
+    get user_profile_path(@host)
+    assert_response :success
+    assert_includes response.body, "Hidden by profile setting"
+    assert_not_includes response.body, @host.email
+    assert_not_includes response.body, @host.phone_number
+
+    @host.update!(show_email_to_students: true, show_phone_to_students: true)
+
+    get user_profile_path(@host)
+    assert_response :success
+    assert_includes response.body, @host.email
+    assert_includes response.body, @host.phone_number
+  end
+
+  private
+
+  def valid_listing_attributes
+    {
+      title: "Chat Ready Listing",
+      description: "Clean furnished room within walking distance of campus.",
+      price: 850,
+      address: "820 Noyes St, Evanston, IL 60201",
+      bedrooms: 1,
+      bathrooms: 1,
+      furnished: true,
+      pets_allowed: false,
+      utilities_included: true,
+      available_from: Date.current + 1.day,
+      available_until: Date.current + 60.days
+    }
+  end
+
+  def sign_in_with_firebase_email(email)
+    verifier = Class.new do
+      define_method(:verify) do |_id_token|
+        {
+          "email" => email,
+          "email_verified" => true,
+          "name" => "Test Student"
+        }
+      end
+    end.new
+
+    original_new = FirebaseTokenVerifier.method(:new)
+    FirebaseTokenVerifier.define_singleton_method(:new) { |*| verifier }
+
+    post session_path, params: { id_token: "firebase-token" }, as: :json
+    User.find_by!(email: email)
+  ensure
+    FirebaseTokenVerifier.define_singleton_method(:new) { |*args, **kwargs| original_new.call(*args, **kwargs) }
+  end
+end
