@@ -157,6 +157,7 @@
         window.nuSubletsSkeletonLoadersLoaded = true;
 
         const listingContainerSelector = ".cards-grid, .listing-track, .favorite-listing-track, .profile-list-stack";
+        let pendingSkeletonTimer = null;
         const imageSelector = [
             ".listing-main-image",
             ".listing-avatar",
@@ -189,6 +190,10 @@
 
         const visibleChildren = (container) => Array.from(container.children).filter((child) => {
             return !child.classList.contains("skeleton-card") && !child.hidden;
+        });
+
+        const realChildren = (container) => Array.from(container.children).filter((child) => {
+            return !child.classList.contains("skeleton-card");
         });
 
         const skeletonCountFor = (container) => {
@@ -240,10 +245,45 @@
             element.classList.add("skeleton-surface", "is-skeleton-loading");
         };
 
+        const clearListingContainerLoading = (container) => {
+            container.querySelectorAll(":scope > .skeleton-card").forEach((card) => card.remove());
+            realChildren(container).forEach((child) => {
+                child.hidden = false;
+            });
+            delete container.dataset.skeletonLoading;
+            container.removeAttribute("aria-busy");
+        };
+
+        const clearBlockLoading = (element) => {
+            delete element.dataset.skeletonLoading;
+            element.removeAttribute("aria-busy");
+            element.classList.remove("skeleton-surface", "is-skeleton-loading");
+        };
+
+        const clearSkeletons = () => {
+            if (pendingSkeletonTimer) {
+                window.clearTimeout(pendingSkeletonTimer);
+                pendingSkeletonTimer = null;
+            }
+
+            document.body.classList.remove("is-showing-skeletons");
+            document.querySelectorAll(listingContainerSelector).forEach(clearListingContainerLoading);
+            document.querySelectorAll(".map-card, .gallery-main, .gallery-tile").forEach(clearBlockLoading);
+        };
+
         const showSkeletons = () => {
+            pendingSkeletonTimer = null;
             document.body.classList.add("is-showing-skeletons");
             document.querySelectorAll(listingContainerSelector).forEach(setListingContainerLoading);
             document.querySelectorAll(".map-card, .gallery-main, .gallery-tile").forEach(setBlockLoading);
+        };
+
+        const scheduleSkeletons = (delay = 0) => {
+            if (pendingSkeletonTimer) {
+                window.clearTimeout(pendingSkeletonTimer);
+            }
+
+            pendingSkeletonTimer = window.setTimeout(showSkeletons, delay);
         };
 
         const shouldHandleLink = (link, event) => {
@@ -262,17 +302,20 @@
             const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
 
             if (!shouldHandleLink(link, event)) return;
-            window.setTimeout(showSkeletons, 40);
+            scheduleSkeletons(40);
         });
 
         document.addEventListener("submit", (event) => {
             window.setTimeout(() => {
-                if (!event.defaultPrevented) showSkeletons();
+                if (!event.defaultPrevented) scheduleSkeletons();
             }, 0);
         });
 
         document.addEventListener("turbo:before-visit", showSkeletons);
-        window.addEventListener("beforeunload", showSkeletons);
+        document.addEventListener("turbo:before-cache", clearSkeletons);
+        document.addEventListener("turbo:load", clearSkeletons);
+        document.addEventListener("turbo:render", clearSkeletons);
+        window.addEventListener("pageshow", clearSkeletons);
 
         if (document.readyState === "loading") {
             document.addEventListener("DOMContentLoaded", loadImages);

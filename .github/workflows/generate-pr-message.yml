@@ -114,7 +114,7 @@ jobs:
 
       - name: Generate PR message with GitHub Models
         id: inference
-        uses: actions/ai-inference@v1
+        uses: actions/ai-inference@v2
         with:
           token: ${{ github.token }}
           prompt-file: tmp/pr-message/prompt.txt

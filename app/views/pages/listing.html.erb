@@ -1024,7 +1024,13 @@
                                             </svg>
                                             <span>Phone:</span>
                                         </div>
-                                        <a class="contact-link" href="tel:+11234567890">+1 (123) 456-7890</a>
+                                        <% if user_signed_in? && @listing_host.phone_visible_to?(current_user) %>
+                                            <a class="contact-link" href="tel:<%= @listing_host.phone_number.gsub(/\D/, "") %>"><%= @listing_host.phone_number %></a>
+                                        <% elsif user_signed_in? %>
+                                            <span class="contact-link">Hidden by profile setting</span>
+                                        <% else %>
+                                            <span class="contact-link">Log in to request contact details</span>
+                                        <% end %>
 
                                         <div class="contact-label">
                                             <svg class="contact-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -1033,15 +1039,27 @@
                                             </svg>
                                             <span>Email:</span>
                                         </div>
-                                        <a class="contact-link" href="mailto:<%= host_email %>"><%= host_email %></a>
+                                        <% if user_signed_in? && @listing_host.email_visible_to?(current_user) %>
+                                            <a class="contact-link" href="mailto:<%= host_email %>"><%= host_email %></a>
+                                        <% elsif user_signed_in? %>
+                                            <span class="contact-link">Hidden by profile setting</span>
+                                        <% else %>
+                                            <span class="contact-link">Log in to email the host</span>
+                                        <% end %>
                                     </div>
                                     <div class="d-flex gap-2 flex-wrap mt-4">
-                                        <% if user_signed_in? %>
-                                            <a class="btn btn-primary" href="mailto:<%= host_email %>">Email Host</a>
-                                            <a class="btn btn-outline-secondary" href="tel:+11234567890">Call Host</a>
+                                        <% if user_signed_in? && @listing_host.persisted? && current_user.id != @listing_host.id %>
+                                            <%= button_to "Chat with Host", conversations_path, method: :post, params: { recipient_id: @listing_host.id, sublet_listing_id: @listing.id }, class: "btn btn-primary", form: { class: "d-inline" } %>
+                                            <% if @listing_host.email_visible_to?(current_user) %>
+                                                <a class="btn btn-outline-secondary" href="mailto:<%= host_email %>">Email Host</a>
+                                            <% end %>
+                                            <% if @listing_host.phone_visible_to?(current_user) %>
+                                                <a class="btn btn-outline-secondary" href="tel:<%= @listing_host.phone_number.gsub(/\D/, "") %>">Call Host</a>
+                                            <% end %>
+                                        <% elsif user_signed_in? && @listing_host.persisted? && current_user.id == @listing_host.id %>
+                                            <a class="btn btn-outline-secondary" href="<%= profile_path %>">Manage Contact Settings</a>
                                         <% else %>
-                                            <a class="btn btn-primary" href="#" data-login-trigger>Email Host</a>
-                                            <a class="btn btn-outline-secondary" href="#" data-login-trigger>Call Host</a>
+                                            <a class="btn btn-primary" href="#" data-login-trigger>Log in to Chat</a>
                                         <% end %>
                                     </div>
                                 </div>

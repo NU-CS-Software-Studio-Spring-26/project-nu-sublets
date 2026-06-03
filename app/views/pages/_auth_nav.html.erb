@@ -1,4 +1,5 @@
 <% if user_signed_in? %>
+    <a class="nav-link p-0" href="<%= conversations_path %>">Chat</a>
     <% if local_assigns.fetch(:show_profile, true) %>
         <a class="nav-link p-0" href="<%= profile_path %>">Profile</a>
     <% end %>

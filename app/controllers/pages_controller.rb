@@ -3,7 +3,7 @@ class PagesController < ApplicationController
   RECOMMENDED_LISTINGS_LIMIT = 6
 
   layout false
-  before_action :authenticate_user!, only: %i[profile update_profile anotheruseraccount submit_sublet]
+  before_action :authenticate_user!, only: %i[profile update_profile user_profile another_user_account submit_sublet]
 
   def home
     prepare_recommendation_filters
@@ -148,7 +148,7 @@ class PagesController < ApplicationController
   def search_results_scope
     prepare_search_filters
 
-    if @move_in && @move_out && @move_out < @move_in
+    if @move_in && @move_out && @move_out <= @move_in
       @filter_error = "Move-out date must be after move-in date."
       SubletListing.none
     else
@@ -273,7 +273,18 @@ class PagesController < ApplicationController
   end
 
   def profile_params
-    params.require(:user).permit(:name, :email, :profile_photo_url, :profile_photo, :bio, :password, :password_confirmation)
+    params.require(:user).permit(
+      :name,
+      :email,
+      :profile_photo_url,
+      :profile_photo,
+      :bio,
+      :phone_number,
+      :show_email_to_students,
+      :show_phone_to_students,
+      :password,
+      :password_confirmation
+    )
   end
 
   def sync_name_parts

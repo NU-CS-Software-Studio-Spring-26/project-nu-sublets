@@ -1,0 +1,56 @@
+<% content_for :title, "Chat | NU Sublets" %>
+
+<div class="chat-page">
+  <header class="chat-topbar">
+    <a class="chat-brand" href="<%= root_path %>"><%= render "shared/brand_logo" %></a>
+    <nav class="chat-nav" aria-label="Main navigation">
+      <a href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
+      <a href="<%= search_results_path %>">Search</a>
+      <a href="<%= saved_path %>">Saved</a>
+      <a href="<%= post_sublet_path %>">Post Sublet</a>
+      <%= render "pages/auth_nav" %>
+    </nav>
+  </header>
+
+  <main class="chat-shell">
+    <section class="chat-panel" aria-labelledby="chat-inbox-title">
+      <div class="chat-panel-header">
+        <div>
+          <h1 id="chat-inbox-title">Messages</h1>
+          <p>Chat with verified Northwestern students before sharing contact details.</p>
+        </div>
+      </div>
+
+      <% if flash[:alert].present? %>
+        <p class="chat-alert error" role="alert"><%= flash[:alert] %></p>
+      <% end %>
+
+      <% if @conversations.any? %>
+        <div class="conversation-list">
+          <% @conversations.each do |conversation| %>
+            <% other_user = conversation.other_participant(current_user) %>
+            <% last_message = conversation.messages.max_by(&:created_at) %>
+            <a class="conversation-list-item" href="<%= conversation_path(conversation) %>">
+              <img src="<%= user_avatar_url(other_user, size: 96) %>" alt="<%= other_user.display_name %> profile photo" />
+              <div class="conversation-list-copy">
+                <div class="conversation-list-heading">
+                  <strong><%= other_user.display_name %></strong>
+                  <span><%= last_message ? last_message.created_at.strftime("%b %-d") : conversation.created_at.strftime("%b %-d") %></span>
+                </div>
+                <% if conversation.sublet_listing.present? %>
+                  <p class="conversation-list-context"><%= conversation.sublet_listing.title %></p>
+                <% end %>
+                <p><%= last_message&.body || "No messages yet." %></p>
+              </div>
+            </a>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="chat-empty-state">
+          <p>No chats yet.</p>
+          <a href="<%= search_results_path %>">Browse sublets</a>
+        </div>
+      <% end %>
+    </section>
+  </main>
+</div>

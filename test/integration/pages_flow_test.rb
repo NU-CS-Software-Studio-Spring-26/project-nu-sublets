@@ -134,6 +134,17 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     assert_includes response.body, "Photos must be PNG, JPG, or WebP files."
     assert_select "input[name='street-address'][value='820 Noyes St']"
+    assert_select "input[name='city'][value='Evanston']"
+    assert_select "input[name='state'][value='IL']"
+    assert_select "input[name='zip-code'][value='60201']"
+    assert_select "input[name='start-date'][value='06/12/2026']"
+    assert_select "input[name='end-date'][value='09/11/2026']"
+    assert_select "input[name='price'][value='850']"
+    assert_select "input[name='bedrooms'][value='1']"
+    assert_select "input[name='bathrooms'][value='1']"
+    assert_select "textarea[name='description']", text: "Clean furnished room within walking distance of campus."
+    assert_includes response.body, 'const initialAmenities = ["Laundry","Gym"]'
+    assert_includes response.body, 'const initialPreferences = ["Graduate student","Quiet"]'
   end
 
   test "home page links to the other product views" do
@@ -357,6 +368,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "a[href='#{profile_path}']", text: "Profile", count: 1
+    assert_select "a[href='#{conversations_path}']", text: "Chat", count: 1
     assert_select "form[action='#{session_path}'] button", text: "Log out"
     assert_select "a[data-login-trigger]", text: "Create a Posting", count: 0
     assert_select "a[href='#{post_sublet_path}']", text: "Create a Posting"
@@ -388,7 +400,8 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: "Test Student"
     assert_select ".profile-card"
     assert_select ".section-title", text: "Current Listings"
-    assert_includes response.body, "student@u.northwestern.edu"
+    assert_includes response.body, "Hidden by profile setting"
+    assert_not_includes response.body, "student@u.northwestern.edu"
   end
 
   test "search results page links into listing and home" do
@@ -397,6 +410,19 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{root_path}']", text: /NU[- ]Sublets/
     assert_select "a[href='#{saved_path}']", text: /Saved/
     assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet/
+  end
+
+  test "search results clears skeleton state before navigation cache restoration" do
+    get search_results_path
+
+    assert_response :success
+    assert_includes response.body, "const clearSkeletons = () =>"
+    assert_includes response.body, 'document.addEventListener("turbo:before-cache", clearSkeletons)'
+    assert_includes response.body, 'document.addEventListener("turbo:load", clearSkeletons)'
+    assert_includes response.body, 'document.addEventListener("turbo:render", clearSkeletons)'
+    assert_includes response.body, 'window.addEventListener("pageshow", clearSkeletons)'
+    assert_includes response.body, "window.clearTimeout(pendingSkeletonTimer)"
+    refute_includes response.body, 'window.addEventListener("beforeunload", showSkeletons)'
   end
 
   test "browse and search pages expose compare listing data and tray" do
@@ -461,6 +487,9 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Please enter a move-in date"
     assert_includes response.body, "Please enter a move-out date"
     assert_includes response.body, "Please enter a move-in and a move-out date"
+    assert_includes response.body, "const validateDateRange = () =>"
+    assert_includes response.body, "moveOutDate <= moveInDate"
+    assert_select "button[data-filter-submit]"
   end
 
   test "home page includes natural language search input" do
@@ -482,6 +511,13 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "[data-filter-error]", text: "Move-out date must be after move-in date."
     assert_select "[data-filter-error][hidden]", count: 0
     assert_select ".flash-error", count: 0
+  end
+
+  test "search results rejects matching move in and move out dates" do
+    get search_results_path("move-in": "06/12/2026", "move-out": "06/12/2026")
+
+    assert_select "[data-filter-error]", text: "Move-out date must be after move-in date."
+    assert_select "[data-filter-error][hidden]", count: 0
   end
 
   test "search results filters by price space amenities and preferences" do
@@ -787,6 +823,11 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "[data-map-pin]", count: 2
     assert_select "[data-map-pin]", text: "$850"
     assert_select "[data-map-pin].count-pin", text: "2"
+    assert_select "[data-map-zoom-status]", text: "1x"
+    assert_select "[data-campus-landmarks] .map-campus-landmark", text: "Tech"
+    assert_select "[data-campus-landmarks] .map-campus-landmark", text: "Norris"
+    assert_select "[data-campus-landmarks] .map-campus-landmark", text: "SPAC"
+    assert_includes response.body, "const maxZoom = 5"
     assert_select "[data-map-popup] a[href='#{sublet_listing_path(single_listing)}']", text: /Single Address Listing/
     assert_select "[data-map-popup] a[href='#{sublet_listing_path(grouped_listing)}']", text: /Apartment Option A/
   end
@@ -819,6 +860,26 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "button[data-compare-trigger]", text: "Compare listing"
     assert_select "[data-compare-tray]"
     assert_select "[data-compare-modal]"
+    assert_not_includes response.body, user.email
+    assert_not_includes response.body, "mailto:#{user.email}"
+    assert_not_includes response.body, "+1 (123) 456-7890"
+    assert_not_includes response.body, "tel:+11234567890"
+    assert_includes response.body, "Log in to email the host"
+
+    sign_in_with_firebase_email("detail.viewer@u.northwestern.edu")
+    get sublet_listing_path(listing)
+
+    assert_response :success
+    assert_not_includes response.body, user.email
+    assert_not_includes response.body, "mailto:#{user.email}"
+    assert_includes response.body, "Hidden by profile setting"
+
+    user.update!(show_email_to_students: true)
+    get sublet_listing_path(listing)
+
+    assert_response :success
+    assert_includes response.body, user.email
+    assert_includes response.body, "mailto:#{user.email}"
   end
 
   test "listing fallback page has a clickable compare button" do
@@ -1015,6 +1076,12 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
 
     get user_profile_path(user)
 
+    assert_redirected_to login_path
+    assert_not_includes response.body, user.email
+
+    sign_in_with_firebase_email("profile.viewer@u.northwestern.edu")
+    get user_profile_path(user)
+
     assert_response :success
     assert_select "h1", text: "Profile Owner"
     assert_select "img.profile-avatar[alt='Profile Owner profile avatar'][src='https://example.com/profile-owner.jpg']"
@@ -1023,10 +1090,18 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{sublet_listing_path(listing)}'] img.listing-avatar[alt='Profile Owner listing avatar'][src='https://example.com/profile-owner.jpg']"
   end
 
+  test "signed out users cannot view another user account page" do
+    get another_user_account_path
+
+    assert_redirected_to login_path
+  end
+
   test "post sublet page uses the submit endpoint" do
     get post_sublet_path
 
     assert_select "form[action='#{submit_sublet_path}'][method='post']"
+    assert_select "input[type='number'][name='bedrooms'][min='0'][max='20']"
+    assert_select "input[type='number'][name='bathrooms'][min='0'][max='20']"
     assert_select "input[type='file'][name='photos[]'][accept='image/png,image/jpeg,image/webp'][multiple]"
     assert_includes response.body, "Upload up to 5 photos. PNG, JPG, or WebP only. 5 MB max per photo."
   end

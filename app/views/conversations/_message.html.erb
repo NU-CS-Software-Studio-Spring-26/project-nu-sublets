@@ -1,0 +1,9 @@
+<% own_message = message.sender_id == current_user.id %>
+
+<article class="message-bubble <%= own_message ? "is-own-message" : "is-other-message" %>" data-message-id="<%= message.id %>">
+  <p class="message-meta">
+    <span><%= message.sender.display_name %></span>
+    <time datetime="<%= message.created_at.iso8601 %>"><%= message.created_at.strftime("%b %-d, %Y %-l:%M %p") %></time>
+  </p>
+  <p class="message-body"><%= message.body %></p>
+</article>

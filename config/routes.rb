@@ -24,6 +24,10 @@ Rails.application.routes.draw do
   get "profile" => "pages#profile", as: :profile
   patch "profile" => "pages#update_profile"
   get "users/:id" => "pages#user_profile", as: :user_profile
+  resources :conversations, only: %i[index show create] do
+    resources :messages, only: :create
+  end
+  mount ActionCable.server => "/cable"
   get "another-user-account" => "pages#another_user_account", as: :another_user_account
   get "about" => "pages#about", as: :about
   get "about-us" => "pages#about_us", as: :about_us

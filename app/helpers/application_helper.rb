@@ -34,6 +34,28 @@ module ApplicationHelper
     "https://randomuser.me/api/portraits/women/24.jpg"
   ].freeze
 
+  EVANSTON_MAP_WATER_START_X = 77
+  EVANSTON_MAP_FALLBACK_MAX_X = EVANSTON_MAP_WATER_START_X - 5
+  EVANSTON_MAP_NORTH_SOUTH_STREETS = {
+    "ridge" => 18,
+    "oak" => 34,
+    "maple" => 40,
+    "sherman" => 48,
+    "orrington" => 56,
+    "chicago" => 64,
+    "hinman" => 70,
+    "judson" => 73
+  }.freeze
+  EVANSTON_MAP_EAST_WEST_STREETS = {
+    "central" => 14,
+    "noyes" => 30,
+    "foster" => 38,
+    "emerson" => 46,
+    "clark" => 53,
+    "davis" => 60,
+    "garnett" => 70
+  }.freeze
+
   def listing_map_groups(listings)
     listings.group_by { |listing| normalized_listing_address(listing.address) }
             .values
@@ -158,21 +180,60 @@ module ApplicationHelper
 
   def listing_map_group(listings)
     address = map_address(listings.first.address)
+    x, y = map_coordinates(address)
 
     {
       address: address,
       listings: listings,
-      x: map_coordinate(address, 0),
-      y: map_coordinate(address, 1)
+      x: x,
+      y: y
     }
   end
 
-  def map_coordinate(address, offset)
-    # Deterministic pseudo-coordinates keep pins grouped until real geocoding is added.
-    digest = Digest::MD5.hexdigest(normalized_listing_address(address))
-    value = digest[offset * 4, 4].to_i(16)
+  def map_coordinates(address)
+    street_number, street_name = map_address_parts(address)
 
-    12 + (value % 76)
+    if street_number && EVANSTON_MAP_NORTH_SOUTH_STREETS.key?(street_name)
+      return [
+        EVANSTON_MAP_NORTH_SOUTH_STREETS.fetch(street_name),
+        interpolate_map_coordinate(street_number, from: 600..2300, to: 84..12)
+      ]
+    end
+
+    if street_number && EVANSTON_MAP_EAST_WEST_STREETS.key?(street_name)
+      return [
+        interpolate_map_coordinate(street_number, from: 600..1700, to: 73..18),
+        EVANSTON_MAP_EAST_WEST_STREETS.fetch(street_name)
+      ]
+    end
+
+    fallback_map_coordinates(address)
+  end
+
+  def map_address_parts(address)
+    match = map_address(address).downcase.match(/\A\s*(\d+)\s+([a-z]+)/)
+    return [ nil, nil ] unless match
+
+    [ match[1].to_i, match[2] ]
+  end
+
+  def interpolate_map_coordinate(value, from:, to:)
+    percent = (value - from.begin).to_f / (from.end - from.begin)
+    projected = to.begin + (percent * (to.end - to.begin))
+
+    projected.clamp([ to.begin, to.end ].min, [ to.begin, to.end ].max).round(1)
+  end
+
+  def fallback_map_coordinates(address)
+    # Keep unknown addresses deterministic, but constrain pins to the land portion of the illustrated map.
+    digest = Digest::MD5.hexdigest(normalized_listing_address(address))
+    x_value = digest[0, 4].to_i(16)
+    y_value = digest[4, 4].to_i(16)
+
+    [
+      12 + (x_value % (EVANSTON_MAP_FALLBACK_MAX_X - 11)),
+      12 + (y_value % 76)
+    ]
   end
 
   def map_address(address)
