@@ -16,11 +16,15 @@ class User < ApplicationRecord
   validate :password_requirements
   validate :password_confirmation_matches
   validate :profile_photo_must_be_image
+  validate :phone_number_format
 
   # Associations
   has_many :sublet_listings, dependent: :destroy
   has_many :listing_questions, dependent: :destroy
   has_many :listing_reports, dependent: :destroy
+  has_many :initiated_conversations, class_name: "Conversation", foreign_key: :initiator_id, dependent: :destroy, inverse_of: :initiator
+  has_many :received_conversations, class_name: "Conversation", foreign_key: :recipient_id, dependent: :destroy, inverse_of: :recipient
+  has_many :messages, foreign_key: :sender_id, dependent: :destroy, inverse_of: :sender
   has_one_attached :profile_photo
   # has_many :applications, dependent: :destroy
 
@@ -113,6 +117,18 @@ class User < ApplicationRecord
     sublet_listings.count
   end
 
+  def conversations
+    Conversation.involving(self)
+  end
+
+  def email_visible_to?(viewer)
+    viewer&.confirmed? && show_email_to_students?
+  end
+
+  def phone_visible_to?(viewer)
+    viewer&.confirmed? && show_phone_to_students? && phone_number.present?
+  end
+
   private
 
   def normalize_email
@@ -152,5 +168,15 @@ class User < ApplicationRecord
     return if profile_photo.content_type.in?(%w[image/png image/jpeg image/webp image/gif])
 
     errors.add(:profile_photo, "must be a PNG, JPG, WebP, or GIF image")
+  end
+
+  def phone_number_format
+    self.phone_number = phone_number.to_s.squish.presence
+    return if phone_number.blank?
+
+    digits = phone_number.gsub(/\D/, "")
+    return if digits.length.between?(7, 15)
+
+    errors.add(:phone_number, "must be a valid phone number")
   end
 end
