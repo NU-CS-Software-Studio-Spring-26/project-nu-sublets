@@ -69,6 +69,21 @@ class ConversationsTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "server-side message validation blocks profanity" do
+    renter = sign_in_with_firebase_email("chat.profanity@u.northwestern.edu")
+    conversation = Conversation.between(renter, @host, listing: @listing)
+    conversation.save!
+
+    assert_no_difference("Message.count") do
+      post conversation_messages_path(conversation),
+           params: { message: { body: "This message is shit." } },
+           headers: { "Accept" => "application/json" }
+    end
+
+    assert_response :unprocessable_entity
+    assert_includes response.parsed_body["errors"], ProfanityFilter::ERROR_MESSAGE
+  end
+
   test "contact details are hidden by default and visible when enabled" do
     sign_in_with_firebase_email("chat.viewer@u.northwestern.edu")
 

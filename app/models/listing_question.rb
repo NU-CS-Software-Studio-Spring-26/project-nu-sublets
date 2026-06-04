@@ -9,6 +9,7 @@ class ListingQuestion < ApplicationRecord
 
   validates :body, presence: true, length: { maximum: MAX_BODY_LENGTH }
   validates :answer, length: { maximum: MAX_ANSWER_LENGTH }, allow_blank: true
+  validates_no_profanity_in :body, :answer
 
   def answered?
     answer.present?

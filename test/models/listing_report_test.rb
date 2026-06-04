@@ -39,6 +39,13 @@ class ListingReportTest < ActiveSupport::TestCase
     assert_equal "Contains unsafe payment request.", report.description
   end
 
+  test "rejects profanity in report description" do
+    report = @listing.listing_reports.new(user: @reporter, description: "This report says shit.")
+
+    assert_not report.valid?
+    assert_includes report.errors[:base], ProfanityFilter::ERROR_MESSAGE
+  end
+
   test "destroyed when listing is destroyed" do
     @listing.listing_reports.create!(user: @reporter, description: "This should be reviewed.")
 

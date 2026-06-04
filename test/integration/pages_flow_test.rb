@@ -123,6 +123,19 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
   end
 
+  test "post sublet blocks profanity in direct server submission" do
+    sign_in_with_firebase_email("profanity.poster@u.northwestern.edu")
+
+    assert_no_difference("SubletListing.count") do
+      post submit_sublet_path, params: valid_sublet_post_params.merge(
+        description: "Clean furnished room, but this sentence says shit."
+      )
+    end
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, ProfanityFilter::ERROR_MESSAGE
+  end
+
   test "invalid sublet photo upload shows a friendly error and preserves input" do
     sign_in_with_firebase_email("student@u.northwestern.edu")
     upload = uploaded_test_file("lease.pdf", "application/pdf", "%PDF-1.4 fake pdf")
@@ -389,6 +402,25 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Usually responds within 2 days"
     assert_select "a", text: "Report profile"
     assert_select "a[href='#{post_sublet_path}']", text: "Post a Sublet"
+    assert_select "form#profile-settings-form[data-profanity-check]"
+    assert_select "textarea[name='user[bio]'][data-profanity-field]"
+  end
+
+  test "profile update blocks profanity in direct server submission" do
+    email = "profile.profanity.post@u.northwestern.edu"
+    sign_in_with_firebase_email(email)
+
+    patch profile_path, params: {
+      user: {
+        name: "Test Student",
+        email: email,
+        bio: "This profile says shit."
+      }
+    }
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, ProfanityFilter::ERROR_MESSAGE
+    assert_nil User.find_by!(email: email).bio
   end
 
   test "another user account page keeps the previous profile layout" do
@@ -873,6 +905,9 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, user.email
     assert_not_includes response.body, "mailto:#{user.email}"
     assert_includes response.body, "Hidden by profile setting"
+    assert_select "form.question-form[data-profanity-check]"
+    assert_select "textarea[name='listing_question[body]'][data-profanity-field]"
+    assert_select "form[data-profanity-check] textarea[name='listing_report[description]'][data-profanity-field]"
 
     user.update!(show_email_to_students: true)
     get sublet_listing_path(listing)
@@ -960,6 +995,26 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to sublet_listing_path(listing, anchor: "questions")
     assert_equal "Is parking available?", ListingQuestion.order(:created_at).last.body
+  end
+
+  test "listing question blocks profanity and shows an error" do
+    host = User.create!(name: "Question Host", email: "blocked.question.host@u.northwestern.edu", active: true)
+    listing = host.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Blocked Question Listing",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    sign_in_with_firebase_email("blocked.question.renter@u.northwestern.edu")
+
+    assert_no_difference("ListingQuestion.count") do
+      post sublet_listing_questions_path(listing), params: { listing_question: { body: "Is this shit available?" } }
+    end
+
+    assert_redirected_to sublet_listing_path(listing, anchor: "questions")
+    follow_redirect!
+    assert_includes response.body, ProfanityFilter::ERROR_MESSAGE
   end
 
   test "listing owner cannot ask a question on their own listing" do
@@ -1100,10 +1155,13 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     get post_sublet_path
 
     assert_select "form[action='#{submit_sublet_path}'][method='post']"
+    assert_select "form[data-profanity-check]"
+    assert_select "textarea[name='description'][data-profanity-field]"
     assert_select "input[type='number'][name='bedrooms'][min='0'][max='20']"
     assert_select "input[type='number'][name='bathrooms'][min='0'][max='20']"
     assert_select "input[type='file'][name='photos[]'][accept='image/png,image/jpeg,image/webp'][multiple]"
     assert_includes response.body, "Upload up to 5 photos. PNG, JPG, or WebP only. 5 MB max per photo."
+    assert_includes response.body, "data-profanity-words"
   end
 
   private

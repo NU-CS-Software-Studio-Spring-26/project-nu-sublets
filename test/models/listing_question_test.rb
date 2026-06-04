@@ -53,6 +53,20 @@ class ListingQuestionTest < ActiveSupport::TestCase
     assert_not_nil question.answered_at
   end
 
+  test "rejects profanity in question or answer text" do
+    question = @listing.listing_questions.new(user: @renter, body: "Is this shit still available?")
+    answer = @listing.listing_questions.new(
+      user: @renter,
+      body: "Is parking available?",
+      answer: "That answer would be shit."
+    )
+
+    assert_not question.valid?
+    assert_includes question.errors[:base], ProfanityFilter::ERROR_MESSAGE
+    assert_not answer.valid?
+    assert_includes answer.errors[:base], ProfanityFilter::ERROR_MESSAGE
+  end
+
   test "destroyed when listing is destroyed" do
     @listing.listing_questions.create!(user: @renter, body: "Is the room furnished?")
 

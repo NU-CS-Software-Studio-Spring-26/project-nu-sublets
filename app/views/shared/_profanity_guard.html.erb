@@ -1,0 +1,141 @@
+<style>
+    .profanity-error {
+        margin: 0.4rem 0 0;
+        color: #9f1d1d;
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+
+    .profanity-invalid {
+        border-color: #e11d48 !important;
+        box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.16) !important;
+    }
+</style>
+
+<script type="application/json" data-profanity-words><%= raw json_escape(ProfanityFilter.blocked_words.to_json) %></script>
+<script>
+    (() => {
+        const namespace = window.NuSublets || (window.NuSublets = {});
+
+        if (namespace.profanityGuardLoaded) {
+            namespace.initializeProfanityGuard?.();
+            return;
+        }
+
+        namespace.profanityGuardLoaded = true;
+
+        const message = <%= raw ProfanityFilter::ERROR_MESSAGE.to_json %>;
+        const fieldSelector = "[data-profanity-field]";
+        const formSelector = "form[data-profanity-check]";
+        const boundFields = new WeakSet();
+        let errorIdCounter = 0;
+
+        const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+
+        const blockedWordPatterns = (() => {
+            const script = document.querySelector("[data-profanity-words]");
+            const words = JSON.parse(script?.textContent || "[]");
+
+            return words.map((word) => {
+                const escaped = escapeRegex(String(word).trim());
+                return new RegExp(`(^|[^A-Za-z0-9_])${escaped}(?=$|[^A-Za-z0-9_])`, "i");
+            });
+        })();
+
+        const containsProfanity = (value) => blockedWordPatterns.some((pattern) => pattern.test(value));
+
+        const findOrCreateError = (field) => {
+            let error = document.getElementById(field.dataset.profanityErrorId || "");
+
+            if (error) {
+                return error;
+            }
+
+            error = document.createElement("p");
+            error.id = field.id ? `${field.id}-profanity-error` : `profanity-error-${++errorIdCounter}`;
+            error.className = "profanity-error";
+            error.textContent = message;
+            error.hidden = true;
+
+            field.dataset.profanityErrorId = error.id;
+            field.insertAdjacentElement("afterend", error);
+
+            return error;
+        };
+
+        const setFieldInvalid = (field, invalid) => {
+            const error = findOrCreateError(field);
+
+            if (!field.dataset.profanityOriginalDescribedBy) {
+                field.dataset.profanityOriginalDescribedBy = field.getAttribute("aria-describedby") || "";
+            }
+
+            if (invalid) {
+                const describedBy = [field.dataset.profanityOriginalDescribedBy, error.id].filter(Boolean).join(" ");
+                field.setCustomValidity(message);
+                field.setAttribute("aria-invalid", "true");
+                field.setAttribute("aria-describedby", describedBy);
+                field.classList.add("profanity-invalid");
+                error.hidden = false;
+            } else {
+                field.setCustomValidity("");
+                field.removeAttribute("aria-invalid");
+                field.classList.remove("profanity-invalid");
+                error.hidden = true;
+
+                if (field.dataset.profanityOriginalDescribedBy) {
+                    field.setAttribute("aria-describedby", field.dataset.profanityOriginalDescribedBy);
+                } else {
+                    field.removeAttribute("aria-describedby");
+                }
+            }
+        };
+
+        const validateField = (field) => {
+            const invalid = containsProfanity(field.value);
+            setFieldInvalid(field, invalid);
+            return !invalid;
+        };
+
+        const validateForm = (form) => {
+            const fields = Array.from(form.querySelectorAll(fieldSelector)).filter((field) => !field.disabled);
+            const invalidField = fields.find((field) => !validateField(field));
+
+            if (invalidField) {
+                invalidField.focus();
+                invalidField.reportValidity();
+                return false;
+            }
+
+            return true;
+        };
+
+        const initializeProfanityGuard = () => {
+            document.querySelectorAll(fieldSelector).forEach((field) => {
+                if (boundFields.has(field)) {
+                    return;
+                }
+
+                boundFields.add(field);
+                findOrCreateError(field);
+                validateField(field);
+                field.addEventListener("input", () => validateField(field));
+            });
+        };
+
+        document.addEventListener("submit", (event) => {
+            const form = event.target.closest?.(formSelector);
+
+            if (!form || validateForm(form)) {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }, true);
+
+        document.addEventListener("turbo:load", initializeProfanityGuard);
+        initializeProfanityGuard();
+        namespace.initializeProfanityGuard = initializeProfanityGuard;
+    })();
+</script>

@@ -8,6 +8,7 @@ class Message < ApplicationRecord
   after_create_commit :broadcast_to_conversation
 
   validates :body, presence: true, length: { maximum: MAX_BODY_LENGTH }
+  validates_no_profanity_in :body
   validate :sender_is_conversation_participant
 
   private

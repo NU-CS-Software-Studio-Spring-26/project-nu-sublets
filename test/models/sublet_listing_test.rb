@@ -107,6 +107,23 @@ class SubletListingTest < ActiveSupport::TestCase
     assert_equal "820 Noyes St, Evanston, IL 60201", listing.address
   end
 
+  test "rejects profanity in listing text" do
+    listing = @user.sublet_listings.new(
+      valid_listing_params.merge(description: "This room is clean but the lease terms are shit.")
+    )
+
+    assert_not listing.valid?
+    assert_includes listing.errors[:base], ProfanityFilter::ERROR_MESSAGE
+  end
+
+  test "does not reject listing text with blocked words inside longer words" do
+    listing = @user.sublet_listings.new(
+      valid_listing_params.merge(description: "Clean room with a shell collection by the entryway.")
+    )
+
+    assert listing.valid?
+  end
+
   test "rejects unreasonable numeric listing input with friendly errors" do
     listing = @user.sublet_listings.new(
       valid_listing_params.merge(

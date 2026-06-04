@@ -8,9 +8,11 @@ class User < ApplicationRecord
 
   # Validations
   before_validation :normalize_email
+  before_validation :normalize_profile_text
 
   validates :email, presence: true, uniqueness: { case_sensitive: false }, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :name, presence: true
+  validates_no_profanity_in :name, :bio
   validate :northwestern_email_domain
   validate :password_presence, if: :require_password?
   validate :password_requirements
@@ -133,6 +135,15 @@ class User < ApplicationRecord
 
   def normalize_email
     self.email = email.to_s.strip.downcase if email.present?
+  end
+
+  def normalize_profile_text
+    self.name = normalize_text(name)
+    self.bio = normalize_text(bio)
+  end
+
+  def normalize_text(value)
+    value.to_s.gsub(/[[:cntrl:]]/, " ").squish.presence
   end
 
   def northwestern_email_domain

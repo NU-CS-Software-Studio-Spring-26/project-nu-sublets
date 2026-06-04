@@ -106,6 +106,7 @@ class SubletListing < ApplicationRecord
     less_than_or_equal_to: MAX_ROOMS
   }
   validates :furnished, :pets_allowed, :utilities_included, inclusion: { in: [ true, false ] }
+  validates_no_profanity_in :title, :description, :address
 
   # Custom validations
   validate :available_until_after_available_from

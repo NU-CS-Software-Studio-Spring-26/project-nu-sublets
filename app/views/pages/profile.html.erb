@@ -1186,7 +1186,7 @@
                                 </div>
                             <% end %>
                             <% password_fields_open = params.dig(:user, :password).present? || params.dig(:user, :password_confirmation).present? %>
-                            <%= form_with model: user, url: profile_path, method: :patch, local: true, html: { multipart: true, id: "profile-settings-form" }, class: "account-form" do |form| %>
+                            <%= form_with model: user, url: profile_path, method: :patch, local: true, html: { multipart: true, id: "profile-settings-form" }, class: "account-form", data: { profanity_check: true } do |form| %>
                                 <div class="account-field">
                                     <p class="account-label">Profile Picture</p>
                                     <div class="account-avatar-picker">
@@ -1204,7 +1204,7 @@
 
                                 <div class="account-field">
                                     <%= form.label :name, "Name", class: "account-label" %>
-                                    <%= form.text_field :name, class: "account-input", required: true %>
+                                    <%= form.text_field :name, class: "account-input", required: true, data: { profanity_field: true } %>
                                 </div>
 
                                 <div class="account-field">
@@ -1271,7 +1271,7 @@
 
                                 <div class="account-field">
                                     <%= form.label :bio, "Bio", class: "account-label" %>
-                                    <%= form.text_area :bio, class: "account-input", placeholder: "Tell other Northwestern students a little about yourself." %>
+                                    <%= form.text_area :bio, class: "account-input", placeholder: "Tell other Northwestern students a little about yourself.", data: { profanity_field: true } %>
                                 </div>
 
                                 <div class="account-actions">
@@ -1379,6 +1379,7 @@
                 })();
             </script>
         </div>
+        <%= render "shared/profanity_guard" %>
         <%= render "shared/skeleton_loaders" %>
     <%= render "shared/service_worker_registration" %>
 

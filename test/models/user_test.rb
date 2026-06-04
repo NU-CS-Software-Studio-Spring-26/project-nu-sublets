@@ -30,6 +30,18 @@ class UserTest < ActiveSupport::TestCase
     assert_equal "Updated Name", user.reload.name
   end
 
+  test "rejects profanity in profile text" do
+    user = User.new(
+      name: "Profile Student",
+      email: "profile.profanity@u.northwestern.edu",
+      bio: "This bio has shit language.",
+      active: true
+    )
+
+    assert_not user.valid?
+    assert_includes user.errors[:base], ProfanityFilter::ERROR_MESSAGE
+  end
+
   test "soft_delete marks user inactive" do
     user = User.create!(
       name: "Soft Delete",

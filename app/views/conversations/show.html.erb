@@ -64,8 +64,8 @@
         <% end %>
       </div>
 
-      <%= form_with model: [ @conversation, @message ], local: true, class: "message-form", data: { chat_form: true } do |form| %>
-        <%= form.text_area :body, maxlength: Message::MAX_BODY_LENGTH, required: true, placeholder: "Send a message", aria: { label: "Message" }, data: { message_input: true } %>
+      <%= form_with model: [ @conversation, @message ], local: true, class: "message-form", data: { chat_form: true, profanity_check: true } do |form| %>
+        <%= form.text_area :body, maxlength: Message::MAX_BODY_LENGTH, required: true, placeholder: "Send a message", aria: { label: "Message" }, data: { message_input: true, profanity_field: true } %>
         <%= form.submit "Send" %>
       <% end %>
     </section>

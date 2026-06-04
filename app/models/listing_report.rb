@@ -9,6 +9,7 @@ class ListingReport < ApplicationRecord
 
   validates :description, presence: true, length: { maximum: MAX_DESCRIPTION_LENGTH }
   validates :status, inclusion: { in: STATUSES }
+  validates_no_profanity_in :description
 
   private
 

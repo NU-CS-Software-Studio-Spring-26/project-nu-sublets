@@ -20,8 +20,15 @@ class SessionsController < ApplicationController
 
     start_session_for(user)
     redirect_to profile_path, notice: "Logged in with Google."
-  rescue ActiveRecord::RecordInvalid
-    redirect_to login_path, alert: "Could not log in with Google."
+  rescue ActiveRecord::RecordInvalid => error
+    alert =
+      if error.record.errors[:base].include?(ProfanityFilter::ERROR_MESSAGE)
+        ProfanityFilter::ERROR_MESSAGE
+      else
+        "Could not log in with Google."
+      end
+
+    redirect_to login_path, alert: alert
   end
 
   def omniauth_failure
@@ -65,6 +72,8 @@ class SessionsController < ApplicationController
     render json: { error: "Missing Firebase ID token." }, status: :bad_request
   rescue FirebaseTokenVerifier::VerificationError
     render json: { error: "Could not verify Google login." }, status: :unauthorized
+  rescue ActiveRecord::RecordInvalid => error
+    render json: { error: error.record.errors.full_messages.to_sentence }, status: :unprocessable_entity
   end
 
   def create_from_password

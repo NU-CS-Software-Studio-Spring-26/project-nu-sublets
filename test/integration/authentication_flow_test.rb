@@ -129,6 +129,22 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to profile_path
   end
 
+  test "Google OAuth profile name with profanity shows a friendly error" do
+    OmniAuth.config.mock_auth[:google_oauth2] = google_auth_hash(
+      email: "google.profanity@u.northwestern.edu",
+      name: "Shit Student"
+    )
+
+    assert_no_difference("User.count") do
+      post "/auth/google_oauth2"
+      follow_redirect!
+    end
+
+    assert_redirected_to login_path
+    follow_redirect!
+    assert_includes response.body, ProfanityFilter::ERROR_MESSAGE
+  end
+
   test "rejects Google OAuth login with a non Northwestern email" do
     OmniAuth.config.mock_auth[:google_oauth2] = google_auth_hash(email: "google@example.com")
 
@@ -202,13 +218,13 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     )
   end
 
-  def google_auth_hash(email:, uid: "google-123")
+  def google_auth_hash(email:, uid: "google-123", name: "Google Student")
     OmniAuth::AuthHash.new(
       provider: "google_oauth2",
       uid: uid,
       info: {
         email: email,
-        name: "Google Student",
+        name: name,
         image: "https://example.com/google-student.jpg"
       }
     )

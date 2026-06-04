@@ -24,6 +24,13 @@ class MessageTest < ActiveSupport::TestCase
     assert_equal "Hello there now", message.body
   end
 
+  test "rejects profanity in message body" do
+    message = @conversation.messages.new(sender: @initiator, body: "This message is shit.")
+
+    assert_not message.valid?
+    assert_includes message.errors[:base], ProfanityFilter::ERROR_MESSAGE
+  end
+
   test "sender must be a participant" do
     outsider = User.create!(name: "Outsider", email: "message.outsider@u.northwestern.edu", active: true, confirmed_at: Time.current)
     message = @conversation.messages.new(sender: outsider, body: "Can I join?")

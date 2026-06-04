@@ -829,7 +829,7 @@
                     <% selected_amenities = Array(params[:amenities]).reject(&:blank?) %>
                     <% selected_preferences = Array(params[:preferences]).reject(&:blank?) %>
 
-                    <%= form_with url: submit_sublet_path, method: :post, local: true, html: { multipart: true }, class: "post-card" do %>
+                    <%= form_with url: submit_sublet_path, method: :post, local: true, html: { multipart: true }, class: "post-card", data: { profanity_check: true } do %>
                         <section class="section-block field-stack">
                             <div>
                                 <h2 class="section-title">Address</h2>
@@ -837,16 +837,16 @@
                             </div>
 
                             <div class="field-grid two-col">
-                                <input class="field-input" type="text" name="street-address" placeholder="Street Address" value="<%= params["street-address"] %>" />
-                                <input class="field-input" type="text" name="address-line-2" placeholder="Apt, suite, etc. (optional)" value="<%= params["address-line-2"] %>" />
+                                <input class="field-input" type="text" name="street-address" placeholder="Street Address" value="<%= params["street-address"] %>" data-profanity-field />
+                                <input class="field-input" type="text" name="address-line-2" placeholder="Apt, suite, etc. (optional)" value="<%= params["address-line-2"] %>" data-profanity-field />
                             </div>
 
                             <div class="field-grid city-row">
-                                <input class="field-input" type="text" name="city" placeholder="City" value="<%= params[:city] %>" />
+                                <input class="field-input" type="text" name="city" placeholder="City" value="<%= params[:city] %>" data-profanity-field />
                             </div>
 
                             <div class="field-grid state-row">
-                                <input class="field-input" type="text" name="state" placeholder="State" value="<%= params[:state] %>" />
+                                <input class="field-input" type="text" name="state" placeholder="State" value="<%= params[:state] %>" data-profanity-field />
                                 <input class="field-input" type="text" name="zip-code" placeholder="Zip Code" value="<%= params["zip-code"] %>" />
                             </div>
                         </section>
@@ -910,7 +910,7 @@
 
                         <section class="section-block field-stack">
                             <h2 class="section-title">Description</h2>
-                            <textarea class="field-textarea" name="description" placeholder="Describe apartment here" data-description-input><%= params[:description] %></textarea>
+                            <textarea class="field-textarea" name="description" placeholder="Describe apartment here" data-description-input data-profanity-field><%= params[:description] %></textarea>
                             <p class="description-counter" data-description-counter aria-live="polite">0 / 1000 characters</p>
                         </section>
 
@@ -1559,6 +1559,7 @@
                 });
             })();
         </script>
+        <%= render "shared/profanity_guard" %>
         <%= render "shared/skeleton_loaders" %>
     <%= render "shared/service_worker_registration" %>
 

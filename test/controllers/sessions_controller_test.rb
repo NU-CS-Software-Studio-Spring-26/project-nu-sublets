@@ -33,6 +33,21 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_nil User.find_by(email: "student@example.com")
   end
 
+  test "rejects a Firebase token with profanity in profile name" do
+    assert_no_difference("User.count") do
+      stub_firebase_token(
+        "email" => "profanity.name@u.northwestern.edu",
+        "email_verified" => true,
+        "name" => "Shit Student"
+      ) do
+        post session_path, params: { id_token: "firebase-token" }, as: :json
+      end
+    end
+
+    assert_response :unprocessable_entity
+    assert_equal ProfanityFilter::ERROR_MESSAGE, response.parsed_body["error"]
+  end
+
   private
 
   def stub_firebase_token(decoded_token)
