@@ -572,6 +572,7 @@
             .results-actions {
                 display: flex;
                 align-items: center;
+                flex-wrap: wrap;
                 gap: 16px;
                 margin-left: auto;
             }
@@ -589,7 +590,7 @@
                 text-align: right;
             }
 
-            .per-page-label {
+            .result-control-label {
                 display: flex;
                 align-items: center;
                 gap: 6px;
@@ -599,7 +600,7 @@
                 white-space: nowrap;
             }
 
-            .per-page-select {
+            .result-control-select {
                 padding: 5px 8px;
                 border: 1px solid var(--nu-border);
                 border-radius: 6px;
@@ -610,7 +611,7 @@
                 cursor: pointer;
             }
 
-            .per-page-select:focus-visible {
+            .result-control-select:focus-visible {
                 border-color: rgba(78, 42, 132, 0.5);
                 box-shadow: 0 0 0 3px rgba(78, 42, 132, 0.12);
                 outline: none;
@@ -1095,6 +1096,12 @@
                     display: block;
                 }
 
+                .results-actions {
+                    margin-top: 12px;
+                    margin-left: 0;
+                    gap: 10px 14px;
+                }
+
                 .results-page-count {
                     margin-top: 6px;
                     text-align: left;
@@ -1157,6 +1164,8 @@
                 <div class="toolbar-inner">
                     <form class="filter-form" action="<%= search_results_path %>" method="get" aria-label="Search and filter sublets" data-search-filter-form novalidate>
                         <input type="hidden" name="filter_priority" value="<%= params[:filter_priority] == "search" ? "search" : "filters" %>" data-filter-priority />
+                        <input type="hidden" name="sort" value="<%= @sort %>" />
+                        <input type="hidden" name="per_page" value="<%= @per_page %>" />
 
                         <label class="natural-search-filter">
                             <span class="visually-hidden">Natural language search</span>
@@ -1282,10 +1291,18 @@
                     <div class="results-summary">
                         <h1 class="results-title"><%= pluralize(@total_listings_count, "Sublet") %> Available</h1>
                         <div class="results-actions">
-                            <%= link_to "Export PDF", search_results_path(request.query_parameters.except("page").merge(format: :pdf)), class: "export-pdf-link", aria: { label: "Export search results as PDF" }, data: { turbo: false }, download: true %>
-                            <label class="per-page-label">
+                            <%= link_to "Export PDF", search_results_path(request.query_parameters.except("page").merge(format: :pdf, sort: @sort)), class: "export-pdf-link", aria: { label: "Export search results as PDF" }, data: { turbo: false }, download: true %>
+                            <label class="result-control-label">
+                                Sort:
+                                <select class="result-control-select" aria-label="Sort search results" data-result-param-select data-param-name="sort">
+                                    <% @sort_options.each do |value, label| %>
+                                        <option value="<%= value %>" <%= "selected" if @sort == value %>><%= label %></option>
+                                    <% end %>
+                                </select>
+                            </label>
+                            <label class="result-control-label">
                                 Per page:
-                                <select class="per-page-select" aria-label="Listings per page" data-per-page-select>
+                                <select class="result-control-select" aria-label="Listings per page" data-result-param-select data-param-name="per_page" data-per-page-select>
                                     <% [25, 50, 100].each do |n| %>
                                         <option value="<%= n %>" <%= "selected" if @per_page == n %>><%= n %></option>
                                     <% end %>
@@ -2081,13 +2098,16 @@
     <%= render "shared/service_worker_registration" %>
         <script>
             (() => {
-                const perPageSelect = document.querySelector("[data-per-page-select]");
-                if (!perPageSelect) return;
-                perPageSelect.addEventListener("change", () => {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set("per_page", perPageSelect.value);
-                    url.searchParams.delete("page");
-                    window.location.href = url.toString();
+                document.querySelectorAll("[data-result-param-select]").forEach((select) => {
+                    select.addEventListener("change", () => {
+                        const paramName = select.dataset.paramName;
+                        if (!paramName) return;
+
+                        const url = new URL(window.location.href);
+                        url.searchParams.set(paramName, select.value);
+                        url.searchParams.delete("page");
+                        window.location.href = url.toString();
+                    });
                 });
             })();
         </script>

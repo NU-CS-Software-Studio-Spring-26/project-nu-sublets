@@ -806,6 +806,79 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "select[data-per-page-select] option[value='25'][selected]"
   end
 
+  test "search results includes visible sort selector with friendly options" do
+    get search_results_path
+
+    assert_select "select[data-param-name='sort'][aria-label='Sort search results']"
+    assert_select "select[data-param-name='sort'] option[value='newest']", text: "Recently posted"
+    assert_select "select[data-param-name='sort'] option[value='price_asc']", text: "Rent: low to high"
+    assert_select "select[data-param-name='sort'] option[value='price_desc']", text: "Rent: high to low"
+    assert_select "select[data-param-name='sort'] option[value='available_from_asc']", text: "Move-in date: earliest first"
+    assert_select "select[data-param-name='sort'] option[value='available_until_desc']", text: "Move-out date: latest first"
+    assert_select "select[data-param-name='sort'] option[value='bedrooms_desc']", text: "Bedrooms"
+    assert_select "select[data-param-name='sort'] option[value='bathrooms_desc']", text: "Bathrooms"
+    assert_select "select[data-param-name='sort'] option[value='price_asc'][selected]"
+  end
+
+  test "search results sort selector preserves filters and resets page through shared selector script" do
+    get search_results_path(
+      "move-in": "06/12/2026",
+      "move-out": "09/11/2026",
+      max_price: "1200",
+      amenities: [ "Laundry" ],
+      per_page: "50",
+      sort: "price_desc"
+    )
+
+    assert_select "select[data-param-name='sort'] option[value='price_desc'][selected]"
+    assert_select "input[type='hidden'][name='sort'][value='price_desc']", visible: false
+    assert_select "input[type='hidden'][name='per_page'][value='50']", visible: false
+    assert_select "select[data-per-page-select] option[value='50'][selected]"
+    assert_includes response.body, "url.searchParams.set(paramName, select.value);"
+    assert_includes response.body, 'url.searchParams.delete("page");'
+  end
+
+  test "search results invalid sort falls back to low rent sort" do
+    get search_results_path(sort: "not-a-real-sort")
+
+    assert_select "select[data-param-name='sort'] option[value='price_asc'][selected]"
+    assert_select "input[type='hidden'][name='sort'][value='price_asc']", visible: false
+    assert_no_match "not-a-real-sort", response.body
+  end
+
+  test "search results sort order uses selected sort parameter" do
+    older_low = listing_owner("sort-older-low").sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Sort Older Low",
+        price: 800,
+        bedrooms: 1,
+        bathrooms: 1,
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 8, 15),
+        created_at: Time.zone.local(2026, 5, 1, 8, 0, 0)
+      )
+    )
+    newer_high = listing_owner("sort-newer-high").sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Sort Newer High",
+        price: 1_400,
+        bedrooms: 3,
+        bathrooms: 2,
+        available_from: Date.new(2026, 7, 1),
+        available_until: Date.new(2026, 9, 15),
+        created_at: Time.zone.local(2026, 5, 2, 8, 0, 0)
+      )
+    )
+
+    get search_results_path(sort: "price_desc")
+
+    assert_operator response.body.index(newer_high.title), :<, response.body.index(older_low.title)
+
+    get search_results_path(sort: "bedrooms_desc")
+
+    assert_operator response.body.index(newer_high.title), :<, response.body.index(older_low.title)
+  end
+
   test "search results per-page selector respects valid per_page param" do
     get search_results_path(per_page: "50")
 
