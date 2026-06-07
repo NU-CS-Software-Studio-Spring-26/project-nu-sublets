@@ -23,6 +23,7 @@ Rails.application.routes.draw do
   get "post-sublet" => "pages#post_sublet", as: :post_sublet
   get "profile" => "pages#profile", as: :profile
   patch "profile" => "pages#update_profile"
+  delete "profile" => "pages#destroy_account"
   get "users/:id" => "pages#user_profile", as: :user_profile
   resources :conversations, only: %i[index show create] do
     resources :messages, only: :create
