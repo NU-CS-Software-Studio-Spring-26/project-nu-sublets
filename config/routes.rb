@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   patch "listing-questions/:id" => "listing_questions#update", as: :listing_question
   delete "listing-questions/:id" => "listing_questions#destroy"
   get "search-results" => "pages#search_results", as: :search_results
+  get "compare-listings/export" => "pages#compare_listings_pdf", as: :compare_listings_pdf
   get "saved" => "pages#saved", as: :saved
   get "post-sublet" => "pages#post_sublet", as: :post_sublet
   get "profile" => "pages#profile", as: :profile

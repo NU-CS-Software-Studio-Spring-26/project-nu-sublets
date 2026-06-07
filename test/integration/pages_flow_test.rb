@@ -772,8 +772,12 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "[data-compare-tray]"
     assert_select "[data-compare-modal]"
+    assert_select "a.compare-export-link[data-compare-export][data-turbo='false'][download]", text: "Export PDF"
+    assert_select "a.compare-export-link[aria-disabled='true'][tabindex='-1']"
     assert_select "a[href='#{sublet_listing_path(listing)}'][data-compare-listing]"
     assert_includes response.body, "nuSublets.compareListings"
+    assert_includes response.body, "compare-listings/export"
+    assert_includes response.body, 'exportUrl.searchParams.append("ids[]", listing.id)'
     assert_includes response.body, "You can compare up to 3 listings at a time."
     assert_includes response.body, "table-layout: fixed"
     assert_includes response.body, "<colgroup>"
@@ -1149,6 +1153,88 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal [ matching_listing.id ], captured_listings.map(&:id)
+  end
+
+  test "compare listings pdf route returns pdf content for selected listings" do
+    owner = User.create!(
+      name: "Compare PDF Owner",
+      email: "compare.pdf.owner@u.northwestern.edu",
+      active: true
+    )
+    listing = owner.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Compare PDF Match",
+        amenities: [ "Laundry", "Parking" ],
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 8, 31)
+      )
+    )
+    sign_in_with_firebase_email("compare.pdf.viewer@u.northwestern.edu")
+
+    get compare_listings_pdf_path(format: :pdf, ids: [ listing.id ])
+
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+    assert response.body.start_with?("%PDF")
+  end
+
+  test "compare listings pdf export preserves selected order and availability" do
+    first_listing = listing_owner("compare-first").sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Compare First",
+        price: 900,
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 8, 31)
+      )
+    )
+    second_listing = listing_owner("compare-second").sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Compare Second",
+        price: 1_100,
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 8, 31)
+      )
+    )
+    unavailable_listing = listing_owner("compare-unavailable").sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Compare Unavailable",
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 8, 31)
+      )
+    )
+    unavailable_listing.update_columns(
+      available_from: Date.new(2026, 4, 1),
+      available_until: Date.new(2026, 4, 30)
+    )
+
+    captured_listings = nil
+    fake_pdf = Class.new do
+      def render
+        "%PDF-1.4\n"
+      end
+    end
+
+    original_new = CompareListingsPdf.method(:new)
+    CompareListingsPdf.define_singleton_method(:new) do |listings:, **|
+      captured_listings = listings
+      fake_pdf.new
+    end
+    sign_in_with_firebase_email("compare.order.viewer@u.northwestern.edu")
+
+    begin
+      get compare_listings_pdf_path(format: :pdf, ids: [ second_listing.id, unavailable_listing.id, first_listing.id ])
+    ensure
+      CompareListingsPdf.define_singleton_method(:new) { |*args, **kwargs| original_new.call(*args, **kwargs) }
+    end
+
+    assert_response :success
+    assert_equal [ second_listing.id, first_listing.id ], captured_listings.map(&:id)
+  end
+
+  test "compare listings pdf export requires login" do
+    get compare_listings_pdf_path(format: :pdf, ids: [ 123 ])
+
+    assert_redirected_to login_path
   end
 
   test "natural language search filters listings through existing search behavior" do

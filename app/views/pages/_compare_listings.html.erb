@@ -136,6 +136,7 @@
     .compare-remove-button,
     .compare-clear-button,
     .compare-open-button,
+    .compare-export-link,
     .compare-modal-close {
         border-radius: 8px;
         font-family: "Rubik", sans-serif;
@@ -182,6 +183,33 @@
     .compare-open-button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+    }
+
+    .compare-export-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 10px 14px;
+        border: 1px solid #4E2A84;
+        background: #fff;
+        color: #4E2A84;
+        font-size: 13px;
+        line-height: 1.1;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .compare-export-link:hover,
+    .compare-export-link:focus-visible {
+        background: rgba(78, 42, 132, 0.08);
+        outline: 0;
+    }
+
+    .compare-export-link[aria-disabled="true"] {
+        opacity: 0.5;
+        pointer-events: none;
     }
 
     .compare-message {
@@ -245,6 +273,13 @@
         color: #495057;
         font-size: 13px;
         line-height: 1.35;
+    }
+
+    .compare-modal-actions {
+        display: flex;
+        flex: 0 0 auto;
+        gap: 8px;
+        align-items: center;
     }
 
     .compare-modal-close {
@@ -414,7 +449,13 @@
         }
 
         .compare-modal-header {
+            align-items: stretch;
+            flex-direction: column;
             padding: 16px;
+        }
+
+        .compare-modal-actions {
+            justify-content: space-between;
         }
 
         .comparison-table-wrap {
@@ -459,7 +500,20 @@
                 <h2 class="compare-modal-title" id="compare-modal-title">Compare Listings</h2>
                 <p class="compare-modal-subtitle">Review rent, location, dates, room details, and amenities side by side.</p>
             </div>
-            <button class="compare-modal-close" type="button" aria-label="Close comparison" data-compare-modal-close>&times;</button>
+            <div class="compare-modal-actions">
+                <%= link_to "Export PDF",
+                            compare_listings_pdf_path(format: :pdf),
+                            class: "compare-export-link",
+                            aria: { disabled: "true", label: "Export listing comparison as PDF" },
+                            data: {
+                                compare_export: true,
+                                compare_export_base: compare_listings_pdf_path(format: :pdf),
+                                turbo: false
+                            },
+                            download: true,
+                            tabindex: "-1" %>
+                <button class="compare-modal-close" type="button" aria-label="Close comparison" data-compare-modal-close>&times;</button>
+            </div>
         </div>
         <div class="comparison-table-wrap" data-comparison-table></div>
     </div>
@@ -549,6 +603,20 @@
         let messageTimer = null;
 
         const selectedIds = () => new Set(comparedListings.map((listing) => listing.id));
+
+        const updateExportLink = () => {
+            const exportLink = document.querySelector("[data-compare-export]");
+            if (!exportLink) return;
+
+            const hasListings = comparedListings.length > 0;
+            const exportUrl = new URL(exportLink.dataset.compareExportBase || exportLink.href, window.location.origin);
+            exportUrl.search = "";
+            comparedListings.forEach((listing) => exportUrl.searchParams.append("ids[]", listing.id));
+
+            exportLink.href = exportUrl.toString();
+            exportLink.setAttribute("aria-disabled", hasListings ? "false" : "true");
+            exportLink.tabIndex = hasListings ? 0 : -1;
+        };
 
         const parseCardListing = (card) => {
             try {
@@ -782,6 +850,7 @@
             comparedListings = uniqueListings(comparedListings);
             renderTray();
             renderComparison();
+            updateExportLink();
             updateCardButtons();
         }
 
@@ -793,6 +862,12 @@
             document.querySelector("[data-compare-clear]")?.addEventListener("click", clearListings);
             document.querySelectorAll("[data-compare-modal-close]").forEach((button) => {
                 button.addEventListener("click", closeModal);
+            });
+            document.querySelector("[data-compare-export]")?.addEventListener("click", (event) => {
+                if (comparedListings.length === 0) {
+                    event.preventDefault();
+                    showMessage("Select at least one listing to export.");
+                }
             });
 
             document.addEventListener("keydown", (event) => {
