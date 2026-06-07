@@ -1,6 +1,12 @@
 require "test_helper"
 
 class ApplicationHelperTest < ActionView::TestCase
+  test "format_central_time converts timestamp and appends CT label" do
+    formatted_time = format_central_time(Time.utc(2026, 5, 1, 1, 30, 0), format: "%b %-d, %Y %-l:%M %p", include_label: true)
+
+    assert_equal "Apr 30, 2026 8:30 PM CT", formatted_time
+  end
+
   test "user_avatar_url uses initials for demo placeholder photos" do
     user = User.new(
       name: "Melinda Tester",

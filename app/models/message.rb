@@ -1,4 +1,6 @@
 class Message < ApplicationRecord
+  include CentralTimeFormatting
+
   MAX_BODY_LENGTH = 1_000
 
   belongs_to :conversation
@@ -31,7 +33,7 @@ class Message < ApplicationRecord
         sender_id: sender_id,
         sender_name: sender.display_name,
         body: body,
-        created_at: created_at.strftime("%b %-d, %Y %-l:%M %p")
+        created_at: format_central_time(created_at, format: "%b %-d, %Y %-l:%M %p", include_label: true)
       }
     )
   end

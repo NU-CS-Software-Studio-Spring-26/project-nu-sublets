@@ -35,7 +35,7 @@
               <div class="conversation-list-copy">
                 <div class="conversation-list-heading">
                   <strong><%= other_user.display_name %></strong>
-                  <span><%= last_message ? last_message.created_at.strftime("%b %-d") : conversation.created_at.strftime("%b %-d") %></span>
+                  <span><%= last_message ? format_central_time(last_message.created_at, format: "%b %-d") : format_central_time(conversation.created_at, format: "%b %-d") %></span>
                 </div>
                 <% if conversation.sublet_listing.present? %>
                   <p class="conversation-list-context"><%= conversation.sublet_listing.title %></p>

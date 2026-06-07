@@ -58,6 +58,20 @@ class ConversationsTest < ActionDispatch::IntegrationTest
     assert_select ".conversation-list-context", text: @listing.title
   end
 
+  test "conversation list timestamps are rendered in central time" do
+    renter = sign_in_with_firebase_email("chat.central.list@u.northwestern.edu")
+    conversation = Conversation.between(renter, @host, listing: @listing)
+    conversation.save!
+    message = conversation.messages.create!(sender: @host, body: "Latest update")
+    message.update_columns(created_at: Time.utc(2026, 5, 1, 1, 30, 0), updated_at: Time.utc(2026, 5, 1, 1, 30, 0))
+
+    get conversations_path
+
+    assert_response :success
+    assert_select ".conversation-list-heading span", text: "Apr 30"
+    assert_no_match "May 1", response.body
+  end
+
   test "signed in user can start a chat with an existing account holder" do
     sign_in_with_firebase_email("chat.verified.sender@u.northwestern.edu")
     student = User.create!(
@@ -94,6 +108,20 @@ class ConversationsTest < ActionDispatch::IntegrationTest
       post conversation_messages_path(conversation), params: { message: { body: "I should not post." } }
     end
     assert_response :not_found
+  end
+
+  test "message timestamps are rendered in central time with label" do
+    renter = sign_in_with_firebase_email("chat.central.message@u.northwestern.edu")
+    conversation = Conversation.between(renter, @host, listing: @listing)
+    conversation.save!
+    message = conversation.messages.create!(sender: @host, body: "Late-night ping")
+    message.update_columns(created_at: Time.utc(2026, 5, 1, 1, 30, 0), updated_at: Time.utc(2026, 5, 1, 1, 30, 0))
+
+    get conversation_path(conversation)
+
+    assert_response :success
+    assert_includes response.body, "Apr 30, 2026 8:30 PM CT"
+    assert_no_match "May 1, 2026", response.body
   end
 
   test "server-side message validation blocks profanity" do

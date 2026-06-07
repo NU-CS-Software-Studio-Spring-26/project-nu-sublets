@@ -3,6 +3,7 @@ require "prawn"
 class SearchResultsPdf
   include ActionView::Helpers::NumberHelper
   include ActionView::Helpers::TextHelper
+  include CentralTimeFormatting
 
   def initialize(listings:, applied_filters:, generated_at:, base_url:)
     @listings = listings
@@ -38,7 +39,7 @@ class SearchResultsPdf
     pdf.text "NU Sublets Search Results", size: 24, style: :bold
     pdf.fill_color "000000"
     pdf.move_down 6
-    pdf.text "Generated #{generated_at.strftime("%B %-d, %Y at %-I:%M %p %Z")}", size: 10, color: "555555"
+    pdf.text "Generated #{format_central_time(generated_at, format: "%B %-d, %Y at %-I:%M %p", include_label: true)}", size: 10, color: "555555"
     pdf.text "#{listings.size} #{'listing'.pluralize(listings.size)} matched this search.", size: 10, color: "555555"
     pdf.move_down 18
   end

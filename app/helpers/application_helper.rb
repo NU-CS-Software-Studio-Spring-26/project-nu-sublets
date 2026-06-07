@@ -1,6 +1,8 @@
 require "digest"
 
 module ApplicationHelper
+  include CentralTimeFormatting
+
   NAV_ITEM_ICONS = {
     browse: '<svg class="nav-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 2 8h.5v6A1.5 1.5 0 0 0 4 15.5h8a1.5 1.5 0 0 0 1.5-1.5V8h.5a.5.5 0 0 0 .354-.854zM13 7.5V14a1 1 0 0 1-1 1H9.5v-3.5a1.5 1.5 0 0 0-3 0V15H4a1 1 0 0 1-1-1V7.5a.5.5 0 0 0-.146-.354L8 2.207l5.146 4.939A.5.5 0 0 0 13 7.5"/></svg>'.html_safe,
     search: '<svg class="nav-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M11.742 10.344a6.5 6.5 0 1 0-1.398 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>'.html_safe,

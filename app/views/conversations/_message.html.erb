@@ -3,7 +3,7 @@
 <article class="message-bubble <%= own_message ? "is-own-message" : "is-other-message" %>" data-message-id="<%= message.id %>">
   <p class="message-meta">
     <span><%= message.sender.display_name %></span>
-    <time datetime="<%= message.created_at.iso8601 %>"><%= message.created_at.strftime("%b %-d, %Y %-l:%M %p") %></time>
+    <time datetime="<%= central_time(message.created_at).iso8601 %>"><%= format_central_time(message.created_at, format: "%b %-d, %Y %-l:%M %p", include_label: true) %></time>
   </p>
   <p class="message-body"><%= message.body %></p>
 </article>
