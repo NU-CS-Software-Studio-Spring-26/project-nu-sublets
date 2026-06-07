@@ -13,6 +13,24 @@
   color: #495057 !important;
 }
 
+:root {
+  --nu-primary-button: #4E2A84;
+  --nu-primary-button-hover: #3f1f6d;
+}
+
+.btn-primary {
+  background-color: var(--nu-primary-button);
+  border-color: var(--nu-primary-button);
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible,
+.btn-primary:active,
+.btn-primary:active:focus-visible {
+  background-color: var(--nu-primary-button-hover);
+  border-color: var(--nu-primary-button-hover);
+}
+
 a.text-muted {
   color: #495057 !important;
   text-decoration: underline dotted;

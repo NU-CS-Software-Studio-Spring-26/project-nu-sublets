@@ -4,6 +4,18 @@
         --nu-focus-ring-outer: rgba(78, 42, 132, 0.42);
     }
 
+    :where(.btn-primary, .search-button, .cta-button, .submit-button, .account-save-button, .listing-access-lock__button, .profile-primary-link:not(.is-disabled)) {
+        background: var(--nu-primary-button, #4E2A84) !important;
+        border-color: var(--nu-primary-button, #4E2A84) !important;
+        color: #fff !important;
+    }
+
+    :where(.btn-primary, .search-button, .cta-button, .submit-button, .account-save-button, .listing-access-lock__button, .profile-primary-link:not(.is-disabled)):where(:hover, :focus-visible) {
+        background: var(--nu-primary-button-hover, #3f1f6d) !important;
+        border-color: var(--nu-primary-button-hover, #3f1f6d) !important;
+        color: #fff !important;
+    }
+
     :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
         outline: 3px solid var(--nu-focus-ring) !important;
         outline-offset: 3px !important;
