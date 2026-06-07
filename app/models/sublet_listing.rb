@@ -86,6 +86,7 @@ class SubletListing < ApplicationRecord
 
   # Validations
   before_validation :normalize_user_input
+  before_save :geocode_address_if_needed
 
   validates :title, presence: true, length: { minimum: 5, maximum: 100 }
   validates :description, presence: true, length: { minimum: 10, maximum: 1000 }
@@ -162,6 +163,10 @@ class SubletListing < ApplicationRecord
 
   def displayed_preferences
     Array(preferences).uniq
+  end
+
+  def geocoded?
+    latitude.present? && longitude.present?
   end
 
   # Class Methods (CRUD Operations)
@@ -379,5 +384,26 @@ class SubletListing < ApplicationRecord
     if user.sublet_listings.available.where.not(id: id).exists?
       errors.add(:base, ACTIVE_LISTING_LIMIT_MESSAGE)
     end
+  end
+
+  def geocode_address_if_needed
+    return unless address.present?
+    return if new_record? && latitude.present? && longitude.present?
+    return unless will_save_change_to_address? || latitude.blank? || longitude.blank?
+
+    result = GoogleGeocodingClient.new.geocode(address)
+    self.geocoding_status = result.status
+
+    if result.success?
+      self.latitude = result.latitude
+      self.longitude = result.longitude
+      self.geocoded_at = Time.current
+    elsif will_save_change_to_address?
+      self.latitude = nil
+      self.longitude = nil
+      self.geocoded_at = nil
+    end
+
+    true
   end
 end

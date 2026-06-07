@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_03_002000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_07_000000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -99,6 +99,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_002000) do
     t.datetime "created_at", null: false
     t.text "description", null: false
     t.boolean "furnished", default: false, null: false
+    t.datetime "geocoded_at"
+    t.string "geocoding_status"
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
     t.boolean "pets_allowed", default: false, null: false
     t.text "preferences"
     t.decimal "price", null: false
@@ -106,6 +110,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_002000) do
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.boolean "utilities_included", default: false, null: false
+    t.index ["latitude", "longitude"], name: "index_sublet_listings_on_latitude_and_longitude"
     t.index ["user_id"], name: "index_sublet_listings_on_user_id"
     t.check_constraint "available_until > available_from", name: "sublet_listings_available_until_after_from"
     t.check_constraint "bathrooms >= 0 AND bathrooms <= 20", name: "sublet_listings_bathrooms_range"
