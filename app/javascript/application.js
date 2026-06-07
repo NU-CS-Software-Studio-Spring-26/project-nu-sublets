@@ -83,7 +83,8 @@ const escapeHtml = (value) => {
 const appendChatMessage = (message) => {
   const messageList = document.querySelector("[data-message-list]")
   const chatPage = document.querySelector("[data-conversation-id]")
-  if (!messageList || !chatPage || messageList.querySelector(`[data-message-id="${message.id}"]`)) return
+  const body = String(message.body || "").trim()
+  if (!messageList || !chatPage || !body || messageList.querySelector(`[data-message-id="${message.id}"]`)) return
 
   const currentUserId = Number(chatPage.dataset.currentUserId)
   const ownMessage = Number(message.sender_id) === currentUserId
@@ -96,7 +97,7 @@ const appendChatMessage = (message) => {
       <span>${escapeHtml(message.sender_name)}</span>
       <time${datetimeAttribute}>${escapeHtml(message.created_at)}</time>
     </p>
-    <p class="message-body">${escapeHtml(message.body)}</p>
+    <p class="message-body">${escapeHtml(body)}</p>
   `
 
   messageList.append(article)
@@ -142,6 +143,10 @@ const bindChatForm = () => {
 
   const input = form.querySelector("[data-message-input]")
 
+  input?.addEventListener("input", () => {
+    if (input.value.trim()) input.setCustomValidity("")
+  })
+
   input?.addEventListener("keydown", (event) => {
     if (event.key !== "Enter" || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return
 
@@ -154,7 +159,13 @@ const bindChatForm = () => {
 
     const submit = form.querySelector("input[type='submit']")
     const body = input?.value.trim()
-    if (!body) return
+    if (!body) {
+      input?.setCustomValidity("Message can't be blank.")
+      input?.reportValidity()
+      return
+    }
+
+    input?.setCustomValidity("")
 
     submit?.setAttribute("disabled", "disabled")
 
