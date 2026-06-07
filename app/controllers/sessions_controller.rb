@@ -78,7 +78,7 @@ class SessionsController < ApplicationController
         name: user.display_name,
         email: user.email
       },
-      requires_terms_acceptance: new_user ? true : false,
+      requires_terms_acceptance: new_user,
       terms_path: new_user ? onboarding_terms_path : nil
     }
   rescue ActionController::ParameterMissing
