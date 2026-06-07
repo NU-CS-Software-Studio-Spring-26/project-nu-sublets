@@ -2,19 +2,17 @@
     :root {
         --nu-focus-ring: #f7c948;
         --nu-focus-ring-outer: rgba(78, 42, 132, 0.42);
-        --nu-primary-button: #4E2A84;
-        --nu-primary-button-hover: #3f1f6d;
     }
 
     :where(.btn-primary, .search-button, .cta-button, .submit-button, .account-save-button, .listing-access-lock__button, .profile-primary-link:not(.is-disabled)) {
-        background: var(--nu-primary-button) !important;
-        border-color: var(--nu-primary-button) !important;
+        background: var(--nu-primary-button, #4E2A84) !important;
+        border-color: var(--nu-primary-button, #4E2A84) !important;
         color: #fff !important;
     }
 
     :where(.btn-primary, .search-button, .cta-button, .submit-button, .account-save-button, .listing-access-lock__button, .profile-primary-link:not(.is-disabled)):where(:hover, :focus-visible) {
-        background: var(--nu-primary-button-hover) !important;
-        border-color: var(--nu-primary-button-hover) !important;
+        background: var(--nu-primary-button-hover, #3f1f6d) !important;
+        border-color: var(--nu-primary-button-hover, #3f1f6d) !important;
         color: #fff !important;
     }
 
