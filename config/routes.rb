@@ -26,8 +26,8 @@ Rails.application.routes.draw do
   patch "profile" => "pages#update_profile"
   delete "profile" => "pages#destroy_account"
   get "users/:id" => "pages#user_profile", as: :user_profile
-  resources :conversations, only: %i[index show create] do
-    resources :messages, only: :create
+  resources :conversations, only: %i[index show create destroy] do
+    resources :messages, only: %i[create destroy]
   end
   mount ActionCable.server => "/cable"
   get "another-user-account" => "pages#another_user_account", as: :another_user_account

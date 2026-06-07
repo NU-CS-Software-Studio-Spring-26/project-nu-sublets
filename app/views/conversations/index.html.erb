@@ -21,19 +21,35 @@
           <% @conversations.each do |conversation| %>
             <% other_user = conversation.other_participant(current_user) %>
             <% last_message = conversation.messages.max_by(&:created_at) %>
-            <a class="conversation-list-item" href="<%= conversation_path(conversation) %>" aria-label="Open conversation with <%= other_user&.display_name || 'student' %>">
-              <img src="<%= user_avatar_url(other_user, size: 96) %>" alt="<%= other_user.display_name %> profile photo" />
-              <div class="conversation-list-copy">
-                <div class="conversation-list-heading">
-                  <strong><%= other_user.display_name %></strong>
-                  <span><%= central_time_display(last_message&.created_at || conversation.created_at) %></span>
+            <article class="conversation-list-item">
+              <a class="conversation-list-link" href="<%= conversation_path(conversation) %>" aria-label="Open conversation with <%= other_user&.display_name || 'student' %>">
+                <img src="<%= user_avatar_url(other_user, size: 96) %>" alt="<%= other_user.display_name %> profile photo" />
+                <div class="conversation-list-copy">
+                  <div class="conversation-list-heading">
+                    <strong><%= other_user.display_name %></strong>
+                    <span><%= central_time_display(last_message&.created_at || conversation.created_at) %></span>
+                  </div>
+                  <% if conversation.sublet_listing.present? %>
+                    <p class="conversation-list-context"><%= conversation.sublet_listing.title %></p>
+                  <% end %>
+                  <p><%= last_message&.body || "No messages yet." %></p>
                 </div>
-                <% if conversation.sublet_listing.present? %>
-                  <p class="conversation-list-context"><%= conversation.sublet_listing.title %></p>
-                <% end %>
-                <p><%= last_message&.body || "No messages yet." %></p>
-              </div>
-            </a>
+              </a>
+              <details class="conversation-actions">
+                <summary aria-label="Conversation actions">...</summary>
+                <div class="conversation-actions-menu">
+                  <%= button_to conversation_path(conversation),
+                                method: :delete,
+                                class: "conversation-delete-button",
+                                form: { data: { turbo_confirm: "Are you sure you want to delete this chat?" } } do %>
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 16 16">
+                      <path fill="currentColor" d="M6.5 1.5h3l.5 1H14v1H2v-1h4zM3.5 4.5h9l-.55 9.25a1.5 1.5 0 0 1-1.5 1.42h-4.9a1.5 1.5 0 0 1-1.5-1.42zM6 6.5v6h1v-6zm3 0v6h1v-6z" />
+                    </svg>
+                    <span>Delete chat</span>
+                  <% end %>
+                </div>
+              </details>
+            </article>
           <% end %>
         </div>
       <% else %>

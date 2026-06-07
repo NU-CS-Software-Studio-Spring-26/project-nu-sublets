@@ -1,6 +1,6 @@
 class ConversationsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_conversation, only: :show
+  before_action :set_conversation, only: %i[show destroy]
 
   def index
     @conversations = current_user.conversations.includes(:initiator, :recipient, :sublet_listing, messages: :sender).to_a
@@ -24,6 +24,11 @@ class ConversationsController < ApplicationController
     else
       redirect_back fallback_location: conversations_path, alert: conversation_error_message(conversation, recipient)
     end
+  end
+
+  def destroy
+    @conversation.destroy
+    redirect_to conversations_path, notice: "Chat deleted."
   end
 
   private
