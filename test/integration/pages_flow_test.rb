@@ -1489,6 +1489,30 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_equal "Is parking available?", ListingQuestion.order(:created_at).last.body
   end
 
+  test "turbo stream question create updates the questions section" do
+    host = User.create!(name: "Turbo Question Host", email: "turbo.ask.host@u.northwestern.edu", active: true)
+    listing = host.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Turbo Askable Listing",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    sign_in_with_firebase_email("turbo.ask.renter@u.northwestern.edu")
+
+    assert_difference("ListingQuestion.count", 1) do
+      post sublet_listing_questions_path(listing),
+           params: { listing_question: { body: "Can I tour this weekend?" } },
+           as: :turbo_stream
+    end
+
+    assert_response :success
+    assert_equal Mime[:turbo_stream].to_s, response.media_type
+    assert_includes response.body, 'turbo-stream action="replace" target="listing_questions"'
+    assert_includes response.body, "Question posted."
+    assert_includes response.body, "Can I tour this weekend?"
+  end
+
   test "listing question blocks profanity and shows an error" do
     host = User.create!(name: "Question Host", email: "blocked.question.host@u.northwestern.edu", active: true)
     listing = host.sublet_listings.create!(
@@ -1506,6 +1530,29 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to sublet_listing_path(listing, anchor: "questions")
     follow_redirect!
+    assert_includes response.body, ProfanityFilter::ERROR_MESSAGE
+  end
+
+  test "turbo stream question errors render feedback without redirecting" do
+    host = User.create!(name: "Turbo Error Host", email: "turbo.error.host@u.northwestern.edu", active: true)
+    listing = host.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Turbo Error Listing",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    sign_in_with_firebase_email("turbo.error.renter@u.northwestern.edu")
+
+    assert_no_difference("ListingQuestion.count") do
+      post sublet_listing_questions_path(listing),
+           params: { listing_question: { body: "Is this shit available?" } },
+           as: :turbo_stream
+    end
+
+    assert_response :unprocessable_entity
+    assert_equal Mime[:turbo_stream].to_s, response.media_type
+    assert_includes response.body, 'turbo-stream action="replace" target="listing_questions"'
     assert_includes response.body, ProfanityFilter::ERROR_MESSAGE
   end
 
@@ -1553,6 +1600,30 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_not_nil question.answered_at
   end
 
+  test "turbo stream question answer updates the questions section" do
+    host = User.create!(name: "Turbo Answer Host", email: "turbo.answer.host@u.northwestern.edu", active: true)
+    renter = User.create!(name: "Turbo Answer Renter", email: "turbo.answer.renter@u.northwestern.edu", active: true)
+    listing = host.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Turbo Answer Listing",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    question = listing.listing_questions.create!(user: renter, body: "Is laundry included?")
+
+    sign_in_with_firebase_email(host.email)
+    patch listing_question_path(question),
+          params: { listing_question: { answer: "Yes, in building." } },
+          as: :turbo_stream
+
+    assert_response :success
+    assert_equal Mime[:turbo_stream].to_s, response.media_type
+    assert_includes response.body, "Answer posted."
+    assert_includes response.body, "Yes, in building."
+    assert_equal "Yes, in building.", question.reload.answer
+  end
+
   test "question author and listing owner can delete questions" do
     host = User.create!(name: "Delete Host", email: "delete.host@u.northwestern.edu", active: true)
     renter = User.create!(name: "Delete Renter", email: "delete.renter@u.northwestern.edu", active: true)
@@ -1575,6 +1646,31 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_difference("ListingQuestion.count", -1) do
       delete listing_question_path(host_question)
     end
+  end
+
+  test "turbo stream question delete refreshes the questions section" do
+    host = User.create!(name: "Turbo Delete Host", email: "turbo.delete.host@u.northwestern.edu", active: true)
+    renter = User.create!(name: "Turbo Delete Renter", email: "turbo.delete.renter@u.northwestern.edu", active: true)
+    listing = host.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Turbo Delete Listing",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    question = listing.listing_questions.create!(user: renter, body: "Will this disappear?")
+
+    sign_in_with_firebase_email(renter.email)
+
+    assert_difference("ListingQuestion.count", -1) do
+      delete listing_question_path(question), as: :turbo_stream
+    end
+
+    assert_response :success
+    assert_equal Mime[:turbo_stream].to_s, response.media_type
+    assert_includes response.body, "Question deleted."
+    assert_includes response.body, "No questions yet."
+    assert_not_includes response.body, "Will this disappear?"
   end
 
   test "unrelated user cannot delete another users listing question" do

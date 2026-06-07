@@ -1,0 +1,64 @@
+<% listing_owner = user_signed_in? && current_user.id == @listing.user_id %>
+<% host_name = @listing_host.display_name || @listing_host.name || "Listing Host" %>
+
+<%= turbo_frame_tag "listing_questions" do %>
+    <section class="pt-5 listing-offset-section questions-section" id="questions" aria-labelledby="questions-title">
+        <div class="questions-header">
+            <h2 class="section-title" id="questions-title">Questions &amp; Answers</h2>
+            <span class="questions-count"><%= pluralize(@listing_questions.size, "question") %></span>
+        </div>
+
+        <% flash.each do |type, message| %>
+            <p class="question-alert <%= type %>" role="alert"><%= message %></p>
+        <% end %>
+
+        <% if user_signed_in? && @listing.persisted? && !listing_owner %>
+            <%= form_with model: @listing_question, url: sublet_listing_questions_path(@listing), method: :post, class: "question-form", data: { profanity_check: true } do |form| %>
+                <%= form.label :body, "Ask the host a question", class: "question-label" %>
+                <%= form.text_area :body, class: "question-textarea", maxlength: ListingQuestion::MAX_BODY_LENGTH, required: true, placeholder: "Ask about utilities, move-in details, roommates, parking, or anything else students should know.", data: { profanity_field: true } %>
+                <div class="question-actions">
+                    <%= form.submit "Post question", class: "btn btn-primary" %>
+                </div>
+            <% end %>
+        <% elsif user_signed_in? && listing_owner %>
+            <p class="question-owner-note">You own this listing. Answer renter questions below so everyone can see the details.</p>
+        <% elsif @listing.persisted? %>
+            <p class="question-auth-note"><%= link_to "Log in", login_path %> to ask the host a public question.</p>
+        <% end %>
+
+        <% if @listing_questions.any? %>
+            <div class="questions-list">
+                <% @listing_questions.each do |question| %>
+                    <% asker_name = question.user&.display_name || "Student" %>
+                    <article class="question-item">
+                        <p class="question-meta">Asked by <%= asker_name %> on <%= question.created_at.strftime("%b %-d, %Y") %></p>
+                        <p class="question-body"><%= question.body %></p>
+
+                        <% if question.answered? %>
+                            <div class="answer-block">
+                                <p class="answer-meta">Answered by <%= host_name %><%= " on #{question.answered_at.strftime("%b %-d, %Y")}" if question.answered_at.present? %></p>
+                                <p class="answer-body"><%= question.answer %></p>
+                            </div>
+                        <% end %>
+
+                        <% if listing_owner %>
+                            <%= form_with model: question, url: listing_question_path(question), method: :patch, class: "answer-form", data: { profanity_check: true } do |form| %>
+                                <%= form.label :answer, question.answered? ? "Update answer" : "Answer this question", class: "answer-label" %>
+                                <%= form.text_area :answer, class: "answer-textarea", maxlength: ListingQuestion::MAX_ANSWER_LENGTH, required: true, value: question.answer, data: { profanity_field: true } %>
+                                <div class="question-actions">
+                                    <%= form.submit question.answered? ? "Update answer" : "Post answer", class: "btn btn-primary" %>
+                                </div>
+                            <% end %>
+                        <% end %>
+
+                        <% if user_signed_in? && (listing_owner || question.user_id == current_user.id) %>
+                            <%= button_to "Delete question", listing_question_path(question), method: :delete, class: "btn btn-outline-danger btn-sm", form: { class: "question-delete-form" } %>
+                        <% end %>
+                    </article>
+                <% end %>
+            </div>
+        <% else %>
+            <p class="question-empty">No questions yet. Ask something useful for everyone considering this sublet.</p>
+        <% end %>
+    </section>
+<% end %>
