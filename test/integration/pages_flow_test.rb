@@ -20,10 +20,10 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "listing page is reachable" do
+  test "listing page requires login" do
     get listing_path
 
-    assert_response :success
+    assert_redirected_to login_path
   end
 
   test "search results page is reachable" do
@@ -107,6 +107,53 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to login_path
   end
 
+  test "logged out home page locks browse listing sections" do
+    get root_path
+
+    assert_response :success
+    assert_select ".listing-access-lock__prompt", text: /Please log in to view sublet listings/
+    assert_select ".listing-access-lock__content[inert]"
+    assert_select "a.listing-access-lock__button[href='#{login_path}']", text: "Log in"
+    assert_select "#recommendations-track a.listing-card"
+    assert_select "[data-compare-tray]", count: 0
+  end
+
+  test "logged out search results are locked behind login" do
+    get search_results_path
+
+    assert_response :success
+    assert_select ".listing-access-lock__prompt", text: /Please log in to search and view sublet listings/
+    assert_select ".listing-access-lock__content[inert]"
+    assert_select "a.listing-access-lock__button[href='#{login_path}']", text: "Log in"
+    assert_select "[data-compare-tray]", count: 0
+  end
+
+  test "logged out search PDF export redirects to login" do
+    get search_results_path(format: :pdf)
+
+    assert_redirected_to login_path
+  end
+
+  test "logged out saved page hides saved listing content" do
+    get saved_path
+
+    assert_response :success
+    assert_select ".listing-access-lock__prompt", text: /Please log in to view saved listings/
+    assert_select ".listing-access-lock__content[inert]"
+    assert_select "[data-favorite-listings]", count: 0
+    refute_includes response.body, "nuSublets.favoriteListings"
+  end
+
+  test "logged out post sublet page locks the form" do
+    get post_sublet_path
+
+    assert_response :success
+    assert_select ".listing-access-lock__prompt", text: /Please log in with your Northwestern account to post a sublet/
+    assert_select ".listing-access-lock__content[inert] form[action='#{submit_sublet_path}']"
+    assert_select ".post-card button[type='submit']", count: 0
+    assert_select "button[data-login-trigger]", text: "Post Sublet"
+  end
+
   test "logged in post sublet form submits to an app endpoint" do
     sign_in_with_firebase_email("student@u.northwestern.edu")
 
@@ -121,6 +168,101 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_equal [ "Laundry", "Gym" ], listing.amenities
     assert_equal [ "Graduate student", "Quiet" ], listing.preferences
     assert_redirected_to search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
+  end
+
+  test "post sublet page warns when signed in user already has an active listing" do
+    sign_in_with_firebase_email("active.poster@u.northwestern.edu")
+    user = User.find_by!(email: "active.poster@u.northwestern.edu")
+    listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Current Active Listing",
+        available_from: Date.new(2026, 6, 12),
+        available_until: Date.new(2026, 9, 11)
+      )
+    )
+
+    get post_sublet_path
+
+    assert_response :success
+    assert_includes response.body, SubletListing::ACTIVE_LISTING_LIMIT_MESSAGE
+    assert_select "a[href='#{sublet_listing_path(listing)}']", text: "View current listing"
+    assert_select "a[href='#{profile_path}']", text: "Manage listings"
+    assert_select "form.post-card", count: 0
+  end
+
+  test "signed in user with active listing cannot create a second active listing by direct post" do
+    sign_in_with_firebase_email("duplicate.poster@u.northwestern.edu")
+    user = User.find_by!(email: "duplicate.poster@u.northwestern.edu")
+    user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Existing Active Listing",
+        available_from: Date.new(2026, 6, 12),
+        available_until: Date.new(2026, 9, 11)
+      )
+    )
+
+    assert_no_difference("SubletListing.count") do
+      post submit_sublet_path, params: valid_sublet_post_params.merge("street-address" => "910 Noyes St")
+    end
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, SubletListing::ACTIVE_LISTING_LIMIT_MESSAGE
+    assert_select "form.post-card", count: 0
+  end
+
+  test "expired listing does not block posting a new active listing" do
+    sign_in_with_firebase_email("expired.poster@u.northwestern.edu")
+    user = User.find_by!(email: "expired.poster@u.northwestern.edu")
+    expired_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Expired Listing",
+        available_from: Date.new(2026, 6, 12),
+        available_until: Date.new(2026, 9, 11)
+      )
+    )
+    expired_listing.update_columns(
+      available_from: Date.current - 60.days,
+      available_until: Date.current - 1.day
+    )
+
+    assert_difference("SubletListing.count", 1) do
+      post submit_sublet_path, params: valid_sublet_post_params.merge("street-address" => "910 Noyes St")
+    end
+
+    assert_redirected_to search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
+  end
+
+  test "owner can update their existing active listing" do
+    sign_in_with_firebase_email("edit.active.poster@u.northwestern.edu")
+    user = User.find_by!(email: "edit.active.poster@u.northwestern.edu")
+    listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Editable Active Listing",
+        available_from: Date.new(2026, 6, 12),
+        available_until: Date.new(2026, 9, 11)
+      )
+    )
+
+    patch sublet_listing_path(listing), params: {
+      sublet_listing: {
+        title: "Edited Active Listing",
+        description: listing.description,
+        price: 975,
+        address: listing.address,
+        bedrooms: listing.bedrooms,
+        bathrooms: listing.bathrooms,
+        available_from: listing.available_from,
+        available_until: listing.available_until,
+        furnished: listing.furnished,
+        pets_allowed: listing.pets_allowed,
+        utilities_included: listing.utilities_included
+      }
+    }
+
+    assert_redirected_to sublet_listing_path(listing)
+    listing.reload
+    assert_equal "Edited Active Listing", listing.title
+    assert_equal 975, listing.price.to_i
   end
 
   test "post sublet blocks profanity in direct server submission" do
@@ -197,7 +339,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 3)
       )
     )
-    furnished_listing = user.sublet_listings.create!(
+    furnished_listing = listing_owner("carousel-furnished").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Furnished Carousel Match",
         address: "910 Noyes St, Evanston, IL 60201",
@@ -207,7 +349,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 3)
       )
     )
-    pet_listing = user.sublet_listings.create!(
+    pet_listing = listing_owner("carousel-pet").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Pet Carousel Match",
         address: "1722 Oak Ave, Evanston, IL 60201",
@@ -275,7 +417,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 1)
       )
     )
-    missing_bedroom = user.sublet_listings.create!(
+    missing_bedroom = listing_owner("recommendation-bedroom").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Filtered Recommendation Wrong Bedroom",
         price: 800,
@@ -286,7 +428,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 1)
       )
     )
-    missing_amenity = user.sublet_listings.create!(
+    missing_amenity = listing_owner("recommendation-amenity").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Filtered Recommendation Missing Gym",
         price: 700,
@@ -297,7 +439,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 1)
       )
     )
-    outside_window = user.sublet_listings.create!(
+    outside_window = listing_owner("recommendation-window").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Filtered Recommendation Wrong Window",
         price: 600,
@@ -350,7 +492,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 3)
       )
     )
-    second_listing = user.sublet_listings.create!(
+    second_listing = listing_owner("recent-second").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Second Recently Viewed",
         address: "910 Noyes St, Evanston, IL 60201",
@@ -358,6 +500,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 9, 1)
       )
     )
+    sign_in_with_firebase_email("student@u.northwestern.edu")
 
     get root_path
 
@@ -384,7 +527,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{conversations_path}']", text: "Chat", count: 1
     assert_select "form[action='#{session_path}'] button", text: "Log out"
     assert_select "a[data-login-trigger]", text: "Create a Posting", count: 0
-    assert_select "a[href='#{post_sublet_path}']", text: "Create a Posting"
+    assert_select "a.cta-button[href='#{post_sublet_path}']", text: "Create a Posting"
   end
 
   test "profile page is tailored to the signed in user" do
@@ -499,6 +642,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "browse and search pages expose compare listing data and tray" do
+    sign_in_with_firebase_email("student@u.northwestern.edu")
     user = User.create!(
       name: "Compare Owner",
       email: "compare.owner@u.northwestern.edu",
@@ -533,6 +677,8 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "saved page renders the saved listings shell" do
+    sign_in_with_firebase_email("student@u.northwestern.edu")
+
     get saved_path
 
     assert_select "h1", text: "Saved Sublets"
@@ -612,7 +758,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 3)
       )
     )
-    user.sublet_listings.create!(
+    listing_owner("filter-missing-gym").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Missing Gym",
         price: 900,
@@ -624,7 +770,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 3)
       )
     )
-    user.sublet_listings.create!(
+    listing_owner("filter-too-expensive").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Too Expensive Filter",
         price: 1500,
@@ -676,13 +822,14 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
       email: "pdf.owner@u.northwestern.edu",
       active: true
     )
-    user.sublet_listings.create!(
+    listing_owner("pdf-missing-gym").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "PDF Route Match",
         available_from: Date.new(2026, 6, 1),
         available_until: Date.new(2026, 8, 31)
       )
     )
+    sign_in_with_firebase_email("pdf.viewer@u.northwestern.edu")
 
     get search_results_path(format: :pdf, "move-in": "06/12/2026", "move-out": "08/01/2026")
 
@@ -706,7 +853,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 8, 31)
       )
     )
-    user.sublet_listings.create!(
+    listing_owner("pdf-outside-dates").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "PDF Missing Gym",
         price: 950,
@@ -715,7 +862,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 8, 31)
       )
     )
-    user.sublet_listings.create!(
+    listing_owner("natural-too-expensive").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "PDF Outside Requested Dates",
         price: 950,
@@ -737,6 +884,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
       captured_listings = listings
       fake_pdf.new
     end
+    sign_in_with_firebase_email("pdf.filter.viewer@u.northwestern.edu")
 
     begin
       get search_results_path(
@@ -772,7 +920,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 3)
       )
     )
-    user.sublet_listings.create!(
+    listing_owner("search-ends-early").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Too Expensive Natural Search",
         price: 1500,
@@ -834,14 +982,14 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 3)
       )
     )
-    user.sublet_listings.create!(
+    listing_owner("search-ends-early").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Ends Too Early",
         available_from: Date.new(2026, 5, 24),
         available_until: Date.new(2026, 8, 15)
       )
     )
-    user.sublet_listings.create!(
+    listing_owner("search-starts-late").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Starts Too Late",
         available_from: Date.new(2026, 7, 1),
@@ -871,7 +1019,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 3)
       )
     )
-    grouped_listing = user.sublet_listings.create!(
+    grouped_listing = listing_owner("map-group-a").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Apartment Option A",
         address: "1570 Oak Ave, Apt 1, Evanston, IL 60201",
@@ -880,7 +1028,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 3)
       )
     )
-    user.sublet_listings.create!(
+    listing_owner("map-group-b").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Apartment Option B",
         address: "1570 Oak Ave, Apt 2, Evanston, IL 60201",
@@ -919,6 +1067,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 3)
       )
     )
+    sign_in_with_firebase_email("detail.viewer@u.northwestern.edu")
 
     get sublet_listing_path(listing)
 
@@ -937,14 +1086,6 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "mailto:#{user.email}"
     assert_not_includes response.body, "+1 (123) 456-7890"
     assert_not_includes response.body, "tel:+11234567890"
-    assert_includes response.body, "Log in to email the host"
-
-    sign_in_with_firebase_email("detail.viewer@u.northwestern.edu")
-    get sublet_listing_path(listing)
-
-    assert_response :success
-    assert_not_includes response.body, user.email
-    assert_not_includes response.body, "mailto:#{user.email}"
     assert_includes response.body, "Hidden by profile setting"
     assert_select "form.question-form[data-profanity-check]"
     assert_select "textarea[name='listing_question[body]'][data-profanity-field]"
@@ -959,6 +1100,8 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "listing fallback page has a clickable compare button" do
+    sign_in_with_firebase_email("fallback.viewer@u.northwestern.edu")
+
     get listing_path
 
     assert_response :success
@@ -991,6 +1134,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
       answer: "Yes, utilities are included.",
       answered_at: Time.current
     )
+    sign_in_with_firebase_email("question.viewer@u.northwestern.edu")
 
     get sublet_listing_path(listing)
 
@@ -1265,5 +1409,13 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     file.rewind
 
     Rack::Test::UploadedFile.new(file.path, content_type, original_filename: filename)
+  end
+
+  def listing_owner(slug)
+    User.create!(
+      name: "Listing Owner #{slug.titleize}",
+      email: "listing.owner.#{slug}@u.northwestern.edu",
+      active: true
+    )
   end
 end
