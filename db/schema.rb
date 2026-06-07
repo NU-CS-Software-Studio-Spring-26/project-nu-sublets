@@ -134,8 +134,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_07_100000) do
     t.string "provider"
     t.boolean "show_email_to_students", default: false, null: false
     t.boolean "show_phone_to_students", default: false, null: false
-    t.string "uid"
     t.datetime "terms_accepted_at"
+    t.string "uid"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true, where: "provider IS NOT NULL AND uid IS NOT NULL"
