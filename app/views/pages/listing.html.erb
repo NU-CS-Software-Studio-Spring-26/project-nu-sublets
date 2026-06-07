@@ -1113,9 +1113,7 @@
                         <div class="amenities-row">
                             <% amenities.first(6).each do |amenity| %>
                                 <div class="amenity">
-                                    <svg class="amenity-icon" viewBox="0 0 32 32" aria-hidden="true">
-                                        <path d="M6 8h20v16H6zM10 8V5m12 3V5M10 16h12" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
-                                    </svg>
+                                    <%= amenity_icon(amenity) %>
                                     <span><%= amenity %></span>
                                 </div>
                             <% end %>
