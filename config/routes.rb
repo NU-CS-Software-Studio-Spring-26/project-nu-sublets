@@ -37,6 +37,8 @@ Rails.application.routes.draw do
   get "login" => "pages#login", as: :login
   get "signup" => "registrations#new", as: :signup
   post "signup" => "registrations#create"
+  get "onboarding/terms" => "onboarding#terms", as: :onboarding_terms
+  post "onboarding/terms" => "onboarding#accept_terms", as: :onboarding_accept_terms
   post "google-oauth" => "sessions#google_oauth_unconfigured", as: :google_oauth
   match "auth/:provider/callback" => "sessions#omniauth", via: %i[get post], as: :omniauth_callback
   match "auth/failure" => "sessions#omniauth_failure", via: %i[get post], as: :omniauth_failure

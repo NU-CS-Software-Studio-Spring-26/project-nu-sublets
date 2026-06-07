@@ -19,7 +19,13 @@ class SessionsController < ApplicationController
     end
 
     start_session_for(user)
-    redirect_to profile_path, notice: "Logged in with Google."
+
+    if user.previously_new_record?
+      session[:requires_terms_acceptance] = true
+      redirect_to onboarding_terms_path
+    else
+      redirect_to profile_path, notice: "Logged in with Google."
+    end
   rescue ActiveRecord::RecordInvalid => error
     alert =
       if error.record.errors[:base].include?(ProfanityFilter::ERROR_MESSAGE)
@@ -56,17 +62,24 @@ class SessionsController < ApplicationController
     end
 
     user = User.find_or_initialize_by(email: email)
+    new_user = user.new_record?
     user.assign_attributes(user_attributes(decoded_token, email))
     user.save!
 
     start_session_for(user)
+
+    if new_user
+      session[:requires_terms_acceptance] = true
+    end
 
     render json: {
       user: {
         id: user.id,
         name: user.display_name,
         email: user.email
-      }
+      },
+      requires_terms_acceptance: new_user ? true : false,
+      terms_path: new_user ? onboarding_terms_path : nil
     }
   rescue ActionController::ParameterMissing
     render json: { error: "Missing Firebase ID token." }, status: :bad_request
