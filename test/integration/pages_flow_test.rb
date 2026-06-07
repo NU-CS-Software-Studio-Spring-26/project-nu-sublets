@@ -165,9 +165,31 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
 
     assert_equal Date.new(2026, 6, 12), listing.available_from
     assert_equal Date.new(2026, 9, 11), listing.available_until
+    assert_equal 850, listing.price.to_i
     assert_equal [ "Laundry", "Gym" ], listing.amenities
     assert_equal [ "Graduate student", "Quiet" ], listing.preferences
-    assert_redirected_to search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
+    assert_redirected_to profile_path
+    follow_redirect!
+    assert_response :success
+    assert_select ".profile-alert.success", text: "Your sublet listing was posted successfully."
+    assert_select ".profile-listing-card a[href='#{sublet_listing_path(listing)}']"
+    assert_includes response.body, "820 Noyes St, Evanston, IL, 60201"
+  end
+
+  test "post sublet accepts comma formatted rent and all amenities" do
+    sign_in_with_firebase_email("comma.rent.poster@u.northwestern.edu")
+
+    assert_difference("SubletListing.count", 1) do
+      post submit_sublet_path, params: valid_sublet_post_params.merge(
+        price: "1,200",
+        amenities: SubletListing::AMENITY_OPTIONS
+      )
+    end
+
+    listing = SubletListing.order(:created_at).last
+
+    assert_equal 1200, listing.price.to_i
+    assert_equal SubletListing::AMENITY_OPTIONS, listing.amenities
   end
 
   test "post sublet page warns when signed in user already has an active listing" do
@@ -229,7 +251,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
       post submit_sublet_path, params: valid_sublet_post_params.merge("street-address" => "910 Noyes St")
     end
 
-    assert_redirected_to search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
+    assert_redirected_to profile_path
   end
 
   test "owner can update their existing active listing" do
@@ -295,9 +317,12 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "input[name='start-date'][value='06/12/2026']"
     assert_select "input[name='end-date'][value='09/11/2026']"
     assert_select "input[name='price'][value='850']"
-    assert_select "input[name='bedrooms'][value='1']"
-    assert_select "input[name='bathrooms'][value='1']"
+    assert_select "select[name='bedrooms'] option[value='1'][selected]"
+    assert_select "select[name='bathrooms'] option[value='1'][selected]"
     assert_select "textarea[name='description']", text: "Clean furnished room within walking distance of campus."
+    assert_select "input[type='number'][name='bedrooms']", count: 0
+    assert_select "input[type='number'][name='bathrooms']", count: 0
+    assert_select "input[name='school-email']", count: 0
     assert_includes response.body, 'const initialAmenities = ["Laundry","Gym"]'
     assert_includes response.body, 'const initialPreferences = ["Graduate student","Quiet"]'
   end
@@ -392,9 +417,13 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
   test "home page includes recommendation filter controls" do
     get root_path
 
+    assert_select "form.search-card[action='#{search_results_path}'][method='get'] input[name='natural_query'][type='search']"
+    assert_select "form.search-card input[name='move-in']", count: 0
+    assert_select "form.search-card input[name='move-out']", count: 0
     assert_select "form[action='#{root_path(anchor: "recommendations")}'][method='get'][aria-label='Filter recommended sublets']"
-    assert_select "input[name='recommendation_move_in']"
-    assert_select "input[name='recommendation_move_out']"
+    assert_select "form[aria-label='Filter recommended sublets'] [data-date-picker] input[name='recommendation_move_in'][data-date-input]"
+    assert_select "form[aria-label='Filter recommended sublets'] [data-date-picker] input[name='recommendation_move_out'][data-date-input]"
+    assert_select "form[aria-label='Filter recommended sublets'] [data-date-toggle]", count: 2
     assert_select "select[name='recommendation_bedrooms']"
     assert_select "select[name='recommendation_bathrooms']"
     assert_select "input[name='recommendation_amenities[]'][value='Laundry']"
@@ -552,6 +581,65 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "textarea[name='user[bio]'][data-profanity-field]"
   end
 
+  test "profile post listing button reflects active listing status" do
+    sign_in_with_firebase_email("profile.active.poster@u.northwestern.edu")
+    user = User.find_by!(email: "profile.active.poster@u.northwestern.edu")
+
+    get profile_path
+
+    assert_select "a.profile-primary-link[href='#{post_sublet_path}']", text: "Post a Listing"
+    assert_select ".profile-primary-link.is-disabled", count: 0
+
+    listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Profile Active Listing",
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 9, 1)
+      )
+    )
+
+    get profile_path
+
+    assert_select ".profile-primary-link.is-disabled[aria-disabled='true']", text: "Post a Listing"
+    assert_select "a.profile-primary-link[href='#{post_sublet_path}']", count: 0
+    assert_includes response.body, "You can only have one active sublet listing at a time."
+    assert_select ".profile-listing-card"
+    assert_select ".listing-card-menu-link[href='#{sublet_listing_path(listing)}']", text: "Edit listing"
+    assert_select "form[action='#{sublet_listing_path(listing)}'][method='post'] button.listing-card-menu-delete", text: "Delete listing"
+    assert_select "form[action='#{sublet_listing_path(listing)}'][method='post'] button.listing-card-menu-delete[data-turbo-confirm='Are you sure you want to delete this listing?']"
+    assert_select "form[action='#{sublet_listing_path(listing)}'][data-turbo-confirm='Are you sure you want to delete this listing?']"
+    assert_select "form[action='#{sublet_listing_path(listing)}'][onsubmit=\"return !!window.Turbo || confirm('Are you sure you want to delete this listing?');\"]"
+    assert_select "form[action='#{sublet_listing_path(listing)}'] input[name='_method'][value='delete']", visible: false
+    assert_includes response.body, "Are you sure you want to delete this listing?"
+  end
+
+  test "deleting a listing removes it from profile listings" do
+    sign_in_with_firebase_email("profile.delete.owner@u.northwestern.edu")
+    user = User.find_by!(email: "profile.delete.owner@u.northwestern.edu")
+    listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Profile Delete Listing",
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 9, 1)
+      )
+    )
+
+    get profile_path
+    assert_select "a[href='#{sublet_listing_path(listing)}']"
+
+    assert_difference("SubletListing.count", -1) do
+      delete sublet_listing_path(listing)
+    end
+
+    assert_redirected_to profile_path
+    follow_redirect!
+
+    assert_response :success
+    assert_select ".profile-alert.success", text: "Listing deleted."
+    assert_select "a[href='#{sublet_listing_path(listing)}']", count: 0
+    assert_select "a.profile-primary-link[href='#{post_sublet_path}']", text: "Post a Listing"
+  end
+
   test "delete account removes the signed in user and their owned data" do
     sign_in_with_firebase_email("delete.me@u.northwestern.edu")
     user = User.find_by!(email: "delete.me@u.northwestern.edu")
@@ -667,6 +755,8 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{sublet_listing_path(listing)}'][data-compare-listing]"
     assert_includes response.body, "nuSublets.compareListings"
     assert_includes response.body, "You can compare up to 3 listings at a time."
+    assert_includes response.body, "table-layout: fixed"
+    assert_includes response.body, "<colgroup>"
     assert_includes response.body, "Utilities included"
 
     get search_results_path
@@ -1115,6 +1205,102 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "mailto:#{user.email}"
   end
 
+  test "listing page photo carousel handles fallback single and multiple photos" do
+    no_photo_owner = User.create!(name: "No Photo Owner", email: "no.photo.owner@u.northwestern.edu", active: true)
+    one_photo_owner = User.create!(name: "One Photo Owner", email: "one.photo.owner@u.northwestern.edu", active: true)
+    multiple_photo_owner = User.create!(name: "Multiple Photo Owner", email: "multiple.photo.owner@u.northwestern.edu", active: true)
+    photo_listing_attributes = valid_listing_attributes.merge(
+      available_from: Date.new(2026, 6, 12),
+      available_until: Date.new(2026, 9, 11)
+    )
+    listing_without_photos = no_photo_owner.sublet_listings.create!(
+      photo_listing_attributes.merge(title: "No Photos Listing")
+    )
+    listing_with_one_photo = one_photo_owner.sublet_listings.create!(
+      photo_listing_attributes.merge(
+        title: "One Photo Listing",
+        address: "900 Noyes St, Evanston, IL 60201"
+      )
+    )
+    listing_with_one_photo.photos.attach(uploaded_test_file("single-photo.jpg", "image/jpeg", "single photo"))
+    listing_with_multiple_photos = multiple_photo_owner.sublet_listings.create!(
+      photo_listing_attributes.merge(
+        title: "Multiple Photos Listing",
+        address: "901 Noyes St, Evanston, IL 60201"
+      )
+    )
+    listing_with_multiple_photos.photos.attach([
+      uploaded_test_file("photo-one.jpg", "image/jpeg", "photo one"),
+      uploaded_test_file("photo-two.jpg", "image/jpeg", "photo two"),
+      uploaded_test_file("photo-three.jpg", "image/jpeg", "photo three")
+    ])
+
+    sign_in_with_firebase_email("photo.viewer@u.northwestern.edu")
+
+    get sublet_listing_path(listing_without_photos)
+
+    assert_response :success
+    assert_select "section.photo-carousel[data-photo-carousel]"
+    assert_select ".gallery-grid", count: 0
+    assert_select "[data-photo-carousel-source]", count: 1
+    assert_select "[data-photo-carousel-total]", text: "1"
+    assert_select "[data-photo-carousel-previous]", count: 0
+    assert_select "[data-photo-carousel-next]", count: 0
+
+    get sublet_listing_path(listing_with_one_photo)
+
+    assert_response :success
+    assert_select "[data-photo-carousel-source]", count: 1
+    assert_select "[data-photo-carousel-total]", text: "1"
+    assert_select "[data-photo-carousel-previous]", count: 0
+    assert_select "[data-photo-carousel-next]", count: 0
+
+    get sublet_listing_path(listing_with_multiple_photos)
+
+    assert_response :success
+    assert_select "[data-photo-carousel-source]", count: 3
+    assert_select "[data-photo-carousel-current]", text: "1"
+    assert_select "[data-photo-carousel-total]", text: "3"
+    assert_select "button[data-photo-carousel-previous][aria-label='Previous photo']"
+    assert_select "button[data-photo-carousel-next][aria-label='Next photo']"
+    assert_includes response.body, "const movePhoto = (direction) =>"
+  end
+
+  test "listing detail page shows delete controls only to the owner" do
+    owner = User.create!(name: "Listing Manager", email: "listing.manager@u.northwestern.edu", active: true)
+    listing = owner.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Owner Managed Listing",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    sign_in_with_firebase_email(owner.email)
+    get sublet_listing_path(listing)
+
+    assert_response :success
+    assert_select ".owner-listing-actions"
+    assert_select "a[href='#{profile_path}']", text: "Edit listing"
+    assert_select "form[action='#{sublet_listing_path(listing)}'][method='post'] button.owner-delete-button", text: "Delete listing"
+    assert_select "form[action='#{sublet_listing_path(listing)}'][method='post'] button.owner-delete-button[data-turbo-confirm='Are you sure you want to delete this listing?']"
+    assert_select "form[action='#{sublet_listing_path(listing)}'][data-turbo-confirm='Are you sure you want to delete this listing?']"
+    assert_select "form[action='#{sublet_listing_path(listing)}'][onsubmit=\"return !!window.Turbo || confirm('Are you sure you want to delete this listing?');\"]"
+    assert_select "form[action='#{sublet_listing_path(listing)}'] input[name='_method'][value='delete']", visible: false
+    assert_includes response.body, "Are you sure you want to delete this listing?"
+    assert_select "button[data-compare-trigger]", count: 0
+    assert_select "button[data-report-modal-trigger]", count: 0
+
+    delete session_path
+    sign_in_with_firebase_email("listing.manager.viewer@u.northwestern.edu")
+    get sublet_listing_path(listing)
+
+    assert_response :success
+    assert_select ".owner-listing-actions", count: 0
+    assert_select "button[data-compare-trigger]", text: "Compare listing"
+    assert_select "button[data-report-modal-trigger]", text: "Report listing"
+  end
+
   test "listing fallback page has a clickable compare button" do
     sign_in_with_firebase_email("fallback.viewer@u.northwestern.edu")
 
@@ -1358,8 +1544,11 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{submit_sublet_path}'][method='post']"
     assert_select "form[data-profanity-check]"
     assert_select "textarea[name='description'][data-profanity-field]"
-    assert_select "input[type='number'][name='bedrooms'][min='0'][max='20']"
-    assert_select "input[type='number'][name='bathrooms'][min='0'][max='20']"
+    assert_select "select[name='bedrooms'] option[value='0']", text: "Studio"
+    assert_select "select[name='bedrooms'] option[value='20']", text: "20 bedrooms"
+    assert_select "select[name='bathrooms'] option[value='0']", text: "0 bathrooms"
+    assert_select "select[name='bathrooms'] option[value='20']", text: "20 bathrooms"
+    assert_select "input[name='school-email']", count: 0
     assert_select "input[type='file'][name='photos[]'][accept='image/png,image/jpeg,image/webp'][multiple]"
     assert_includes response.body, "Upload up to 5 photos. PNG, JPG, or WebP only. 5 MB max per photo."
     assert_includes response.body, "data-profanity-words"

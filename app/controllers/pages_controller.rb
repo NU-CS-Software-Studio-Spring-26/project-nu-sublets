@@ -150,10 +150,7 @@ class PagesController < ApplicationController
     @listing = current_user.sublet_listings.new(sublet_listing_params)
 
     if @listing.save
-      redirect_to search_results_path(
-        "move-in": @listing.available_from.strftime("%m/%d/%Y"),
-        "move-out": @listing.available_until.strftime("%m/%d/%Y")
-      )
+      redirect_to profile_path, notice: "Your sublet listing was posted successfully."
     else
       @listing_errors = @listing.errors.full_messages
       render :post_sublet, status: :unprocessable_entity

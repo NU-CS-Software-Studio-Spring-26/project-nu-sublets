@@ -12,7 +12,12 @@
     }
 </style>
 
-<script type="text/template" data-profanity-words><%= raw json_escape(ProfanityFilter.blocked_words.to_json) %></script>
+<%= tag.div hidden: true,
+            data: {
+                profanity_config: true,
+                profanity_words: ProfanityFilter.blocked_words.to_json,
+                profanity_message: ProfanityFilter::ERROR_MESSAGE
+            } %>
 <script>
     (() => {
         const namespace = window.NuSublets || (window.NuSublets = {});
@@ -24,7 +29,8 @@
 
         namespace.profanityGuardLoaded = true;
 
-        const message = <%= raw ProfanityFilter::ERROR_MESSAGE.to_json %>;
+        const config = document.querySelector("[data-profanity-config]");
+        const message = config?.dataset.profanityMessage || "";
         const fieldSelector = "[data-profanity-field]";
         const formSelector = "form[data-profanity-check]";
         const boundFields = new WeakSet();
@@ -33,8 +39,7 @@
         const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
 
         const blockedWordPatterns = (() => {
-            const script = document.querySelector("[data-profanity-words]");
-            const words = JSON.parse(script?.textContent || "[]");
+            const words = JSON.parse(config?.dataset.profanityWords || "[]");
 
             return words.map((word) => {
                 const escaped = escapeRegex(String(word).trim());

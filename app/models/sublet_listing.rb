@@ -1,7 +1,6 @@
 class SubletListing < ApplicationRecord
   MAX_PRICE = 20_000
   MAX_ROOMS = 20
-  MAX_LABELS = 12
   MAX_PHOTOS = 5
   MAX_PHOTO_SIZE = 5.megabytes
   ACTIVE_LISTING_LIMIT_MESSAGE = "You can only have one active sublet listing at a time. To keep NU Sublets accurate and easy to browse, please mark your current listing as inactive or delete it before posting a new one."
@@ -17,7 +16,8 @@ class SubletListing < ApplicationRecord
     "Hardwood floors",
     "Natural light",
     "Storage",
-    "Private bath / Shared bath",
+    "Private bathroom",
+    "Shared bathroom",
     "Updated kitchen",
     "Dishwasher",
     "Microwave",
@@ -47,6 +47,9 @@ class SubletListing < ApplicationRecord
     "Work setup",
     "Quiet / Social"
   ].freeze
+  LEGACY_AMENITY_LABEL_REPLACEMENTS = {
+    "Private bath / Shared bath" => [ "Private bathroom", "Shared bathroom" ]
+  }.freeze
 
   PREFERENCE_OPTIONS = [
     "Student preferred",
@@ -154,7 +157,7 @@ class SubletListing < ApplicationRecord
   end
 
   def displayed_amenities
-    labels = Array(amenities)
+    labels = expand_legacy_amenity_labels(Array(amenities))
     labels << "Furnished" if furnished
     labels << "Utilities included" if utilities_included
     labels << "Pet-friendly" if pets_allowed
@@ -295,9 +298,13 @@ class SubletListing < ApplicationRecord
   def self.normalize_numeric_filter(value)
     return if value.blank?
 
-    BigDecimal(value.to_s)
+    BigDecimal(normalize_numeric_string(value))
   rescue ArgumentError
     nil
+  end
+
+  def self.normalize_numeric_string(value)
+    value.to_s.delete(",").strip
   end
 
   def self.matching_serialized_label(relation, column, label)
@@ -310,8 +317,11 @@ class SubletListing < ApplicationRecord
   def normalize_user_input
     self.title = normalize_text(title)
     self.description = normalize_text(description)
+    self.price = self.class.normalize_numeric_string(price_before_type_cast) if price_before_type_cast.present?
+    self.bedrooms = self.class.normalize_numeric_string(bedrooms_before_type_cast) if bedrooms_before_type_cast.present?
+    self.bathrooms = self.class.normalize_numeric_string(bathrooms_before_type_cast) if bathrooms_before_type_cast.present?
     self.address = normalize_text(address)
-    self.amenities = normalize_labels(amenities, AMENITY_OPTIONS)
+    self.amenities = expand_legacy_amenity_labels(normalize_labels(amenities, AMENITY_OPTIONS))
     self.preferences = normalize_labels(preferences, PREFERENCE_OPTIONS)
     self.furnished = false if furnished.nil?
     self.pets_allowed = false if pets_allowed.nil?
@@ -324,6 +334,10 @@ class SubletListing < ApplicationRecord
 
   def normalize_labels(labels, allowed_labels)
     Array(labels).map { |label| normalize_text(label) }.compact.uniq
+  end
+
+  def expand_legacy_amenity_labels(labels)
+    labels.flat_map { |label| LEGACY_AMENITY_LABEL_REPLACEMENTS.fetch(label, label) }.uniq
   end
 
   def amenity_labels_are_allowed
@@ -340,10 +354,6 @@ class SubletListing < ApplicationRecord
 
     if unsupported_labels.any?
       errors.add(attribute, "include unsupported options")
-    end
-
-    if raw_labels.length > MAX_LABELS
-      errors.add(attribute, "can include at most #{MAX_LABELS} options")
     end
   end
 
