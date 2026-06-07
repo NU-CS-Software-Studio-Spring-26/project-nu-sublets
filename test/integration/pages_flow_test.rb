@@ -403,7 +403,48 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a", text: "Report profile"
     assert_select "a[href='#{post_sublet_path}']", text: "Post a Sublet"
     assert_select "form#profile-settings-form[data-profanity-check]"
+    assert_select "form#delete-account-form[action='#{profile_path}'][method='post']"
+    assert_select "form#delete-account-form input[name='_method'][value='delete']", visible: false
+    assert_select "button.delete-account-button[form='delete-account-form']", text: "Delete Account"
     assert_select "textarea[name='user[bio]'][data-profanity-field]"
+  end
+
+  test "delete account removes the signed in user and their owned data" do
+    sign_in_with_firebase_email("delete.me@u.northwestern.edu")
+    user = User.find_by!(email: "delete.me@u.northwestern.edu")
+    other_user = User.create!(
+      name: "Delete Flow Renter",
+      email: "delete.flow.renter@u.northwestern.edu",
+      confirmed_at: Time.current,
+      active: true
+    )
+    listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Delete Account Listing",
+        available_from: Date.new(2026, 6, 1),
+        available_until: Date.new(2026, 9, 1)
+      )
+    )
+    conversation = Conversation.between(user, other_user, listing: listing)
+    conversation.save!
+    conversation.messages.create!(sender: user, body: "Is the account delete flow working?")
+
+    assert_difference("User.count", -1) do
+      assert_difference("SubletListing.count", -1) do
+        assert_difference("Conversation.count", -1) do
+          assert_difference("Message.count", -1) do
+            delete profile_path
+          end
+        end
+      end
+    end
+
+    assert_redirected_to root_path
+    assert_nil User.find_by(email: "delete.me@u.northwestern.edu")
+
+    get profile_path
+
+    assert_redirected_to login_path
   end
 
   test "profile update blocks profanity in direct server submission" do

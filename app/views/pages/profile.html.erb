@@ -1276,8 +1276,10 @@
 
                                 <div class="account-actions">
                                     <%= form.submit "Save Changes", class: "account-save-button" %>
-                                    <button class="delete-account-button" type="button" aria-label="Delete your NU Sublets account">Delete Account</button>
+                                    <button class="delete-account-button" type="submit" form="delete-account-form" aria-label="Delete your NU Sublets account" data-turbo-confirm="Delete your account and all of your listings? This cannot be undone.">Delete Account</button>
                                 </div>
+                            <% end %>
+                            <%= form_with url: profile_path, method: :delete, local: true, html: { id: "delete-account-form" } do %>
                             <% end %>
                         </section>
 

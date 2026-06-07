@@ -3,7 +3,7 @@ class PagesController < ApplicationController
   RECOMMENDED_LISTINGS_LIMIT = 6
 
   layout false
-  before_action :authenticate_user!, only: %i[profile update_profile user_profile another_user_account submit_sublet]
+  before_action :authenticate_user!, only: %i[profile update_profile destroy_account user_profile another_user_account submit_sublet]
 
   def home
     prepare_recommendation_filters
@@ -89,6 +89,19 @@ class PagesController < ApplicationController
       redirect_to profile_path(tab: "settings", saved: "1")
     else
       @profile_errors = current_user.errors.full_messages
+      render :profile, status: :unprocessable_entity
+    end
+  end
+
+  def destroy_account
+    user = current_user
+
+    if user.hard_delete.destroyed?
+      reset_session
+      redirect_to root_path, notice: "Your account has been deleted."
+    else
+      @profile_user = user
+      @profile_errors = [ "We could not delete your account. Please try again." ]
       render :profile, status: :unprocessable_entity
     end
   end
