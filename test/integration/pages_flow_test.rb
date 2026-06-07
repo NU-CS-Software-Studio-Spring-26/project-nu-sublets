@@ -1128,6 +1128,124 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "input[name='max_price'][value='1500']"
   end
 
+  test "later natural search overrides conflicting manual filters" do
+    user = User.create!(
+      name: "Search Priority Owner",
+      email: "search.priority.owner@u.northwestern.edu",
+      active: true
+    )
+    matching_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Search Priority Match",
+        price: 900,
+        bedrooms: 1,
+        bathrooms: 1,
+        furnished: true,
+        amenities: [ "Furnished" ],
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    too_expensive_listing = listing_owner("search-priority-too-expensive").sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Search Priority Too Expensive",
+        price: 1150,
+        bedrooms: 1,
+        bathrooms: 1,
+        furnished: true,
+        amenities: [ "Furnished" ],
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    get search_results_path(
+      natural_query: "furnished 1 bed under $1000",
+      max_price: "1200",
+      "move-in": "06/01/2026",
+      "move-out": "06/01/2026",
+      amenities: [ "Laundry" ],
+      filter_priority: "search"
+    )
+
+    assert_select "a[href='#{sublet_listing_path(matching_listing)}']", text: /Search Priority Match/
+    assert_no_match too_expensive_listing.title, response.body
+    assert_select "input[name='max_price'][value='1000']"
+    assert_select "input[name='move-in'][value='06/01/2026']", count: 0
+    assert_select "input[name='amenities[]'][value='Laundry'][checked]", count: 0
+  end
+
+  test "cleared manual filters suppress parsed natural search filters" do
+    user = User.create!(
+      name: "Cleared Parsed Filter Owner",
+      email: "cleared.parsed.filter.owner@u.northwestern.edu",
+      active: true
+    )
+    expensive_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Cleared Parsed Filter Match",
+        price: 1150,
+        bedrooms: 1,
+        bathrooms: 1,
+        furnished: true,
+        amenities: [ "Furnished" ],
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    get search_results_path(
+      natural_query: "furnished 1 bed under $1000",
+      max_price: "",
+      bedrooms: "1",
+      amenities: [ "Furnished" ],
+      filter_priority: "filters"
+    )
+
+    assert_select "a[href='#{sublet_listing_path(expensive_listing)}']", text: /Cleared Parsed Filter Match/
+    assert_select "input[name='max_price'][value='1000']", count: 0
+  end
+
+  test "blank later natural search clears previous filters" do
+    user = User.create!(
+      name: "Clear Search Owner",
+      email: "clear.search.owner@u.northwestern.edu",
+      active: true
+    )
+    affordable_listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Clear Search Affordable",
+        price: 900,
+        bedrooms: 1,
+        bathrooms: 1,
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+    expensive_listing = listing_owner("clear-search-expensive").sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Clear Search Expensive",
+        price: 1500,
+        bedrooms: 2,
+        bathrooms: 1,
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    get search_results_path(
+      natural_query: "",
+      max_price: "1000",
+      bedrooms: "1",
+      filter_priority: "search"
+    )
+
+    assert_select "a[href='#{sublet_listing_path(affordable_listing)}']", text: /Clear Search Affordable/
+    assert_select "a[href='#{sublet_listing_path(expensive_listing)}']", text: /Clear Search Expensive/
+    assert_select "input[name='max_price'][value='1000']", count: 0
+    assert_select "select[name='bedrooms'] option[value='1'][selected]", count: 0
+  end
+
   test "search results only include listings covering the requested dates" do
     user = User.create!(
       name: "Search Owner",

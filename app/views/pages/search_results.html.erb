@@ -122,6 +122,7 @@
                 align-items: center;
                 gap: 14px;
                 flex-wrap: wrap;
+                width: 100%;
                 padding-bottom: 6px;
             }
 
@@ -234,6 +235,7 @@
             .active-filter-chip {
                 display: inline-flex;
                 align-items: center;
+                gap: 6px;
                 min-height: 28px;
                 padding: 4px 9px;
                 border: 1px solid rgba(78, 42, 132, 0.2);
@@ -244,6 +246,31 @@
                 font-size: 12px;
                 font-weight: 600;
                 line-height: 1.2;
+            }
+
+            .active-filter-remove {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 18px;
+                height: 18px;
+                padding: 0;
+                border: 0;
+                border-radius: 999px;
+                background: rgba(78, 42, 132, 0.12);
+                color: var(--nu-accent);
+                font: inherit;
+                font-size: 14px;
+                font-weight: 700;
+                line-height: 1;
+                cursor: pointer;
+            }
+
+            .active-filter-remove:hover,
+            .active-filter-remove:focus-visible {
+                background: var(--nu-accent);
+                color: #fff;
+                outline: none;
             }
 
             .filter-menu {
@@ -284,7 +311,7 @@
             .filter-menu-panel {
                 position: absolute;
                 top: calc(100% + 8px);
-                left: 0;
+                right: 0;
                 z-index: 1020;
                 width: min(720px, calc(100vw - 64px));
                 max-height: min(650px, calc(100vh - 170px));
@@ -979,6 +1006,17 @@
                     width: 13px;
                     height: 13px;
                 }
+
+                .filter-menu {
+                    width: 100%;
+                }
+
+                .filter-menu-panel {
+                    position: static;
+                    width: 100%;
+                    max-height: min(650px, calc(100vh - 170px));
+                    margin-top: 8px;
+                }
             }
 
             @media (max-width: 767.98px) {
@@ -1016,13 +1054,10 @@
                 }
 
                 .filter-menu {
-                    position: static;
+                    width: 100%;
                 }
 
                 .filter-menu-panel {
-                    left: 16px;
-                    right: 16px;
-                    width: auto;
                     max-height: calc(100vh - 160px);
                 }
 
@@ -1121,9 +1156,11 @@
             <section class="results-toolbar" aria-label="Search filters">
                 <div class="toolbar-inner">
                     <form class="filter-form" action="<%= search_results_path %>" method="get" aria-label="Search and filter sublets" data-search-filter-form novalidate>
+                        <input type="hidden" name="filter_priority" value="<%= params[:filter_priority] == "search" ? "search" : "filters" %>" data-filter-priority />
+
                         <label class="natural-search-filter">
                             <span class="visually-hidden">Natural language search</span>
-                            <input class="natural-search-input" type="search" name="natural_query" value="<%= @natural_query %>" placeholder="Try: furnished 1 bed under $1200 near campus" maxlength="500" aria-label="Natural language search" data-natural-query-input />
+                            <input class="natural-search-input" type="search" name="natural_query" value="<%= @natural_query %>" placeholder="Try: 1 bed under $1200" maxlength="500" aria-label="Natural language search" data-natural-query-input />
                         </label>
 
                         <div class="date-range" role="group" aria-label="Selected dates">
@@ -1555,6 +1592,7 @@
                     const moveInInput = filterForm.querySelector('input[name="move-in"]');
                     const moveOutInput = filterForm.querySelector('input[name="move-out"]');
                     const naturalQueryInput = filterForm.querySelector('input[name="natural_query"]');
+                    const filterPriorityInput = filterForm.querySelector("[data-filter-priority]");
                     const error = filterForm.querySelector("[data-filter-error]");
                     const filterButton = filterForm.querySelector("[data-filter-submit]");
                     const additionalControls = Array.from(filterForm.querySelectorAll("[data-filter-control]"));
@@ -1574,6 +1612,12 @@
 
                         error.textContent = message;
                         error.hidden = message.length === 0;
+                    };
+
+                    const setFilterPriority = (priority) => {
+                        if (!filterPriorityInput) return;
+
+                        filterPriorityInput.value = priority;
                     };
 
                     const setDateRangeInvalid = (isInvalid) => {
@@ -1631,27 +1675,78 @@
                         const checkedPreferences = Array.from(filterForm.querySelectorAll('input[name="preferences[]"]:checked'));
 
                         if (naturalQuery) {
-                            chips.push(`Search: ${naturalQuery}`);
+                            chips.push({
+                                label: `Search phrase: ${naturalQuery}`,
+                                clear: () => {
+                                    naturalQueryInput.value = "";
+                                    setFilterPriority("search");
+                                }
+                            });
                         }
 
                         if (moveIn || moveOut) {
-                            chips.push(`Dates: ${moveIn || "move in"} to ${moveOut || "move out"}`);
+                            chips.push({
+                                label: `Dates: ${moveIn || "move in"} to ${moveOut || "move out"}`,
+                                clear: () => {
+                                    moveInInput.value = "";
+                                    moveOutInput.value = "";
+                                    filterForm.querySelectorAll("[data-date-label]").forEach((label) => {
+                                        label.textContent = label.closest("[data-date-picker]")?.querySelector('input[name="move-in"]') ? "Move in" : "Move out";
+                                    });
+                                    setFilterPriority("filters");
+                                }
+                            });
                         }
 
                         if (minPrice || maxPrice) {
-                            chips.push(`Rent: ${minPrice ? `$${minPrice}` : "$0"}-${maxPrice ? `$${maxPrice}` : "any"}`);
+                            chips.push({
+                                label: `Rent: ${minPrice ? `$${minPrice}` : "$0"}-${maxPrice ? `$${maxPrice}` : "any"}`,
+                                clear: () => {
+                                    filterForm.querySelector('input[name="min_price"]').value = "";
+                                    filterForm.querySelector('input[name="max_price"]').value = "";
+                                    setFilterPriority("filters");
+                                }
+                            });
                         }
 
                         if (bedrooms?.value) {
-                            chips.push(selectedOptionText(bedrooms));
+                            chips.push({
+                                label: selectedOptionText(bedrooms),
+                                clear: () => {
+                                    bedrooms.value = "";
+                                    setFilterPriority("filters");
+                                }
+                            });
                         }
 
                         if (bathrooms?.value) {
-                            chips.push(selectedOptionText(bathrooms));
+                            chips.push({
+                                label: selectedOptionText(bathrooms),
+                                clear: () => {
+                                    bathrooms.value = "";
+                                    setFilterPriority("filters");
+                                }
+                            });
                         }
 
-                        checkedAmenities.forEach((control) => chips.push(control.value));
-                        checkedPreferences.forEach((control) => chips.push(control.value));
+                        checkedAmenities.forEach((control) => {
+                            chips.push({
+                                label: control.value,
+                                clear: () => {
+                                    control.checked = false;
+                                    setFilterPriority("filters");
+                                }
+                            });
+                        });
+                        checkedPreferences.forEach((control) => {
+                            chips.push({
+                                label: control.value,
+                                clear: () => {
+                                    control.checked = false;
+                                    setFilterPriority("filters");
+                                }
+                            });
+                        });
 
                         activeFilterSummary.hidden = chips.length === 0;
                         activeFilterSummary.innerHTML = "";
@@ -1663,11 +1758,28 @@
                         label.textContent = "Active filters";
                         activeFilterSummary.appendChild(label);
 
-                        chips.forEach((chipText) => {
-                            const chip = document.createElement("span");
-                            chip.className = "active-filter-chip";
-                            chip.textContent = chipText;
-                            activeFilterSummary.appendChild(chip);
+                        chips.forEach((chipData) => {
+                            const chipElement = document.createElement("span");
+                            const chipLabel = document.createElement("span");
+                            const removeButton = document.createElement("button");
+
+                            chipElement.className = "active-filter-chip";
+                            chipLabel.textContent = chipData.label;
+                            removeButton.className = "active-filter-remove";
+                            removeButton.type = "button";
+                            removeButton.textContent = "x";
+                            removeButton.setAttribute("aria-label", `Remove ${chipData.label}`);
+                            removeButton.addEventListener("click", () => {
+                                chipData.clear();
+                                updateActiveFilterSummary();
+
+                                if (validateDateRange()) {
+                                    filterForm.requestSubmit();
+                                }
+                            });
+
+                            chipElement.append(chipLabel, removeButton);
+                            activeFilterSummary.appendChild(chipElement);
                         });
                     };
 
@@ -1678,6 +1790,11 @@
                     filterForm.addEventListener("change", () => {
                         updateActiveFilterSummary();
                         validateDateRange();
+                    });
+                    naturalQueryInput?.addEventListener("input", () => setFilterPriority("search"));
+                    [moveInInput, moveOutInput, ...additionalControls].forEach((control) => {
+                        control.addEventListener("input", () => setFilterPriority("filters"));
+                        control.addEventListener("change", () => setFilterPriority("filters"));
                     });
                     updateActiveFilterSummary();
                     validateDateRange();

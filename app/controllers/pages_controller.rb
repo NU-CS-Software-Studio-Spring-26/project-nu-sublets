@@ -267,7 +267,17 @@ class PagesController < ApplicationController
   end
 
   def merged_search_params(parsed_filters)
-    explicit_filters = {
+    explicit_filters = explicit_search_filters.compact_blank
+
+    return {} if search_filters_prioritize_search? && @natural_query.blank?
+    return parsed_filters.merge(explicit_search_filters) if search_filters_prioritize_filters?
+    return parsed_filters if search_filters_prioritize_search?
+
+    parsed_filters.merge(explicit_filters)
+  end
+
+  def explicit_search_filters
+    filters = {
       "query" => params[:query],
       "move-in" => params["move-in"],
       "move-out" => params["move-out"],
@@ -277,9 +287,22 @@ class PagesController < ApplicationController
       "bathrooms" => params[:bathrooms],
       "amenities" => params[:amenities],
       "preferences" => params[:preferences]
-    }.compact_blank
+    }
 
-    parsed_filters.merge(explicit_filters)
+    if search_filters_prioritize_filters?
+      filters["amenities"] = Array(params[:amenities]).reject(&:blank?)
+      filters["preferences"] = Array(params[:preferences]).reject(&:blank?)
+    end
+
+    filters.compact
+  end
+
+  def search_filters_prioritize_filters?
+    params[:filter_priority] == "filters"
+  end
+
+  def search_filters_prioritize_search?
+    params[:filter_priority] == "search"
   end
 
   def sublet_listing_params
