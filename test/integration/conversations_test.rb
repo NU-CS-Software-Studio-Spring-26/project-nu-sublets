@@ -46,6 +46,33 @@ class ConversationsTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "signed in user can view inbox with an existing conversation" do
+    renter = sign_in_with_firebase_email("chat.inbox@u.northwestern.edu")
+    conversation = Conversation.between(renter, @host, listing: @listing)
+    conversation.save!
+
+    get conversations_path
+
+    assert_response :success
+    assert_select "a[aria-label='Open conversation with Chat Host'][href='#{conversation_path(conversation)}']"
+    assert_select ".conversation-list-context", text: @listing.title
+  end
+
+  test "signed in user can start a chat with an existing account holder" do
+    sign_in_with_firebase_email("chat.verified.sender@u.northwestern.edu")
+    student = User.create!(
+      name: "Existing Student",
+      email: "chat.existing.recipient@u.northwestern.edu",
+      active: true
+    )
+
+    assert_difference("Conversation.count", 1) do
+      post conversations_path, params: { recipient_id: student.id }
+    end
+
+    assert_redirected_to conversation_path(Conversation.order(:created_at).last)
+  end
+
   test "only participants can view and post messages" do
     renter = sign_in_with_firebase_email("chat.participant@u.northwestern.edu")
     conversation = Conversation.between(renter, @host, listing: @listing)

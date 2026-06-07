@@ -180,6 +180,7 @@ users = USER_COUNT.times.map do |index|
     last_name: name[:last_name],
     email: "student#{index + 1}@u.northwestern.edu",
     profile_photo_url: PROFILE_PHOTO_URLS[index % PROFILE_PHOTO_URLS.length],
+    confirmed_at: Time.current,
     active: true
   )
 end

@@ -22,7 +22,7 @@ class ConversationsController < ApplicationController
     if conversation.save
       redirect_to conversation_path(conversation)
     else
-      redirect_back fallback_location: conversations_path, alert: conversation.errors.full_messages.to_sentence
+      redirect_back fallback_location: conversations_path, alert: conversation_error_message(conversation, recipient)
     end
   end
 
@@ -30,5 +30,11 @@ class ConversationsController < ApplicationController
 
   def set_conversation
     @conversation = current_user.conversations.find(params[:id])
+  end
+
+  def conversation_error_message(conversation, recipient)
+    return "Your account must be verified with a Northwestern email before starting chats." unless current_user.confirmed?
+
+    conversation.errors.full_messages.to_sentence
   end
 end

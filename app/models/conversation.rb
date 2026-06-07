@@ -9,7 +9,6 @@ class Conversation < ApplicationRecord
   validates :initiator, :recipient, :conversation_key, presence: true
   validates :conversation_key, uniqueness: true
   validate :participants_are_distinct
-  validate :participants_are_confirmed
 
   scope :involving, ->(user) {
     where("initiator_id = :user_id OR recipient_id = :user_id", user_id: user.id)
@@ -55,11 +54,4 @@ class Conversation < ApplicationRecord
     errors.add(:recipient, "must be a different student")
   end
 
-  def participants_are_confirmed
-    [ initiator, recipient ].compact.each do |participant|
-      next if participant.confirmed?
-
-      errors.add(:base, "Participants must be verified Northwestern students")
-    end
-  end
 end

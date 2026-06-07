@@ -20,12 +20,11 @@ class ConversationTest < ActiveSupport::TestCase
     assert_includes conversation.errors[:recipient], "must be a different student"
   end
 
-  test "rejects unconfirmed participants" do
-    unconfirmed = User.create!(name: "Unconfirmed", email: "unconfirmed@u.northwestern.edu", active: true)
-    conversation = Conversation.between(@initiator, unconfirmed)
+  test "allows conversations with existing Northwestern account holders" do
+    account_holder = User.create!(name: "Account Holder", email: "account.holder@u.northwestern.edu", active: true)
+    conversation = Conversation.between(@initiator, account_holder)
 
-    assert_not conversation.valid?
-    assert_includes conversation.errors[:base], "Participants must be verified Northwestern students"
+    assert conversation.valid?
   end
 
   test "finds conversations involving a user" do

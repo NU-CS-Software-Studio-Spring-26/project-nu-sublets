@@ -30,7 +30,7 @@
           <% @conversations.each do |conversation| %>
             <% other_user = conversation.other_participant(current_user) %>
             <% last_message = conversation.messages.max_by(&:created_at) %>
-            <a class="conversation-list-item" href="<%= conversation_path(conversation) %>" aria-label="Open conversation with <%= other_participant&.display_name || 'student' %>">
+            <a class="conversation-list-item" href="<%= conversation_path(conversation) %>" aria-label="Open conversation with <%= other_user&.display_name || 'student' %>">
               <img src="<%= user_avatar_url(other_user, size: 96) %>" alt="<%= other_user.display_name %> profile photo" />
               <div class="conversation-list-copy">
                 <div class="conversation-list-heading">
