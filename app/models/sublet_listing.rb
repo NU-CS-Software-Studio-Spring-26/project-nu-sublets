@@ -4,6 +4,7 @@ class SubletListing < ApplicationRecord
   MAX_LABELS = 12
   MAX_PHOTOS = 5
   MAX_PHOTO_SIZE = 5.megabytes
+  ACTIVE_LISTING_LIMIT_MESSAGE = "You can only have one active sublet listing at a time. To keep NU Sublets accurate and easy to browse, please mark your current listing as inactive or delete it before posting a new one."
   ALLOWED_PHOTO_CONTENT_TYPES = %w[image/png image/jpeg image/webp].freeze
 
 
@@ -111,6 +112,7 @@ class SubletListing < ApplicationRecord
   # Custom validations
   validate :available_until_after_available_from
   validate :available_from_not_in_past
+  validate :only_one_active_listing_per_user
   validate :amenity_labels_are_allowed
   validate :preference_labels_are_allowed
   validate :photos_meet_upload_rules
@@ -367,6 +369,14 @@ class SubletListing < ApplicationRecord
 
     if photo_attachments.any? { |photo| !photo.blob.content_type.in?(ALLOWED_PHOTO_CONTENT_TYPES) }
       errors.add(:base, "Photos must be PNG, JPG, or WebP files.")
+    end
+  end
+
+  def only_one_active_listing_per_user
+    return unless user_id && available_until && available_until >= Date.current
+
+    if user.sublet_listings.available.where.not(id: id).exists?
+      errors.add(:base, ACTIVE_LISTING_LIMIT_MESSAGE)
     end
   end
 end

@@ -27,6 +27,7 @@ class User < ApplicationRecord
   has_many :initiated_conversations, class_name: "Conversation", foreign_key: :initiator_id, dependent: :destroy, inverse_of: :initiator
   has_many :received_conversations, class_name: "Conversation", foreign_key: :recipient_id, dependent: :destroy, inverse_of: :recipient
   has_many :messages, foreign_key: :sender_id, dependent: :destroy, inverse_of: :sender
+  has_one :active_sublet_listing, -> { available.order(created_at: :desc) }, class_name: "SubletListing", inverse_of: :user
   has_one_attached :profile_photo
   # has_many :applications, dependent: :destroy
 
