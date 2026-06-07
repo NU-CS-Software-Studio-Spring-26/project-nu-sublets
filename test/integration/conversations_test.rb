@@ -94,6 +94,47 @@ class ConversationsTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{conversations_path}'][aria-current='page']", count: 0
   end
 
+  test "conversation thread hides existing blank messages" do
+    renter = sign_in_with_firebase_email("chat.blank.viewer@u.northwestern.edu")
+    conversation = Conversation.between(renter, @host, listing: @listing)
+    conversation.save!
+    blank_message = conversation.messages.create!(sender: @host, body: "Temporary blank")
+    blank_message.update_column(:body, "   ")
+    visible_message = conversation.messages.create!(sender: @host, body: "Visible message")
+
+    get conversation_path(conversation)
+
+    assert_response :success
+    assert_select ".message-bubble", count: 1
+    assert_select ".message-bubble[data-message-id='#{visible_message.id}']"
+    assert_select ".message-bubble[data-message-id='#{blank_message.id}']", count: 0
+    assert_select ".message-body", text: "Visible message"
+  end
+
+  test "blank and whitespace only messages are rejected" do
+    renter = sign_in_with_firebase_email("chat.blank.sender@u.northwestern.edu")
+    conversation = Conversation.between(renter, @host, listing: @listing)
+    conversation.save!
+
+    assert_no_difference("Message.count") do
+      post conversation_messages_path(conversation),
+           params: { message: { body: "   " } },
+           headers: { "Accept" => "application/json" }
+    end
+
+    assert_response :unprocessable_entity
+    assert_includes response.parsed_body["errors"], "Body can't be blank"
+  end
+
+  test "chat javascript blocks whitespace only messages and blank live bubbles" do
+    javascript = Rails.root.join("app/javascript/application.js").read
+
+    assert_includes javascript, 'const body = String(message.body || "").trim()'
+    assert_includes javascript, "if (!messageList || !chatPage || !body"
+    assert_includes javascript, 'input?.setCustomValidity("Message can\'t be blank.")'
+    assert_includes javascript, "input?.reportValidity()"
+  end
+
   test "signed in user can start a chat with an existing account holder" do
     sign_in_with_firebase_email("chat.verified.sender@u.northwestern.edu")
     student = User.create!(

@@ -18,6 +18,26 @@ class MessageTest < ActiveSupport::TestCase
     assert_includes long.errors[:body], "is too long (maximum is 1000 characters)"
   end
 
+  test "does not broadcast blank message bodies" do
+    message = @conversation.messages.create!(sender: @initiator, body: "Temporary message")
+    message.update_column(:body, "   ")
+    broadcast_called = false
+    original_broadcast_to = ConversationChannel.method(:broadcast_to)
+    ConversationChannel.define_singleton_method(:broadcast_to) do |_conversation, _payload|
+      broadcast_called = true
+    end
+
+    begin
+      message.send(:broadcast_to_conversation)
+    ensure
+      ConversationChannel.define_singleton_method(:broadcast_to) do |conversation, payload|
+        original_broadcast_to.call(conversation, payload)
+      end
+    end
+
+    assert_not broadcast_called
+  end
+
   test "normalizes message body" do
     message = @conversation.messages.create!(sender: @initiator, body: "  Hello\u0000 there\nnow  ")
 

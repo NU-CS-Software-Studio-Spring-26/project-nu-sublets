@@ -51,6 +51,7 @@
 
       <div class="message-list" data-message-list aria-live="polite">
         <% @messages.each do |message| %>
+          <% next if message.body.blank? %>
           <%= render "message", message: message %>
         <% end %>
       </div>

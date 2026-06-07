@@ -24,6 +24,8 @@ class Message < ApplicationRecord
   end
 
   def broadcast_to_conversation
+    return if body.blank?
+
     ConversationChannel.broadcast_to(
       conversation,
       {
