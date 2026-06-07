@@ -110,8 +110,8 @@
             .form-stack {
                 display: flex;
                 flex-direction: column;
-                gap: 18px;
-                margin-bottom: 20px;
+                gap: 14px;
+                margin-bottom: 16px;
             }
 
             .field-label {
@@ -378,6 +378,19 @@
                 padding: 8px 10px;
                 background: var(--nu-white);
                 color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                line-height: 1.2;
+            }
+
+            .recommendation-filter-field .date-field {
+                min-height: 38px;
+                gap: 8px;
+                padding: 8px 10px;
+                border-radius: 8px;
+            }
+
+            .recommendation-filter-field .date-input {
                 font-family: "Rubik", sans-serif;
                 font-size: 14px;
                 line-height: 1.2;
@@ -766,35 +779,6 @@
                                     <span class="field-label form-label" id="natural-query-label">What are you looking for?</span>
                                     <input class="natural-search-input form-control" type="search" name="natural_query" placeholder="Furnished studio under $1200 near campus" aria-labelledby="natural-query-label" maxlength="500" />
                                 </label>
-
-                                <label class="date-picker-label" data-date-picker>
-                                    <span class="field-label form-label" id="move-in-label">Move In</span>
-                                    <span class="date-field input-group">
-                                        <input class="date-input form-control" type="text" name="move-in" placeholder="mm/dd/yyyy" inputmode="numeric" aria-labelledby="move-in-label" aria-describedby="date-format-hint" data-date-input />
-                                        <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open move in date picker" aria-haspopup="dialog" aria-expanded="false" aria-controls="move-in-picker" data-date-toggle>
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                                                <rect x="4" y="5" width="16" height="15" rx="1.5" stroke="currentColor" stroke-width="1.5" />
-                                            </svg>
-                                        </button>
-                                    </span>
-                                    <div class="date-picker-popover" id="move-in-picker" role="dialog" aria-modal="false" aria-label="Move in calendar" hidden data-date-popover></div>
-                                </label>
-
-                                <label class="date-picker-label" data-date-picker>
-                                    <span class="field-label form-label" id="move-out-label">Move Out</span>
-                                    <span class="date-field input-group">
-                                        <input class="date-input form-control" type="text" name="move-out" placeholder="mm/dd/yyyy" inputmode="numeric" aria-labelledby="move-out-label" aria-describedby="date-format-hint" data-date-input />
-                                        <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open move out date picker" aria-haspopup="dialog" aria-expanded="false" aria-controls="move-out-picker" data-date-toggle>
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                                                <rect x="4" y="5" width="16" height="15" rx="1.5" stroke="currentColor" stroke-width="1.5" />
-                                            </svg>
-                                        </button>
-                                    </span>
-                                    <div class="date-picker-popover" id="move-out-picker" role="dialog" aria-modal="false" aria-label="Move out calendar" hidden data-date-popover></div>
-                                </label>
-                                <p class="visually-hidden" id="date-format-hint">Enter dates in month, day, year format.</p>
                             </div>
 
                             <button class="search-button btn btn-primary" type="submit">Search</button>
@@ -810,14 +794,33 @@
                     <div class="section-inner">
                         <h2 class="section-title" id="recommendations-title">Sublets We Think You&rsquo;d Like</h2>
                         <form class="recommendation-filter-form" action="<%= root_path(anchor: "recommendations") %>" method="get" aria-label="Filter recommended sublets">
-                            <label class="recommendation-filter-field">
-                                <span class="recommendation-filter-label">Move in</span>
-                                <input class="recommendation-filter-input" type="text" name="recommendation_move_in" value="<%= @recommendation_move_in_value %>" placeholder="MM/DD/YYYY" inputmode="numeric" />
+                            <label class="recommendation-filter-field date-picker-label" data-date-picker>
+                                <span class="recommendation-filter-label" id="recommendation-move-in-label">Move in</span>
+                                <span class="date-field input-group">
+                                    <input class="date-input form-control" type="text" name="recommendation_move_in" value="<%= @recommendation_move_in_value %>" placeholder="mm/dd/yyyy" inputmode="numeric" aria-labelledby="recommendation-move-in-label" aria-describedby="date-format-hint" data-date-input />
+                                    <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open recommended move in date picker" aria-haspopup="dialog" aria-expanded="false" aria-controls="recommendation-move-in-picker" data-date-toggle>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                            <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                            <rect x="4" y="5" width="16" height="15" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+                                        </svg>
+                                    </button>
+                                </span>
+                                <div class="date-picker-popover" id="recommendation-move-in-picker" role="dialog" aria-modal="false" aria-label="Recommended move in calendar" hidden data-date-popover></div>
                             </label>
-                            <label class="recommendation-filter-field">
-                                <span class="recommendation-filter-label">Move out</span>
-                                <input class="recommendation-filter-input" type="text" name="recommendation_move_out" value="<%= @recommendation_move_out_value %>" placeholder="MM/DD/YYYY" inputmode="numeric" />
+                            <label class="recommendation-filter-field date-picker-label" data-date-picker>
+                                <span class="recommendation-filter-label" id="recommendation-move-out-label">Move out</span>
+                                <span class="date-field input-group">
+                                    <input class="date-input form-control" type="text" name="recommendation_move_out" value="<%= @recommendation_move_out_value %>" placeholder="mm/dd/yyyy" inputmode="numeric" aria-labelledby="recommendation-move-out-label" aria-describedby="date-format-hint" data-date-input />
+                                    <button class="icon-button btn btn-outline-secondary" type="button" aria-label="Open recommended move out date picker" aria-haspopup="dialog" aria-expanded="false" aria-controls="recommendation-move-out-picker" data-date-toggle>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                            <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                            <rect x="4" y="5" width="16" height="15" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+                                        </svg>
+                                    </button>
+                                </span>
+                                <div class="date-picker-popover" id="recommendation-move-out-picker" role="dialog" aria-modal="false" aria-label="Recommended move out calendar" hidden data-date-popover></div>
                             </label>
+                            <p class="visually-hidden" id="date-format-hint">Enter dates in month, day, year format.</p>
                             <label class="recommendation-filter-field">
                                 <span class="recommendation-filter-label">Bedrooms</span>
                                 <select class="recommendation-filter-select" name="recommendation_bedrooms" aria-label="Recommended listing bedrooms">
