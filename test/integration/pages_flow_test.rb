@@ -1189,6 +1189,67 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "mailto:#{user.email}"
   end
 
+  test "listing page photo carousel handles fallback single and multiple photos" do
+    no_photo_owner = User.create!(name: "No Photo Owner", email: "no.photo.owner@u.northwestern.edu", active: true)
+    one_photo_owner = User.create!(name: "One Photo Owner", email: "one.photo.owner@u.northwestern.edu", active: true)
+    multiple_photo_owner = User.create!(name: "Multiple Photo Owner", email: "multiple.photo.owner@u.northwestern.edu", active: true)
+    photo_listing_attributes = valid_listing_attributes.merge(
+      available_from: Date.new(2026, 6, 12),
+      available_until: Date.new(2026, 9, 11)
+    )
+    listing_without_photos = no_photo_owner.sublet_listings.create!(
+      photo_listing_attributes.merge(title: "No Photos Listing")
+    )
+    listing_with_one_photo = one_photo_owner.sublet_listings.create!(
+      photo_listing_attributes.merge(
+        title: "One Photo Listing",
+        address: "900 Noyes St, Evanston, IL 60201"
+      )
+    )
+    listing_with_one_photo.photos.attach(uploaded_test_file("single-photo.jpg", "image/jpeg", "single photo"))
+    listing_with_multiple_photos = multiple_photo_owner.sublet_listings.create!(
+      photo_listing_attributes.merge(
+        title: "Multiple Photos Listing",
+        address: "901 Noyes St, Evanston, IL 60201"
+      )
+    )
+    listing_with_multiple_photos.photos.attach([
+      uploaded_test_file("photo-one.jpg", "image/jpeg", "photo one"),
+      uploaded_test_file("photo-two.jpg", "image/jpeg", "photo two"),
+      uploaded_test_file("photo-three.jpg", "image/jpeg", "photo three")
+    ])
+
+    sign_in_with_firebase_email("photo.viewer@u.northwestern.edu")
+
+    get sublet_listing_path(listing_without_photos)
+
+    assert_response :success
+    assert_select "section.photo-carousel[data-photo-carousel]"
+    assert_select ".gallery-grid", count: 0
+    assert_select "[data-photo-carousel-source]", count: 1
+    assert_select "[data-photo-carousel-total]", text: "1"
+    assert_select "[data-photo-carousel-previous]", count: 0
+    assert_select "[data-photo-carousel-next]", count: 0
+
+    get sublet_listing_path(listing_with_one_photo)
+
+    assert_response :success
+    assert_select "[data-photo-carousel-source]", count: 1
+    assert_select "[data-photo-carousel-total]", text: "1"
+    assert_select "[data-photo-carousel-previous]", count: 0
+    assert_select "[data-photo-carousel-next]", count: 0
+
+    get sublet_listing_path(listing_with_multiple_photos)
+
+    assert_response :success
+    assert_select "[data-photo-carousel-source]", count: 3
+    assert_select "[data-photo-carousel-current]", text: "1"
+    assert_select "[data-photo-carousel-total]", text: "3"
+    assert_select "button[data-photo-carousel-previous][aria-label='Previous photo']"
+    assert_select "button[data-photo-carousel-next][aria-label='Next photo']"
+    assert_includes response.body, "const movePhoto = (direction) =>"
+  end
+
   test "listing detail page shows delete controls only to the owner" do
     owner = User.create!(name: "Listing Manager", email: "listing.manager@u.northwestern.edu", active: true)
     listing = owner.sublet_listings.create!(
