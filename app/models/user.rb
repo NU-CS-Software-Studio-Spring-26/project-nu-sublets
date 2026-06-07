@@ -124,6 +124,10 @@ class User < ApplicationRecord
     Conversation.involving(self)
   end
 
+  def unread_conversations_count
+    conversations.includes(:messages).count { |conversation| conversation.unread_for?(self) }
+  end
+
   def email_visible_to?(viewer)
     viewer&.confirmed? && show_email_to_students?
   end

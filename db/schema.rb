@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_07_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_07_130000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -43,6 +43,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_07_100000) do
     t.string "conversation_key", null: false
     t.datetime "created_at", null: false
     t.integer "initiator_id", null: false
+    t.datetime "last_read_at_initiator"
+    t.datetime "last_read_at_recipient"
     t.integer "recipient_id", null: false
     t.integer "sublet_listing_id"
     t.datetime "updated_at", null: false
@@ -134,8 +136,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_07_100000) do
     t.string "provider"
     t.boolean "show_email_to_students", default: false, null: false
     t.boolean "show_phone_to_students", default: false, null: false
-    t.string "uid"
     t.datetime "terms_accepted_at"
+    t.string "uid"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true, where: "provider IS NOT NULL AND uid IS NOT NULL"

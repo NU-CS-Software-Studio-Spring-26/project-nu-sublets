@@ -178,15 +178,23 @@ module ApplicationHelper
     "https://ui-avatars.com/api/?name=#{ERB::Util.url_encode(user_initials(user))}&background=F4EFF8&color=3E1B4B&size=#{size}&bold=true"
   end
 
-  def nav_item_label_with_icon(icon_name, label)
+  def nav_item_label_with_icon(icon_name, label, badge_count: nil)
     icon_markup = NAV_ITEM_ICONS[icon_name.to_sym] || NAV_ITEM_ICONS[:browse]
     tiny_icon_markup = icon_markup.sub(
       "<svg ",
       '<svg width="16" height="16" style="width:1em;height:1em;min-width:1em;min-height:1em;flex:0 0 1em;display:inline-block;vertical-align:-0.1em;" '
     ).html_safe
 
-    content_tag(:span, class: "nav-item-with-icon", style: "display:inline-flex;align-items:center;gap:0.35em;white-space:nowrap;") do
-      safe_join([ tiny_icon_markup, content_tag(:span, label, class: "nav-item-text", style: "white-space:nowrap;") ])
+    content_tag(:span, class: "nav-item-with-icon", style: "display:inline-flex;align-items:center;gap:0.35em;white-space:nowrap;position:relative;") do
+      parts = [ tiny_icon_markup, content_tag(:span, label, class: "nav-item-text", style: "white-space:nowrap;") ]
+      unread_count = badge_count.to_i
+
+      if unread_count.positive?
+        badge_text = unread_count > 99 ? "99+" : unread_count > 9 ? "9+" : unread_count.to_s
+        parts << content_tag(:span, badge_text, class: "nav-item-badge", aria: { label: "#{badge_text} unread chats" })
+      end
+
+      safe_join(parts)
     end
   end
 

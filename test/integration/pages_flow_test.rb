@@ -559,6 +559,25 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a.cta-button[href='#{post_sublet_path}']", text: "Create a Posting"
   end
 
+  test "chat nav shows unread badge for conversations with unread messages" do
+    recipient = sign_in_with_firebase_email("chat.unread@u.northwestern.edu")
+    sender = User.create!(name: "Sender", email: "chat.sender@u.northwestern.edu", active: true, confirmed_at: Time.current)
+    conversation = Conversation.between(sender, recipient)
+    conversation.save!
+    conversation.messages.create!(sender: sender, body: "Hi there")
+
+    get root_path
+
+    assert_response :success
+    assert_select "a[href='#{conversations_path}'] .nav-item-badge", text: "1", count: 1
+
+    get conversation_path(conversation)
+    assert_response :success
+
+    get root_path
+    assert_select "a[href='#{conversations_path}'] .nav-item-badge", count: 0
+  end
+
   test "profile page is tailored to the signed in user" do
     sign_in_with_firebase_email("student@u.northwestern.edu")
 
