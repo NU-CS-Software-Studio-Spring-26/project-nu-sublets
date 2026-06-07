@@ -192,6 +192,8 @@
             .image-popup__backdrop {
                 position: absolute;
                 inset: 0;
+                border: 0;
+                padding: 0;
                 background: rgba(0, 0, 0, 0.78);
             }
 
@@ -290,6 +292,8 @@
             .report-modal__backdrop {
                 position: absolute;
                 inset: 0;
+                border: 0;
+                padding: 0;
                 background: rgba(17, 12, 20, 0.34);
                 backdrop-filter: blur(3px);
             }
@@ -868,7 +872,7 @@
         <div class="page-shell">
             <header class="topbar">
                 <div class="topbar-inner">
-                    <a class="brand d-flex align-items-center" href="<%= root_path %>" style="text-decoration: none; color: #4E2A84; font-weight: bold; font-size: 1.25rem;">
+                    <a class="brand d-flex align-items-center" href="<%= root_path %>" aria-label="NU Sublets home" style="text-decoration: none; color: #4E2A84; font-weight: bold; font-size: 1.25rem;">
                         <%= render 'shared/brand_logo' %>
                     </a>
                     <nav class="d-flex align-items-center topbar-nav">
@@ -899,7 +903,7 @@
                     <section class="row g-3 g-lg-4 align-items-stretch">
                         <div class="col-lg-6">
                             <div class="gallery-main">
-                                <button class="gallery-button" type="button" data-image-popup-trigger>
+                                <button class="gallery-button" type="button" aria-label="Open main listing photo" data-image-popup-trigger>
                                     <img class="gallery-photo" src="<%= gallery_images[0] %>" alt="Main view of the sublet near Northwestern University" />
                                 </button>
                             </div>
@@ -907,22 +911,22 @@
                         <div class="col-lg-6">
                             <div class="gallery-grid">
                                 <div class="gallery-tile">
-                                    <button class="gallery-button" type="button" data-image-popup-trigger>
+                                    <button class="gallery-button" type="button" aria-label="Open living space listing photo" data-image-popup-trigger>
                                         <img class="gallery-photo" src="<%= gallery_images[1] %>" alt="Living space view of the sublet" />
                                     </button>
                                 </div>
                                 <div class="gallery-tile">
-                                    <button class="gallery-button" type="button" data-image-popup-trigger>
+                                    <button class="gallery-button" type="button" aria-label="Open kitchen listing photo" data-image-popup-trigger>
                                         <img class="gallery-photo" src="<%= gallery_images[2] %>" alt="Kitchen view of the apartment" />
                                     </button>
                                 </div>
                                 <div class="gallery-tile">
-                                    <button class="gallery-button" type="button" data-image-popup-trigger>
+                                    <button class="gallery-button" type="button" aria-label="Open bedroom listing photo" data-image-popup-trigger>
                                         <img class="gallery-photo" src="<%= gallery_images[3] %>" alt="Bedroom area in the apartment" />
                                     </button>
                                 </div>
                                 <div class="gallery-tile">
-                                    <button class="gallery-button" type="button" data-image-popup-trigger>
+                                    <button class="gallery-button" type="button" aria-label="Open exterior listing photo" data-image-popup-trigger>
                                         <img class="gallery-photo" src="<%= gallery_images[0] %>" alt="Exterior neighborhood photo near the sublet" />
                                     </button>
                                 </div>
@@ -943,6 +947,7 @@
                                     <button
                                         class="btn btn-outline-secondary report-listing-button listing-compare-button"
                                         type="button"
+                                        aria-label="Compare <%= @listing.title.presence || @listing.address.presence || 'this listing' %>"
                                         data-compare-trigger
                                         data-compare-default-label="Compare listing"
                                         data-compare-selected-label="Selected for comparison"
@@ -951,11 +956,11 @@
                                     </button>
                                     <% if @listing.persisted? %>
                                         <% if user_signed_in? %>
-                                            <button class="btn btn-outline-secondary report-listing-button" type="button" data-report-modal-trigger aria-haspopup="dialog">
+                                            <button class="btn btn-outline-secondary report-listing-button" type="button" data-report-modal-trigger aria-label="Report <%= @listing.title.presence || 'this listing' %>" aria-haspopup="dialog" aria-controls="report-modal">
                                                 Report listing
                                             </button>
                                         <% else %>
-                                            <a class="btn btn-outline-secondary report-listing-button" href="#" data-login-trigger>
+                                            <a class="btn btn-outline-secondary report-listing-button" href="#" aria-haspopup="dialog" aria-controls="login-modal" data-login-trigger>
                                                 Report listing
                                             </a>
                                         <% end %>
@@ -1049,7 +1054,7 @@
                                     </div>
                                     <div class="d-flex gap-2 flex-wrap mt-4">
                                         <% if user_signed_in? && @listing_host.persisted? && current_user.id != @listing_host.id %>
-                                            <%= button_to "Chat with Host", conversations_path, method: :post, params: { recipient_id: @listing_host.id, sublet_listing_id: @listing.id }, class: "btn btn-primary", form: { class: "d-inline" } %>
+                                            <%= button_to "Chat with Host", conversations_path, method: :post, params: { recipient_id: @listing_host.id, sublet_listing_id: @listing.id }, class: "btn btn-primary", aria: { label: "Start a chat with #{host_name}" }, form: { class: "d-inline" } %>
                                             <% if @listing_host.email_visible_to?(current_user) %>
                                                 <a class="btn btn-outline-secondary" href="mailto:<%= host_email %>">Email Host</a>
                                             <% end %>
@@ -1059,7 +1064,7 @@
                                         <% elsif user_signed_in? && @listing_host.persisted? && current_user.id == @listing_host.id %>
                                             <a class="btn btn-outline-secondary" href="<%= profile_path %>">Manage Contact Settings</a>
                                         <% else %>
-                                            <a class="btn btn-primary" href="#" data-login-trigger>Log in to Chat</a>
+                                            <a class="btn btn-primary" href="#" aria-haspopup="dialog" aria-controls="login-modal" data-login-trigger>Log in to Chat</a>
                                         <% end %>
                                     </div>
                                 </div>
@@ -1192,7 +1197,7 @@
         </div>
 
         <div class="image-popup" data-image-popup aria-hidden="true">
-            <div class="image-popup__backdrop" data-image-popup-close></div>
+            <button class="image-popup__backdrop" type="button" aria-label="Close enlarged image" data-image-popup-close></button>
             <div class="image-popup__dialog" role="dialog" aria-modal="true" aria-label="Enlarged listing image">
                 <img class="image-popup__image" src="" alt="" data-image-popup-image />
             </div>
@@ -1200,7 +1205,7 @@
 
         <% if user_signed_in? && @listing.persisted? %>
             <div id="report-modal" class="report-modal" data-report-modal aria-hidden="true">
-                <div class="report-modal__backdrop" data-report-modal-close></div>
+                <button class="report-modal__backdrop" type="button" aria-label="Close report popup" data-report-modal-close></button>
                 <div class="report-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="report-modal-title">
                     <button class="report-modal__close" type="button" aria-label="Close report popup" data-report-modal-close>&times;</button>
                     <h2 class="report-modal__title" id="report-modal-title">Report Listing</h2>
