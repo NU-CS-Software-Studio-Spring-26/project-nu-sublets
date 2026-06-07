@@ -74,4 +74,29 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal 42.0583, payload.first[:latitude]
     assert_equal -87.6831, payload.first[:longitude]
   end
+
+  test "amenity icon renders accessible decorative svg" do
+    icon = amenity_icon("Laundry")
+
+    assert_includes icon, 'class="amenity-icon"'
+    assert_includes icon, 'aria-hidden="true"'
+    assert_includes icon, 'focusable="false"'
+    assert_includes icon, 'stroke="currentColor"'
+  end
+
+  test "amenity icon has a mapping for every allowed amenity" do
+    missing_amenities = SubletListing::AMENITY_OPTIONS - ApplicationHelper::AMENITY_ICON_PATHS.keys
+
+    assert_empty missing_amenities
+  end
+
+  test "listing image helper uses one intentional default for listings without uploaded photos" do
+    first_listing = SubletListing.new(id: 1, title: "First Listing")
+    second_listing = SubletListing.new(id: 2, title: "Second Listing")
+    expected_default = asset_path(ApplicationHelper::DEFAULT_LISTING_IMAGE_ASSET)
+
+    assert_equal expected_default, apartment_listing_image_path(first_listing)
+    assert_equal expected_default, apartment_listing_image_path(second_listing)
+    assert_equal Array.new(4, expected_default), apartment_gallery_image_paths(first_listing)
+  end
 end
