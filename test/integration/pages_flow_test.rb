@@ -824,7 +824,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "[data-saved-per-page] option[value='100']"
   end
 
-  test "search results filter form includes date price amenity and preference controls" do
+  test "search results retain date inputs and filter controls" do
     get search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
 
     assert_select "form[action='#{search_results_path}'][method='get'][data-search-filter-form]"
