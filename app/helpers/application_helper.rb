@@ -146,7 +146,8 @@ module ApplicationHelper
 
   def apartment_listing_image_path(listing_or_index = nil, offset: 0)
     if listing_or_index.respond_to?(:photos) && listing_or_index.photos.attached?
-      return url_for(listing_or_index.photos[offset % listing_or_index.photos.size])
+      photos = available_listing_photos(listing_or_index)
+      return url_for(photos[offset % photos.size]) if photos.any?
     end
 
     if listing_or_index.respond_to?(:photos)
@@ -157,7 +158,10 @@ module ApplicationHelper
   end
 
   def apartment_gallery_image_paths(listing = nil)
-    return listing.photos.map { |photo| url_for(photo) } if listing.respond_to?(:photos) && listing.photos.attached?
+    if listing.respond_to?(:photos) && listing.photos.attached?
+      photos = available_listing_photos(listing)
+      return photos.map { |photo| url_for(photo) } if photos.any?
+    end
 
     return Array.new(4) { asset_path(DEFAULT_LISTING_IMAGE_ASSET) } if listing.respond_to?(:photos)
 
@@ -169,6 +173,20 @@ module ApplicationHelper
   def user_initials(user)
     display_name = user&.display_name.presence || user&.email.to_s.split("@").first
     display_name.to_s.split.map { |part| part.first }.join.first(2).upcase.presence || "NU"
+  end
+
+  def available_listing_photos(listing)
+    listing.photos.select { |photo| active_storage_blob_available?(photo.blob) }
+  end
+
+  def listing_has_available_photos?(listing)
+    listing.respond_to?(:photos) && listing.photos.attached? && available_listing_photos(listing).any?
+  end
+
+  def active_storage_blob_available?(blob)
+    blob.service.exist?(blob.key)
+  rescue ActiveStorage::FileNotFoundError, Errno::ENOENT
+    false
   end
 
   def user_avatar_url(user, size: 248)

@@ -342,6 +342,30 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, 'const initialPreferences = ["Graduate student","Quiet"]'
   end
 
+  test "posted listing photos are visible to other signed in students" do
+    sign_in_with_firebase_email("photo.lister@u.northwestern.edu")
+    upload = uploaded_test_file("listing-room.jpg", "image/jpeg", "listing room photo")
+
+    assert_difference("SubletListing.count", 1) do
+      post submit_sublet_path, params: valid_sublet_post_params.merge(photos: [ upload ])
+    end
+
+    listing = SubletListing.order(:created_at).last
+
+    assert_equal 1, listing.photos.count
+    assert_redirected_to profile_path
+
+    delete session_path
+    sign_in_with_firebase_email("photo.viewer@u.northwestern.edu")
+
+    get sublet_listing_path(listing)
+
+    assert_response :success
+    assert_select ".gallery-photo[src*='/rails/active_storage/blobs/']", count: 1
+    assert_select "[data-photo-carousel-source][data-src*='/rails/active_storage/blobs/']", count: 1
+    assert_no_match(/default-listing/i, response.body)
+  end
+
   test "home page links to the other product views" do
     get root_path
 
@@ -1632,6 +1656,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     no_photo_owner = User.create!(name: "No Photo Owner", email: "no.photo.owner@u.northwestern.edu", active: true)
     one_photo_owner = User.create!(name: "One Photo Owner", email: "one.photo.owner@u.northwestern.edu", active: true)
     multiple_photo_owner = User.create!(name: "Multiple Photo Owner", email: "multiple.photo.owner@u.northwestern.edu", active: true)
+    missing_photo_owner = User.create!(name: "Missing Photo Owner", email: "missing.photo.owner@u.northwestern.edu", active: true)
     photo_listing_attributes = valid_listing_attributes.merge(
       available_from: Date.new(2026, 6, 12),
       available_until: Date.new(2026, 9, 11)
@@ -1657,6 +1682,15 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
       uploaded_test_file("photo-two.jpg", "image/jpeg", "photo two"),
       uploaded_test_file("photo-three.jpg", "image/jpeg", "photo three")
     ])
+    listing_with_missing_photo = missing_photo_owner.sublet_listings.create!(
+      photo_listing_attributes.merge(
+        title: "Missing Photo Listing",
+        address: "902 Noyes St, Evanston, IL 60201"
+      )
+    )
+    listing_with_missing_photo.photos.attach(uploaded_test_file("missing-photo.jpg", "image/jpeg", "missing photo"))
+    missing_blob = listing_with_missing_photo.photos.first.blob
+    missing_blob.service.delete(missing_blob.key)
 
     sign_in_with_firebase_email("photo.viewer@u.northwestern.edu")
 
@@ -1687,6 +1721,13 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "button[data-photo-carousel-previous][aria-label='Previous photo']"
     assert_select "button[data-photo-carousel-next][aria-label='Next photo']"
     assert_includes response.body, "const movePhoto = (direction) =>"
+
+    get sublet_listing_path(listing_with_missing_photo)
+
+    assert_response :success
+    assert_select "[data-photo-carousel-source]", count: 1
+    assert_select "[data-photo-carousel-total]", text: "1"
+    assert_no_match(%r{/rails/active_storage/blobs/}, response.body)
   end
 
   test "listing detail page shows delete controls only to the owner" do

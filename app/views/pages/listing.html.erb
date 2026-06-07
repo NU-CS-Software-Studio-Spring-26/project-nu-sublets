@@ -940,7 +940,7 @@
         <% preferences = @listing.displayed_preferences %>
         <% preferences = ["Ask host for roommate preferences"] if preferences.empty? %>
         <% gallery_images = apartment_gallery_image_paths(@listing) %>
-        <% carousel_images = @listing.photos.attached? ? gallery_images : [ gallery_images.first ] %>
+        <% carousel_images = listing_has_available_photos?(@listing) ? gallery_images : [ gallery_images.first ] %>
         <% carousel_photo_count = carousel_images.size %>
         <% listing_owner = user_signed_in? && current_user.id == @listing_host.id %>
         <div class="page-shell">
