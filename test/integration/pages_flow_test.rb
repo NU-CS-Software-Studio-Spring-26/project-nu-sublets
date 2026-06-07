@@ -772,14 +772,57 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     get saved_path
 
     assert_select "h1", text: "Saved Sublets"
-    assert_select "[data-favorite-listings]"
+    assert_select "[data-saved-grid]"
+    assert_select "[data-saved-pagination]"
+    assert_select "[data-saved-per-page]"
     assert_select "[data-favorites-empty]", text: /No saved sublets yet/
     assert_select "a[href='#{search_results_path}']", text: /Browse sublets/
     assert_includes response.body, "nuSublets.favoriteListings"
     assert_includes response.body, "#ed4956"
   end
 
-  test "search results toolbar includes date filter controls" do
+  test "search results includes per-page selector with options 25 50 100" do
+    get search_results_path
+
+    assert_select "select[data-per-page-select]"
+    assert_select "select[data-per-page-select] option[value='25']"
+    assert_select "select[data-per-page-select] option[value='50']"
+    assert_select "select[data-per-page-select] option[value='100']"
+    assert_select "select[data-per-page-select] option[value='25'][selected]"
+  end
+
+  test "search results per-page selector respects valid per_page param" do
+    get search_results_path(per_page: "50")
+
+    assert_select "select[data-per-page-select] option[value='50'][selected]"
+    assert_select "select[data-per-page-select] option[value='25']:not([selected])"
+  end
+
+  test "search results per-page selector defaults to 25 for invalid per_page param" do
+    get search_results_path(per_page: "999")
+
+    assert_select "select[data-per-page-select] option[value='25'][selected]"
+  end
+
+  test "search results per-page selector defaults to 25 for non-numeric per_page param" do
+    get search_results_path(per_page: "invalid")
+
+    assert_select "select[data-per-page-select] option[value='25'][selected]"
+  end
+
+  test "saved page includes pagination elements" do
+    sign_in_with_firebase_email("student@u.northwestern.edu")
+
+    get saved_path
+
+    assert_select "[data-saved-grid]"
+    assert_select "[data-saved-pagination]"
+    assert_select "[data-saved-toolbar]"
+    assert_select "[data-saved-per-page]"
+    assert_select "[data-saved-per-page] option[value='25']"
+    assert_select "[data-saved-per-page] option[value='50']"
+    assert_select "[data-saved-per-page] option[value='100']"
+  end
     get search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
 
     assert_select "form[action='#{search_results_path}'][method='get'][data-search-filter-form]"

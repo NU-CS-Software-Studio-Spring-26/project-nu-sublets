@@ -242,6 +242,108 @@
                 text-decoration: none;
             }
 
+            .saved-toolbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+            }
+
+            .saved-toolbar[hidden] {
+                display: none;
+            }
+
+            .saved-count {
+                margin: 0;
+                color: var(--nu-muted);
+                font-family: "Rubik", sans-serif;
+                font-size: 13px;
+            }
+
+            .per-page-label {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                color: var(--nu-muted);
+                font-family: "Rubik", sans-serif;
+                font-size: 13px;
+                white-space: nowrap;
+            }
+
+            .per-page-select {
+                padding: 5px 8px;
+                border: 1px solid var(--nu-border);
+                border-radius: 6px;
+                background: #fff;
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 13px;
+                cursor: pointer;
+            }
+
+            .per-page-select:focus-visible {
+                border-color: rgba(78, 42, 132, 0.5);
+                box-shadow: 0 0 0 3px rgba(78, 42, 132, 0.12);
+                outline: none;
+            }
+
+            .pagination-wrap {
+                margin-top: 24px;
+            }
+
+            .pagy {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                align-items: center;
+                font-family: "Rubik", sans-serif;
+            }
+
+            .pagy a,
+            .pagy button,
+            .pagy span {
+                min-width: 36px;
+                min-height: 36px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 8px 10px;
+                border: 1px solid var(--nu-border);
+                border-radius: 7px;
+                background: #fff;
+                color: var(--nu-text);
+                font-size: 13px;
+                font-weight: 600;
+                line-height: 1;
+                text-decoration: none;
+                cursor: pointer;
+                font-family: "Rubik", sans-serif;
+            }
+
+            .pagy a:hover,
+            .pagy button:hover,
+            .pagy a:focus-visible,
+            .pagy button:focus-visible {
+                border-color: rgba(78, 42, 132, 0.42);
+                box-shadow: 0 0 0 3px rgba(78, 42, 132, 0.12);
+                outline: none;
+            }
+
+            .pagy .current {
+                border-color: var(--nu-accent);
+                background: var(--nu-accent);
+                color: #fff;
+            }
+
+            .pagy .gap,
+            .pagy .disabled {
+                color: var(--nu-muted);
+                background: #f6f4f0;
+                cursor: default;
+            }
+
             @media (max-width: 991.98px) {
                 .cards-grid {
                     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -300,11 +402,21 @@
                     <p class="saved-subtitle">Sublets you heart on the search page appear here.</p>
 
                     <% if user_signed_in? %>
-                        <div class="favorite-listing-carousel" role="region" aria-label="Saved sublet listings" aria-roledescription="carousel" data-favorite-carousel hidden>
-                            <button class="favorite-carousel-button prev" type="button" aria-label="Previous saved sublets" data-favorite-carousel-prev>&#8249;</button>
-                            <section class="favorite-listing-track" tabindex="0" aria-label="Saved sublet listings" data-favorite-listings></section>
-                            <button class="favorite-carousel-button next" type="button" aria-label="Next saved sublets" data-favorite-carousel-next>&#8250;</button>
+                        <div class="saved-toolbar" data-saved-toolbar hidden>
+                            <p class="saved-count" data-saved-count></p>
+                            <label class="per-page-label">
+                                Per page:
+                                <select class="per-page-select" aria-label="Saved listings per page" data-saved-per-page>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </label>
                         </div>
+
+                        <section class="cards-grid" aria-label="Saved sublet listings" data-saved-grid></section>
+
+                        <nav class="pagination-wrap" aria-label="Saved listings pages" data-saved-pagination hidden></nav>
 
                         <div class="empty-state" data-favorites-empty>
                             <p class="empty-state-title">No saved sublets yet.</p>
