@@ -667,6 +667,8 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{sublet_listing_path(listing)}'][data-compare-listing]"
     assert_includes response.body, "nuSublets.compareListings"
     assert_includes response.body, "You can compare up to 3 listings at a time."
+    assert_includes response.body, "table-layout: fixed"
+    assert_includes response.body, "<colgroup>"
     assert_includes response.body, "Utilities included"
 
     get search_results_path
