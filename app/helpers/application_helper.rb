@@ -18,6 +18,7 @@ module ApplicationHelper
     "apartment-kitchen.png",
     "apartment-exterior.png"
   ].freeze
+  DEFAULT_LISTING_IMAGE_ASSET = "apartment-exterior.png"
 
   AMENITY_ICON_PATHS = {
     "Furnished" => '<path d="M4 11h16v7H4zM7 11V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v4M7 18v2m10-2v2" />',
@@ -107,11 +108,17 @@ module ApplicationHelper
       return url_for(listing_or_index.photos[offset % listing_or_index.photos.size])
     end
 
+    if listing_or_index.respond_to?(:photos)
+      return asset_path(DEFAULT_LISTING_IMAGE_ASSET)
+    end
+
     asset_path(APARTMENT_IMAGE_ASSETS[apartment_image_index(listing_or_index, offset)])
   end
 
   def apartment_gallery_image_paths(listing = nil)
     return listing.photos.map { |photo| url_for(photo) } if listing.respond_to?(:photos) && listing.photos.attached?
+
+    return Array.new(4) { asset_path(DEFAULT_LISTING_IMAGE_ASSET) } if listing.respond_to?(:photos)
 
     APARTMENT_IMAGE_ASSETS.each_with_index.map do |_asset, index|
       apartment_listing_image_path(listing, offset: index)

@@ -439,10 +439,6 @@
                 padding-inline: 16px;
             }
 
-            .number-field {
-                padding-right: 12px;
-            }
-
             .prefix {
                 font-family: "Rubik", sans-serif;
                 font-size: 16px;
@@ -964,12 +960,22 @@
                             <div class="field-grid two-col">
                                 <label class="field-stack">
                                     <span class="field-label">Bedrooms</span>
-                                    <input class="field-input number-field" type="number" name="bedrooms" min="0" max="20" step="1" placeholder="0" value="<%= params[:bedrooms] %>" />
+                                    <select class="field-input" name="bedrooms" aria-label="Bedrooms">
+                                        <option value="">Select bedrooms</option>
+                                        <% (0..SubletListing::MAX_ROOMS).each do |count| %>
+                                            <option value="<%= count %>" <%= "selected" if params[:bedrooms].to_s == count.to_s %>><%= count.zero? ? "Studio" : pluralize(count, "bedroom") %></option>
+                                        <% end %>
+                                    </select>
                                 </label>
 
                                 <label class="field-stack">
                                     <span class="field-label">Bathrooms</span>
-                                    <input class="field-input number-field" type="number" name="bathrooms" min="0" max="20" step="1" placeholder="1" value="<%= params[:bathrooms] %>" />
+                                    <select class="field-input" name="bathrooms" aria-label="Bathrooms">
+                                        <option value="">Select bathrooms</option>
+                                        <% (0..SubletListing::MAX_ROOMS).each do |count| %>
+                                            <option value="<%= count %>" <%= "selected" if params[:bathrooms].to_s == count.to_s %>><%= pluralize(count, "bathroom") %></option>
+                                        <% end %>
+                                    </select>
                                 </label>
                             </div>
                         </section>
@@ -1058,15 +1064,6 @@
                                 <span class="prefix">+1</span>
                                 <input class="field-input no-border rubik-input" type="tel" name="phone" aria-label="Phone number" value="<%= params[:phone] %>" />
                             </label>
-                        </section>
-
-                        <section class="section-block field-stack" aria-labelledby="school-email-section-title">
-                            <div>
-                                <h2 class="section-title" id="school-email-section-title">School Email</h2>
-                                <p class="section-helper">School email will be used to verify your student status</p>
-                            </div>
-
-                            <input class="field-input" type="email" name="school-email" placeholder="ex: janedoe@u.northwestern.edu" aria-label="Northwestern school email" value="<%= params["school-email"] %>" />
                         </section>
 
                         <section class="section-block">
