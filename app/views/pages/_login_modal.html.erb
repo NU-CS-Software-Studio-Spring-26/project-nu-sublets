@@ -22,6 +22,8 @@
     .login-modal__backdrop {
         position: absolute;
         inset: 0;
+        border: 0;
+        padding: 0;
         background: rgba(17, 12, 20, 0.34);
         backdrop-filter: blur(3px);
     }
@@ -172,7 +174,7 @@
     data-login-modal
     aria-hidden="true"
 >
-    <div class="login-modal__backdrop" data-login-close></div>
+    <button class="login-modal__backdrop" type="button" aria-label="Close login popup" data-login-close></button>
     <div class="login-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="login-modal-title">
         <button class="login-modal__close" type="button" aria-label="Close login popup" data-login-close>&times;</button>
         <h2 class="login-modal__title" id="login-modal-title">Login</h2>

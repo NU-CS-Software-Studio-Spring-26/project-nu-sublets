@@ -520,7 +520,7 @@
         <div class="page-shell">
             <header class="topbar">
                 <div class="topbar-inner">
-                    <a class="brand d-flex align-items-center" href="<%= root_path %>" style="text-decoration: none; color: #4E2A84; font-weight: bold; font-size: 1.25rem;">
+                    <a class="brand d-flex align-items-center" href="<%= root_path %>" aria-label="NU Sublets home" style="text-decoration: none; color: #4E2A84; font-weight: bold; font-size: 1.25rem;">
                         <%= render 'shared/brand_logo' %>
                     </a>
                     <nav class="d-flex align-items-center topbar-nav">
@@ -555,7 +555,7 @@
 
                             <div class="profile-action-row">
                                 <% if user_signed_in? && current_user.id != user.id %>
-                                    <%= button_to "Chat with #{first_name}", conversations_path, method: :post, params: { recipient_id: user.id }, class: "profile-action-link", form: { style: "display: inline" } %>
+                                    <%= button_to "Chat with #{first_name}", conversations_path, method: :post, params: { recipient_id: user.id }, class: "profile-action-link", aria: { label: "Start a chat with #{user.display_name}" }, form: { style: "display: inline" } %>
                                 <% elsif !user_signed_in? %>
                                     <a class="profile-action-link" href="<%= login_path %>">Log in to chat</a>
                                 <% end %>
@@ -607,11 +607,11 @@
 
                             <% if listings.any? %>
                                 <% listings.each do |listing| %>
-                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>">
+                                    <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="View <%= listing.title.presence || listing.address.presence || 'sublet listing' %>, <%= number_to_currency(listing.price, precision: 0) %> per month">
                                         <div class="listing-media">
                                             <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
                                             <img class="listing-avatar" src="<%= user_avatar_url(user, size: 100) %>" alt="<%= user.display_name %> listing avatar" />
-                                            <span class="favorite-button" role="button" tabindex="0" aria-pressed="false" aria-label="Save to favorite listings">
+                                            <span class="favorite-button" role="button" tabindex="0" aria-pressed="false" aria-label="Save <%= listing.title.presence || listing.address.presence || 'this listing' %> to favorite listings">
                                                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                                     <path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"></path>
                                                 </svg>

@@ -2,7 +2,7 @@
 
 <div class="chat-page" data-conversation-id="<%= @conversation.id %>" data-current-user-id="<%= current_user.id %>">
   <header class="chat-topbar">
-    <a class="chat-brand" href="<%= root_path %>"><%= render "shared/brand_logo" %></a>
+    <a class="chat-brand" href="<%= root_path %>" aria-label="NU Sublets home"><%= render "shared/brand_logo" %></a>
     <nav class="chat-nav" aria-label="Main navigation">
       <a href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
       <a href="<%= search_results_path %>">Search</a>
@@ -64,7 +64,7 @@
         <% end %>
       </div>
 
-      <%= form_with model: [ @conversation, @message ], local: true, class: "message-form", data: { chat_form: true, profanity_check: true } do |form| %>
+      <%= form_with model: [ @conversation, @message ], local: true, html: { aria: { label: "Send a message" } }, class: "message-form", data: { chat_form: true, profanity_check: true } do |form| %>
         <%= form.text_area :body, maxlength: Message::MAX_BODY_LENGTH, required: true, placeholder: "Send a message", aria: { label: "Message" }, data: { message_input: true, profanity_field: true } %>
         <%= form.submit "Send" %>
       <% end %>

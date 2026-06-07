@@ -798,7 +798,7 @@
         <div class="page-shell">
             <header class="topbar">
                 <div class="topbar-inner">
-                    <a class="brand d-flex align-items-center" href="<%= root_path %>" style="text-decoration: none; color: #4E2A84; font-weight: bold; font-size: 1.25rem;">
+                    <a class="brand d-flex align-items-center" href="<%= root_path %>" aria-label="NU Sublets home" style="text-decoration: none; color: #4E2A84; font-weight: bold; font-size: 1.25rem;">
                         <%= render 'shared/brand_logo' %>
                     </a>
                     <nav class="d-flex align-items-center topbar-nav">
@@ -829,36 +829,36 @@
                     <% selected_amenities = Array(params[:amenities]).reject(&:blank?) %>
                     <% selected_preferences = Array(params[:preferences]).reject(&:blank?) %>
 
-                    <%= form_with url: submit_sublet_path, method: :post, local: true, html: { multipart: true }, class: "post-card", data: { profanity_check: true } do %>
-                        <section class="section-block field-stack">
+                    <%= form_with url: submit_sublet_path, method: :post, local: true, html: { multipart: true, aria: { label: "Post a sublet listing" } }, class: "post-card", data: { profanity_check: true } do %>
+                        <section class="section-block field-stack" aria-labelledby="address-section-title">
                             <div>
-                                <h2 class="section-title">Address</h2>
+                                <h2 class="section-title" id="address-section-title">Address</h2>
                                 <p class="section-helper">Tell us where your room is</p>
                             </div>
 
                             <div class="field-grid two-col">
-                                <input class="field-input" type="text" name="street-address" placeholder="Street Address" value="<%= params["street-address"] %>" data-profanity-field />
-                                <input class="field-input" type="text" name="address-line-2" placeholder="Apt, suite, etc. (optional)" value="<%= params["address-line-2"] %>" data-profanity-field />
+                                <input class="field-input" type="text" name="street-address" placeholder="Street Address" aria-label="Street address" value="<%= params["street-address"] %>" data-profanity-field />
+                                <input class="field-input" type="text" name="address-line-2" placeholder="Apt, suite, etc. (optional)" aria-label="Apartment, suite, or unit" value="<%= params["address-line-2"] %>" data-profanity-field />
                             </div>
 
                             <div class="field-grid city-row">
-                                <input class="field-input" type="text" name="city" placeholder="City" value="<%= params[:city] %>" data-profanity-field />
+                                <input class="field-input" type="text" name="city" placeholder="City" aria-label="City" value="<%= params[:city] %>" data-profanity-field />
                             </div>
 
                             <div class="field-grid state-row">
-                                <input class="field-input" type="text" name="state" placeholder="State" value="<%= params[:state] %>" data-profanity-field />
-                                <input class="field-input" type="text" name="zip-code" placeholder="Zip Code" value="<%= params["zip-code"] %>" />
+                                <input class="field-input" type="text" name="state" placeholder="State" aria-label="State" value="<%= params[:state] %>" data-profanity-field />
+                                <input class="field-input" type="text" name="zip-code" placeholder="Zip Code" aria-label="Zip code" value="<%= params["zip-code"] %>" />
                             </div>
                         </section>
 
-                        <section class="section-block field-stack">
-                            <h2 class="section-title">Availability</h2>
+                        <section class="section-block field-stack" aria-labelledby="availability-section-title">
+                            <h2 class="section-title" id="availability-section-title">Availability</h2>
 
                             <div class="availability-grid">
                                 <label class="field-stack date-picker-label" data-date-picker>
                                     <span class="field-label">Start Date</span>
                                     <span class="date-field">
-                                        <input class="date-value" type="text" name="start-date" placeholder="mm/dd/yyyy" value="<%= params["start-date"] %>" data-date-input />
+                                        <input class="date-value" type="text" name="start-date" placeholder="mm/dd/yyyy" aria-label="Start date" value="<%= params["start-date"] %>" data-date-input />
                                         <button class="icon-button" type="button" aria-label="Open start date picker" aria-expanded="false" aria-controls="start-date-picker" data-date-toggle>
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                                 <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -872,7 +872,7 @@
                                 <label class="field-stack date-picker-label" data-date-picker>
                                     <span class="field-label">End Date</span>
                                     <span class="date-field">
-                                        <input class="date-value" type="text" name="end-date" placeholder="mm/dd/yyyy" value="<%= params["end-date"] %>" data-date-input />
+                                        <input class="date-value" type="text" name="end-date" placeholder="mm/dd/yyyy" aria-label="End date" value="<%= params["end-date"] %>" data-date-input />
                                         <button class="icon-button" type="button" aria-label="Open end date picker" aria-expanded="false" aria-controls="end-date-picker" data-date-toggle>
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                                 <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -885,16 +885,16 @@
                             </div>
                         </section>
 
-                        <section class="section-block field-stack">
-                            <h2 class="section-title">Rent</h2>
+                        <section class="section-block field-stack" aria-labelledby="rent-section-title">
+                            <h2 class="section-title" id="rent-section-title">Rent</h2>
                             <label class="field-input price-field">
                                 <span class="prefix">$</span>
-                                <input class="field-input no-border" type="text" name="price" placeholder="Price" value="<%= params[:price] %>" />
+                                <input class="field-input no-border" type="text" name="price" placeholder="Price" aria-label="Monthly rent" value="<%= params[:price] %>" />
                             </label>
                         </section>
 
-                        <section class="section-block field-stack">
-                            <h2 class="section-title">Space</h2>
+                        <section class="section-block field-stack" aria-labelledby="space-section-title">
+                            <h2 class="section-title" id="space-section-title">Space</h2>
                             <div class="field-grid two-col">
                                 <label class="field-stack">
                                     <span class="field-label">Bedrooms</span>
@@ -908,14 +908,14 @@
                             </div>
                         </section>
 
-                        <section class="section-block field-stack">
-                            <h2 class="section-title">Description</h2>
-                            <textarea class="field-textarea" name="description" placeholder="Describe apartment here" data-description-input data-profanity-field><%= params[:description] %></textarea>
+                        <section class="section-block field-stack" aria-labelledby="description-section-title">
+                            <h2 class="section-title" id="description-section-title">Description</h2>
+                            <textarea class="field-textarea" name="description" placeholder="Describe apartment here" aria-label="Listing description" data-description-input data-profanity-field><%= params[:description] %></textarea>
                             <p class="description-counter" data-description-counter aria-live="polite">0 / 1000 characters</p>
                         </section>
 
-                        <section class="section-block field-stack">
-                            <h2 class="section-title">Amenities</h2>
+                        <section class="section-block field-stack" aria-labelledby="amenities-section-title">
+                            <h2 class="section-title" id="amenities-section-title">Amenities</h2>
                             <div class="amenities-picker" data-amenities-picker>
                                 <input
                                     class="field-input search-input"
@@ -923,6 +923,7 @@
                                     name="amenities-search"
                                     placeholder="Search Amenities"
                                     autocomplete="off"
+                                    aria-label="Search amenities"
                                     aria-controls="amenity-results"
                                     aria-expanded="false"
                                     data-amenity-search
@@ -936,8 +937,8 @@
                             </div>
                         </section>
 
-                        <section class="section-block field-stack">
-                            <h2 class="section-title">Preferences</h2>
+                        <section class="section-block field-stack" aria-labelledby="preferences-section-title">
+                            <h2 class="section-title" id="preferences-section-title">Preferences</h2>
                             <div class="amenities-picker" data-preferences-picker>
                                 <input
                                     class="field-input search-input"
@@ -945,6 +946,7 @@
                                     name="preferences-search"
                                     placeholder="Search Preferences"
                                     autocomplete="off"
+                                    aria-label="Search preferences"
                                     aria-controls="preference-results"
                                     aria-expanded="false"
                                     data-preference-search
@@ -958,9 +960,9 @@
                             </div>
                         </section>
 
-                        <section class="section-block field-stack">
+                        <section class="section-block field-stack" aria-labelledby="photos-section-title">
                             <div>
-                                <h2 class="section-title">Photos</h2>
+                                <h2 class="section-title" id="photos-section-title">Photos</h2>
                                 <p class="section-helper">Upload up to 5 photos. PNG, JPG, or WebP only. 5 MB max per photo.</p>
                             </div>
 
@@ -974,9 +976,9 @@
                                     <span class="upload-title">Upload listing photos</span>
                                     <span class="upload-copy">Add up to 5 clear photos of the room, shared spaces, and building.</span>
                                 </button>
-                                <input class="photo-input" type="file" id="listing-photos-input" name="photos[]" accept="image/png,image/jpeg,image/webp" multiple data-photo-input />
+                                <input class="photo-input" type="file" id="listing-photos-input" name="photos[]" accept="image/png,image/jpeg,image/webp" aria-label="Listing photos" multiple data-photo-input />
                                 <noscript>
-                                    <input class="field-input" type="file" name="photos[]" accept="image/png,image/jpeg,image/webp" multiple />
+                                    <input class="field-input" type="file" name="photos[]" accept="image/png,image/jpeg,image/webp" aria-label="Listing photos" multiple />
                                 </noscript>
                                 <div class="photo-preview-grid" aria-label="Selected photos" data-photo-preview></div>
                             </div>
@@ -984,26 +986,26 @@
                             <p class="photo-status" data-photo-status aria-live="polite" hidden></p>
                         </section>
 
-                        <section class="section-block field-stack">
-                            <h2 class="section-title">Phone</h2>
+                        <section class="section-block field-stack" aria-labelledby="phone-section-title">
+                            <h2 class="section-title" id="phone-section-title">Phone</h2>
                             <label class="field-input phone-field">
                                 <span class="prefix">+1</span>
                                 <input class="field-input no-border rubik-input" type="tel" name="phone" aria-label="Phone number" value="<%= params[:phone] %>" />
                             </label>
                         </section>
 
-                        <section class="section-block field-stack">
+                        <section class="section-block field-stack" aria-labelledby="school-email-section-title">
                             <div>
-                                <h2 class="section-title">School Email</h2>
+                                <h2 class="section-title" id="school-email-section-title">School Email</h2>
                                 <p class="section-helper">School email will be used to verify your student status</p>
                             </div>
 
-                            <input class="field-input" type="email" name="school-email" placeholder="ex: janedoe@u.northwestern.edu" value="<%= params["school-email"] %>" />
+                            <input class="field-input" type="email" name="school-email" placeholder="ex: janedoe@u.northwestern.edu" aria-label="Northwestern school email" value="<%= params["school-email"] %>" />
                         </section>
 
                         <section class="section-block">
                             <label class="checkbox-row">
-                                <input type="checkbox" name="terms" <%= "checked" if params[:terms].present? %> />
+                                <input type="checkbox" name="terms" aria-label="Agree to the Terms and Conditions and Privacy Policy" <%= "checked" if params[:terms].present? %> />
                                 <span class="checkbox-copy">I agree to the Terms and Conditions and Privacy Policy.</span>
                             </label>
                         </section>
@@ -1012,7 +1014,7 @@
                             <% if user_signed_in? %>
                                 <button class="submit-button" type="submit">Post Sublet</button>
                             <% else %>
-                                <button class="submit-button" type="button" data-login-trigger>Post Sublet</button>
+                                <button class="submit-button" type="button" aria-haspopup="dialog" aria-controls="login-modal" data-login-trigger>Post Sublet</button>
                             <% end %>
                         </section>
                     <% end %>
