@@ -134,6 +134,9 @@ class ConversationsTest < ActionDispatch::IntegrationTest
     FirebaseTokenVerifier.define_singleton_method(:new) { |*| verifier }
 
     post session_path, params: { id_token: "firebase-token" }, as: :json
+    if response.media_type == "application/json" && response.parsed_body["requires_terms_acceptance"]
+      post onboarding_accept_terms_path, params: { terms_accepted: "1" }
+    end
     User.find_by!(email: email)
   ensure
     FirebaseTokenVerifier.define_singleton_method(:new) { |*args, **kwargs| original_new.call(*args, **kwargs) }
