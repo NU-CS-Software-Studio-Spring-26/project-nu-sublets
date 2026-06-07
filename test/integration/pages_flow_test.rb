@@ -1192,6 +1192,66 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     ENV["GOOGLE_MAPS_API_KEY"] = previous_google_maps_api_key
   end
 
+  test "search results backfills map coordinates when none are stored yet" do
+    previous_google_maps_api_key = ENV["GOOGLE_MAPS_API_KEY"]
+    previous_google_maps_geocoding_api_key = ENV["GOOGLE_MAPS_GEOCODING_API_KEY"]
+    ENV["GOOGLE_MAPS_API_KEY"] = nil
+    ENV["GOOGLE_MAPS_GEOCODING_API_KEY"] = nil
+
+    user = User.create!(
+      name: "Backfill Owner",
+      email: "backfill.owner@u.northwestern.edu",
+      active: true
+    )
+    listing = user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Backfill Match",
+        address: "820 Noyes St, Evanston, IL 60201",
+        price: 875,
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    assert_nil listing.latitude
+    assert_nil listing.longitude
+
+    ENV["GOOGLE_MAPS_API_KEY"] = "test-google-maps-key"
+
+    geocoding_client = Class.new do
+      attr_reader :addresses
+
+      def initialize
+        @addresses = []
+      end
+
+      def geocode(address)
+        @addresses << address
+        GoogleGeocodingClient::Result.new(
+          success?: true,
+          latitude: BigDecimal("42.058300"),
+          longitude: BigDecimal("-87.683100"),
+          status: "geocoded"
+        )
+      end
+    end.new
+
+    original_new = GoogleGeocodingClient.method(:new)
+    GoogleGeocodingClient.define_singleton_method(:new) { geocoding_client }
+
+    get search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
+
+    assert_equal [ "820 Noyes St, Evanston, IL 60201" ], geocoding_client.addresses
+    assert_in_delta 42.0583, listing.reload.latitude.to_f, 0.000001
+    assert_in_delta(-87.6831, listing.reload.longitude.to_f, 0.000001)
+    assert_select "[data-google-map-listings]", text: /Backfill Match/
+    assert_select "[data-google-map-stage][data-google-maps-key-present='true']"
+  ensure
+    GoogleGeocodingClient.define_singleton_method(:new) { |*args, **kwargs| original_new.call(*args, **kwargs) } if defined?(original_new)
+    ENV["GOOGLE_MAPS_API_KEY"] = previous_google_maps_api_key
+    ENV["GOOGLE_MAPS_GEOCODING_API_KEY"] = previous_google_maps_geocoding_api_key
+  end
+
   test "search results map shows setup message without google maps key" do
     previous_google_maps_api_key = ENV["GOOGLE_MAPS_API_KEY"]
     ENV["GOOGLE_MAPS_API_KEY"] = nil

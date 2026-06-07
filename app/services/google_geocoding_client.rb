@@ -5,7 +5,7 @@ class GoogleGeocodingClient
   ENDPOINT = "https://maps.googleapis.com/maps/api/geocode/json"
   Result = Struct.new(:success?, :latitude, :longitude, :status, :error, keyword_init: true)
 
-  def initialize(api_key: ENV["GOOGLE_MAPS_API_KEY"])
+  def initialize(api_key: ENV["GOOGLE_MAPS_GEOCODING_API_KEY"])
     @api_key = api_key.to_s
   end
 

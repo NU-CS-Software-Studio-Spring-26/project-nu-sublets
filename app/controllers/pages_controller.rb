@@ -3,6 +3,7 @@ class PagesController < ApplicationController
   RECOMMENDED_LISTINGS_LIMIT = 6
   ALLOWED_PER_PAGE = [ 25, 50, 100 ].freeze
   DEFAULT_PER_PAGE = 25
+  MAP_GEOCODE_BACKFILL_LIMIT = 20
 
   layout false
   before_action :authenticate_user!, only: %i[listing profile update_profile destroy_account user_profile another_user_account submit_sublet]
@@ -44,7 +45,7 @@ class PagesController < ApplicationController
     respond_to do |format|
       format.html do
         @pagy, @listings = pagy(:offset, listings, limit: @per_page)
-        @map_listings = listings.where.not(latitude: nil, longitude: nil).limit(150)
+        @map_listings = google_map_listings_for(listings)
       end
 
       format.pdf do
@@ -429,5 +430,35 @@ class PagesController < ApplicationController
   rescue Date::Error
     @recommendation_filter_error = "Invalid date format for #{label}. Please use MM/DD/YYYY format."
     nil
+  end
+
+  def google_map_listings_for(listings)
+    mapped_listings = listings.where.not(latitude: nil, longitude: nil).limit(150).to_a
+    return mapped_listings if mapped_listings.any?
+    return mapped_listings unless google_maps_enabled?
+
+    backfill_google_map_listings(listings.where(latitude: nil, longitude: nil).limit(MAP_GEOCODE_BACKFILL_LIMIT))
+    listings.where.not(latitude: nil, longitude: nil).limit(150).to_a
+  end
+
+  def backfill_google_map_listings(listings)
+    client = GoogleGeocodingClient.new
+
+    listings.find_each do |listing|
+      result = client.geocode(listing.address)
+      next unless result.success?
+
+      listing.update_columns(
+        latitude: result.latitude,
+        longitude: result.longitude,
+        geocoded_at: Time.current,
+        geocoding_status: result.status,
+        updated_at: Time.current
+      )
+    end
+  end
+
+  def google_maps_enabled?
+    ENV["GOOGLE_MAPS_API_KEY"].present?
   end
 end

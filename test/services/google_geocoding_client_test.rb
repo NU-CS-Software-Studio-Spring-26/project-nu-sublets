@@ -8,6 +8,21 @@ class GoogleGeocodingClientTest < ActiveSupport::TestCase
     assert_equal "missing_key", result.status
   end
 
+  test "does not fall back to browser key when geocoding key is absent" do
+    original_geocoding_key = ENV["GOOGLE_MAPS_GEOCODING_API_KEY"]
+    original_browser_key = ENV["GOOGLE_MAPS_API_KEY"]
+    ENV["GOOGLE_MAPS_GEOCODING_API_KEY"] = nil
+    ENV["GOOGLE_MAPS_API_KEY"] = "browser-key"
+
+    result = GoogleGeocodingClient.new.geocode("820 Noyes St, Evanston, IL 60201")
+
+    assert_not result.success?
+    assert_equal "missing_key", result.status
+  ensure
+    ENV["GOOGLE_MAPS_GEOCODING_API_KEY"] = original_geocoding_key
+    ENV["GOOGLE_MAPS_API_KEY"] = original_browser_key
+  end
+
   test "parses successful geocoding response" do
     response = Net::HTTPOK.new("1.1", "200", "OK")
     set_response_body(response, {
