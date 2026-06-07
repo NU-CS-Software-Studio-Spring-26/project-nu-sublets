@@ -1298,6 +1298,7 @@
             }
         </style>
         <%= render "focus_styles" %>
+        <%= render "listing_access_styles" %>
     <%= render "shared/pwa_meta" %>
 
     </head>
@@ -1317,6 +1318,10 @@
                     </nav>
                 </div>
             </header>
+
+            <% search_locked = !user_signed_in? %>
+            <div class="<%= "listing-access-lock" if search_locked %>">
+                <div class="<%= "listing-access-lock__content" if search_locked %>" <% if search_locked %>aria-hidden="true" inert<% end %>>
 
             <section class="results-toolbar" aria-label="Search filters">
                 <div class="toolbar-inner">
@@ -1568,6 +1573,14 @@
                     </div>
                 </div>
             </main>
+                </div>
+
+                <% if search_locked %>
+                    <%= render "listing_access_prompt",
+                               title: "Please log in to search and view sublet listings.",
+                               message: "Use your Northwestern account to unlock filters, maps, listing details, saved listings, and compare tools." %>
+                <% end %>
+            </div>
             <%= render "shared/footer" %>
         </div>
 
@@ -1577,8 +1590,10 @@
             crossorigin="anonymous"
         ></script>
         <%= render "login_modal" %>
-        <%= render "favorite_listings" %>
-        <%= render "compare_listings" %>
+        <% if user_signed_in? %>
+            <%= render "favorite_listings" %>
+            <%= render "compare_listings" %>
+        <% end %>
         <script>
             (() => {
                 const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" });
