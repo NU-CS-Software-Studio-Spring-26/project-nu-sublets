@@ -16,7 +16,15 @@ class PagesController < ApplicationController
   MAP_GEOCODE_BACKFILL_LIMIT = 20
 
   layout false
-  before_action :authenticate_user!, only: %i[listing profile update_profile destroy_account user_profile another_user_account submit_sublet]
+  before_action :authenticate_user!, only: %i[
+    listing
+    profile
+    update_profile
+    destroy_account
+    user_profile
+    another_user_account
+    submit_sublet
+  ]
 
   def home
     prepare_recommendation_filters
@@ -81,6 +89,36 @@ class PagesController < ApplicationController
   end
 
   def saved; end
+
+  def compare_listings_pdf
+    unless user_signed_in?
+      redirect_to login_path, alert: "Log in with your Northwestern email first."
+      return
+    end
+
+    listing_ids = compare_listing_ids
+    listings_by_id = SubletListing.find_available_listings
+                                      .includes(:user, photos_attachments: :blob)
+                                      .where(id: listing_ids)
+                                      .index_by { |listing| listing.id.to_s }
+    compared_listings = listing_ids.filter_map { |id| listings_by_id[id] }
+
+    if compared_listings.empty?
+      redirect_back fallback_location: search_results_path, alert: "Select at least one listing to export."
+      return
+    end
+
+    pdf = CompareListingsPdf.new(
+      listings: compared_listings,
+      generated_at: Time.zone.now,
+      base_url: request.base_url
+    ).render
+
+    send_data pdf,
+              filename: "nu-sublets-comparison-#{Time.zone.today.iso8601}.pdf",
+              type: "application/pdf",
+              disposition: "attachment"
+  end
 
   def post_sublet
     @active_sublet_listing = current_user&.active_sublet_listing
@@ -297,6 +335,16 @@ class PagesController < ApplicationController
   def sanitize_search_room(value)
     room_count = SubletListing.normalize_room_filter(value)
     room_count.nil? ? "" : room_count.to_s
+  end
+
+  def compare_listing_ids
+    Array(params[:ids])
+      .flat_map { |value| value.to_s.split(",") }
+      .filter_map { |value| Integer(value, exception: false) }
+      .select(&:positive?)
+      .uniq
+      .first(3)
+      .map(&:to_s)
   end
 
   def merged_search_params(parsed_filters)
