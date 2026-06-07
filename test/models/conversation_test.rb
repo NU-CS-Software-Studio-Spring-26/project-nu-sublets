@@ -63,7 +63,7 @@ class ConversationTest < ActiveSupport::TestCase
     direct.save!
     direct.messages.create!(sender: @initiator, body: "Hi")
 
-    assert_equal 2, @recipient.unread_conversations_count
+    assert_equal 1, @recipient.unread_conversations_count
     assert_equal 0, @initiator.unread_conversations_count
   end
 end

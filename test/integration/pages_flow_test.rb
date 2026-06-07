@@ -575,7 +575,8 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "chat nav shows unread badge for conversations with unread messages" do
-    recipient = sign_in_with_firebase_email("chat.unread@u.northwestern.edu")
+    sign_in_with_firebase_email("chat.unread@u.northwestern.edu")
+    recipient = User.find_by!(email: "chat.unread@u.northwestern.edu")
     sender = User.create!(name: "Sender", email: "chat.sender@u.northwestern.edu", active: true, confirmed_at: Time.current)
     conversation = Conversation.between(sender, recipient)
     conversation.save!
