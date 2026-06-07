@@ -73,6 +73,21 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "By using NU Sublets, you agree to use the platform responsibly"
   end
 
+  test "community guidelines page is reachable from the footer" do
+    get root_path
+
+    assert_select "footer a[href='#{community_guidelines_path}']", text: "Community Guidelines"
+
+    get community_guidelines_path
+
+    assert_response :success
+    assert_select "h1", text: "Community Guidelines"
+    assert_select "h2", text: "Post responsibly"
+    assert_includes response.body, "Post only one active sublet listing at a time."
+    assert_includes response.body, "Do not post fake, duplicate, misleading, or scam listings."
+    assert_includes response.body, "NU Sublets helps connect students, but it does not provide legal, financial, housing, or safety advice"
+  end
+
   test "login page is reachable" do
     get login_path
 

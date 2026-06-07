@@ -141,6 +141,8 @@ class PagesController < ApplicationController
 
   def about_us; end
 
+  def community_guidelines; end
+
   def disclaimer; end
 
   def privacy_policy; end
