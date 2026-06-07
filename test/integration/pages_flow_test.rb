@@ -392,9 +392,13 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
   test "home page includes recommendation filter controls" do
     get root_path
 
+    assert_select "form.search-card[action='#{search_results_path}'][method='get'] input[name='natural_query'][type='search']"
+    assert_select "form.search-card input[name='move-in']", count: 0
+    assert_select "form.search-card input[name='move-out']", count: 0
     assert_select "form[action='#{root_path(anchor: "recommendations")}'][method='get'][aria-label='Filter recommended sublets']"
-    assert_select "input[name='recommendation_move_in']"
-    assert_select "input[name='recommendation_move_out']"
+    assert_select "form[aria-label='Filter recommended sublets'] [data-date-picker] input[name='recommendation_move_in'][data-date-input]"
+    assert_select "form[aria-label='Filter recommended sublets'] [data-date-picker] input[name='recommendation_move_out'][data-date-input]"
+    assert_select "form[aria-label='Filter recommended sublets'] [data-date-toggle]", count: 2
     assert_select "select[name='recommendation_bedrooms']"
     assert_select "select[name='recommendation_bathrooms']"
     assert_select "input[name='recommendation_amenities[]'][value='Laundry']"
