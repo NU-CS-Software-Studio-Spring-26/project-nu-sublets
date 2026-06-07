@@ -575,37 +575,46 @@
 
             .results-grid {
                 display: grid;
-                grid-template-columns: minmax(0, 760px) minmax(300px, 1fr);
-                gap: 34px;
-                align-items: start;
+                grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
+                gap: 18px;
+                align-items: stretch;
+                min-height: calc(100vh - 194px);
+            }
+
+            .results-panel {
+                max-height: calc(100vh - 194px);
+                overflow: auto;
+                padding-right: 2px;
             }
 
             .cards-grid {
                 display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 24px 24px;
-                max-width: 720px;
+                grid-template-columns: 1fr;
+                gap: 14px;
             }
 
             .listing-card {
-                display: block;
+                display: grid;
+                grid-template-columns: 132px minmax(0, 1fr);
                 background: #fff;
+                border: 1px solid transparent;
                 border-radius: 8px;
                 overflow: hidden;
                 box-shadow: var(--nu-card-shadow);
                 color: inherit;
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                scroll-margin-top: 150px;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
             }
 
             .listing-card:hover,
-            .listing-card:focus-visible {
-                transform: translateY(-3px);
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            .listing-card:focus-within,
+            .listing-card.is-map-active {
+                border-color: rgba(78, 42, 132, 0.42);
+                box-shadow: 0 0 0 3px rgba(78, 42, 132, 0.12), var(--nu-card-shadow);
             }
 
-            .listing-card:focus-visible {
-                outline: 3px solid rgba(156, 81, 182, 0.45);
-                outline-offset: 4px;
+            .listing-card.is-map-active {
+                transform: translateY(-2px);
             }
 
             .listing-card-link {
@@ -616,18 +625,19 @@
 
             .listing-media {
                 position: relative;
-                height: 190px;
+                height: 100%;
+                min-height: 132px;
                 overflow: visible;
             }
 
             .listing-media-link {
-                height: 180px;
+                height: 100%;
                 overflow: hidden;
             }
 
             .listing-main-image {
                 width: 100%;
-                height: 180px;
+                height: 100%;
                 object-fit: cover;
             }
 
@@ -639,10 +649,10 @@
 
             .listing-avatar-link {
                 position: absolute;
-                left: 12px;
-                bottom: -8px;
-                width: 50px;
-                height: 50px;
+                left: 10px;
+                bottom: 10px;
+                width: 42px;
+                height: 42px;
                 border-radius: 50%;
                 background: #fff;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
@@ -678,13 +688,13 @@
             }
 
             .listing-body {
-                padding: 6px 8px 10px;
+                padding: 12px 14px;
             }
 
             .listing-price {
                 margin: 0 0 3px;
                 font-family: "Rubik", sans-serif;
-                font-size: 21px;
+                font-size: 18px;
                 font-weight: 800;
                 line-height: 1.05;
             }
@@ -716,7 +726,6 @@
             }
 
             .empty-results {
-                max-width: 720px;
                 padding: 28px;
                 border: 1px solid var(--nu-border);
                 border-radius: 7px;
@@ -738,7 +747,6 @@
             }
 
             .pagination-wrap {
-                max-width: 720px;
                 margin-top: 24px;
             }
 
@@ -789,391 +797,134 @@
 
             .map-card {
                 position: sticky;
-                top: 24px;
+                top: 158px;
+                min-height: calc(100vh - 194px);
                 background: #fff;
-                max-width: 520px;
             }
 
-            .map-stage {
+            .google-map-stage {
                 position: relative;
                 width: 100%;
-                min-height: 760px;
+                height: calc(100vh - 194px);
+                min-height: 560px;
                 border: 1px solid var(--nu-border);
                 border-radius: 8px;
                 overflow: hidden;
-                background:
-                    linear-gradient(90deg, rgba(255, 255, 255, 0.72) 49%, transparent 49% 51%, rgba(255, 255, 255, 0.72) 51%),
-                    linear-gradient(0deg, rgba(255, 255, 255, 0.6) 49%, transparent 49% 51%, rgba(255, 255, 255, 0.6) 51%),
-                    #dfe9dc;
-                background-size: 110px 110px, 92px 92px, auto;
+                background: #eef1f3;
             }
 
-            .map-canvas {
-                position: absolute;
-                inset: 0;
-                transform-origin: center;
-                transition: transform 0.2s ease;
-            }
-
-            .map-stage[data-zoom="2"] .map-canvas {
-                transform: scale(1.08);
-            }
-
-            .map-stage[data-zoom="3"] .map-canvas {
-                transform: scale(1.16);
-            }
-
-            .map-stage[data-zoom="4"] .map-canvas {
-                transform: scale(1.3);
-            }
-
-            .map-stage[data-zoom="5"] .map-canvas {
-                transform: scale(1.48);
-            }
-
-            .map-water {
-                position: absolute;
-                top: 0;
-                right: 0;
-                width: 23%;
+            .google-map-canvas {
+                width: 100%;
                 height: 100%;
-                background: linear-gradient(180deg, #bed8ed, #9fc8e8);
-                border-left: 2px solid rgba(45, 94, 126, 0.2);
             }
 
-            .map-campus {
+            .map-loading,
+            .map-empty {
                 position: absolute;
-                top: 22%;
-                right: 24%;
-                width: 30%;
-                height: 18%;
-                border: 1px solid rgba(62, 27, 75, 0.22);
-                border-radius: 14px;
-                background: rgba(156, 81, 182, 0.07);
-                pointer-events: none;
-            }
-
-            .map-stage[data-zoom="4"] .map-campus,
-            .map-stage[data-zoom="5"] .map-campus {
-                border-style: dashed;
-                background: rgba(156, 81, 182, 0.035);
-            }
-
-            .map-road {
-                position: absolute;
-                border-radius: 999px;
-                background: rgba(255, 255, 255, 0.9);
-                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
-            }
-
-            .map-road.horizontal {
-                left: 4%;
-                right: 22%;
-                height: 9px;
-            }
-
-            .map-road.vertical {
-                top: 3%;
-                bottom: 3%;
-                width: 9px;
-            }
-
-            .map-road.diagonal {
-                left: 16%;
-                top: 12%;
-                width: 10px;
-                height: 76%;
-                transform: rotate(16deg);
-                transform-origin: center;
-            }
-
-            .map-label {
-                position: absolute;
-                color: rgba(0, 0, 0, 0.48);
-                font-family: "Rubik", sans-serif;
-                font-size: 12px;
-                font-weight: 600;
-                line-height: 1;
-                pointer-events: none;
-            }
-
-            .map-campus-landmark {
-                position: absolute;
+                inset: 16px;
                 z-index: 2;
-                display: inline-flex;
-                align-items: center;
-                gap: 5px;
-                padding: 4px 7px;
-                border: 1px solid rgba(78, 42, 132, 0.26);
-                border-radius: 999px;
-                background: rgba(255, 255, 255, 0.88);
-                color: var(--nu-purple);
-                font-family: "Rubik", sans-serif;
-                font-size: 11px;
-                font-weight: 800;
-                line-height: 1;
-                opacity: 0;
-                pointer-events: none;
-                transform: translate(-50%, -50%) scale(0.94);
-                transition: opacity 0.18s ease, transform 0.18s ease;
-            }
-
-            .map-campus-landmark::before {
-                content: "";
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-                background: var(--nu-accent);
-            }
-
-            .map-stage[data-zoom="3"] .map-campus-landmark,
-            .map-stage[data-zoom="4"] .map-campus-landmark,
-            .map-stage[data-zoom="5"] .map-campus-landmark {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
-            }
-
-            .map-stage[data-zoom="5"] .map-campus-landmark {
-                font-size: 12px;
-            }
-
-            .map-controls {
-                position: absolute;
-                top: 14px;
-                right: 14px;
-                z-index: 4;
                 display: grid;
-                grid-template-columns: 42px;
-                overflow: hidden;
-                border: 1px solid rgba(0, 0, 0, 0.12);
+                place-items: center;
+                padding: 24px;
                 border-radius: 8px;
-                background: #fff;
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
-            }
-
-            .map-zoom-button {
-                width: 42px;
-                height: 42px;
-                border: 0;
-                background: #fff;
-                color: var(--nu-text);
-                font-family: "Rubik", sans-serif;
-                font-size: 24px;
-                font-weight: 800;
-                line-height: 1;
-                cursor: pointer;
-            }
-
-            .map-zoom-status,
-            .map-zoom-button + .map-zoom-button {
-                border-top: 1px solid var(--nu-border);
-            }
-
-            .map-zoom-status {
-                min-height: 26px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
+                background: rgba(255, 255, 255, 0.92);
                 color: var(--nu-muted);
                 font-family: "Rubik", sans-serif;
-                font-size: 11px;
-                font-weight: 800;
-                line-height: 1;
+                font-size: 14px;
+                line-height: 1.4;
+                text-align: center;
             }
 
-            .map-zoom-button:hover,
-            .map-zoom-button:focus-visible {
-                background: #f5f1f7;
-                outline: 0;
+            .map-loading[hidden],
+            .map-empty[hidden] {
+                display: none;
             }
 
-            .map-zoom-button:disabled {
-                cursor: default;
-                color: rgba(0, 0, 0, 0.28);
-                background: #f8f7f5;
-            }
-
-            .map-pin {
-                position: absolute;
-                z-index: 3;
+            .price-marker {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 min-width: 54px;
                 min-height: 32px;
-                padding: 6px 10px;
+                padding: 7px 11px;
                 border: 2px solid #fff;
                 border-radius: 999px;
                 background: #d93025;
                 color: #fff;
-                box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+                box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
                 font-family: "Rubik", sans-serif;
                 font-size: 14px;
                 font-weight: 800;
                 line-height: 1;
-                transform: translate(-50%, -100%);
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
             }
 
-            .map-pin::after {
-                content: "";
-                position: absolute;
-                left: 50%;
-                bottom: -8px;
-                width: 13px;
-                height: 13px;
-                background: #d93025;
-                border-right: 2px solid #fff;
-                border-bottom: 2px solid #fff;
-                transform: translateX(-50%) rotate(45deg);
-            }
-
-            .map-pin.count-pin {
+            .price-marker.is-group {
                 background: var(--nu-accent);
             }
 
-            .map-pin.count-pin::after {
-                background: var(--nu-accent);
+            .price-marker.is-active {
+                background: #2f1057;
+                transform: scale(1.08);
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
             }
 
-            .map-pin:hover,
-            .map-pin:focus-visible,
-            .map-pin[aria-expanded="true"] {
-                z-index: 5;
-                outline: 0;
-                transform: translate(-50%, -100%) scale(1.08);
-                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.28);
-            }
-
-            .map-stage[data-zoom="2"] .map-pin {
-                min-width: 62px;
-                min-height: 36px;
-                font-size: 16px;
-            }
-
-            .map-stage[data-zoom="3"] .map-pin {
-                min-width: 72px;
-                min-height: 42px;
-                font-size: 18px;
-            }
-
-            .map-stage[data-zoom="4"] .map-pin,
-            .map-stage[data-zoom="5"] .map-pin {
-                min-width: 78px;
-                min-height: 44px;
-                font-size: 18px;
-            }
-
-            .map-popup {
-                position: absolute;
-                z-index: 6;
-                width: min(320px, calc(100% - 24px));
-                max-height: 360px;
-                overflow: auto;
-                padding: 12px;
-                border: 1px solid rgba(0, 0, 0, 0.12);
-                border-radius: 8px;
-                background: #fff;
-                box-shadow: 0 18px 38px rgba(0, 0, 0, 0.22);
-                transform: translate(-50%, 14px);
-            }
-
-            .map-popup[hidden] {
-                display: none;
-            }
-
-            .map-popup-title {
-                margin: 0 24px 8px 0;
-                font-family: "Rubik", sans-serif;
-                font-size: 14px;
-                font-weight: 700;
-                line-height: 1.25;
-            }
-
-            .map-popup-close {
-                position: absolute;
-                top: 8px;
-                right: 8px;
-                width: 24px;
-                height: 24px;
-                border: 0;
-                border-radius: 4px;
-                background: transparent;
+            .map-info-card {
+                display: grid;
+                grid-template-columns: 96px minmax(0, 1fr);
+                gap: 12px;
+                width: min(340px, 76vw);
                 color: var(--nu-text);
-                font-size: 20px;
-                line-height: 1;
-            }
-
-            .map-popup-close:hover,
-            .map-popup-close:focus-visible {
-                background: #f5f1f7;
-                outline: 0;
-            }
-
-            .map-popup-listing {
-                display: block;
-                padding: 10px 0;
-                color: inherit;
                 text-decoration: none;
             }
 
-            .map-popup-listing + .map-popup-listing {
-                border-top: 1px solid var(--nu-border);
+            .map-info-image {
+                width: 96px;
+                height: 84px;
+                border-radius: 8px;
+                object-fit: cover;
             }
 
-            .map-popup-price {
+            .map-info-price {
                 margin: 0 0 4px;
                 font-family: "Rubik", sans-serif;
                 font-size: 16px;
                 font-weight: 800;
-                line-height: 1.1;
             }
 
-            .map-popup-name,
-            .map-popup-meta,
-            .map-popup-address {
+            .map-info-title,
+            .map-info-meta,
+            .map-info-address {
                 margin: 0;
                 font-size: 12px;
-                line-height: 1.35;
+                line-height: 1.3;
             }
 
-            .map-popup-name {
-                font-family: "Rubik", sans-serif;
-                font-weight: 600;
-            }
-
-            .map-popup-meta,
-            .map-popup-address {
+            .map-info-meta,
+            .map-info-address {
                 color: var(--nu-muted);
-            }
-
-            .map-empty {
-                position: absolute;
-                inset: 0;
-                display: grid;
-                place-items: center;
-                padding: 24px;
-                color: var(--nu-muted);
-                font-family: "Rubik", sans-serif;
-                text-align: center;
             }
 
             @media (max-width: 1199.98px) {
                 .results-grid {
                     grid-template-columns: minmax(0, 1fr);
-                    gap: 24px;
+                    gap: 18px;
+                }
+
+                .results-panel {
+                    max-height: none;
+                    overflow: visible;
+                    order: 2;
                 }
 
                 .map-card {
                     position: static;
+                    min-height: auto;
+                    order: 1;
                 }
 
-                .map-card {
-                    max-width: none;
-                }
-
-                .map-stage {
-                    height: 420px;
+                .google-map-stage {
+                    height: 52vh;
                     min-height: 420px;
                 }
             }
@@ -1188,11 +939,6 @@
                     width: 13px;
                     height: 13px;
                 }
-
-                .cards-grid {
-                    gap: 24px;
-                }
-
             }
 
             @media (max-width: 767.98px) {
@@ -1281,19 +1027,28 @@
 
                 .cards-grid {
                     grid-template-columns: 1fr;
-                    gap: 20px;
+                    gap: 14px;
+                }
+
+                .google-map-stage {
+                    height: 46vh;
+                    min-height: 340px;
+                }
+
+                .listing-card {
+                    grid-template-columns: 118px minmax(0, 1fr);
                 }
 
                 .listing-media {
-                    height: 216px;
+                    min-height: 122px;
                 }
 
                 .listing-main-image {
-                    height: 204px;
+                    height: 100%;
                 }
 
                 .listing-media-link {
-                    height: 204px;
+                    height: 100%;
                 }
             }
         </style>
@@ -1445,12 +1200,12 @@
                     </div>
 
                     <div class="results-grid">
-                        <div>
+                        <div class="results-panel" data-results-panel>
                             <section class="cards-grid" aria-label="Search result listings">
                                 <% if @listings.any? %>
                                   <% @listings.each do |listing| %>
                                       <% listing_host = listing.user %>
-                                      <article class="listing-card" <%= listing_compare_data_attributes(listing) %>>
+                                      <article class="listing-card" id="listing-card-<%= listing.id %>" data-listing-card data-listing-id="<%= listing.id %>" <%= listing_compare_data_attributes(listing) %>>
                                           <div class="listing-media">
                                               <a class="listing-card-link listing-media-link" href="<%= sublet_listing_path(listing) %>" aria-label="View photos for <%= listing.title.presence || listing.address.presence || 'sublet listing' %>">
                                                   <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title %>" />
@@ -1490,84 +1245,27 @@
                             <% end %>
                         </div>
 
-                        <aside class="map-card" aria-label="Map of listings">
-                            <% map_groups = listing_map_groups(@map_listings) %>
-                            <% campus_landmarks = [
-                                { name: "Tech", x: 62, y: 30 },
-                                { name: "Norris", x: 68, y: 38 },
-                                { name: "SPAC", x: 58, y: 24 }
-                            ] %>
-                            <div class="map-stage" data-map-stage data-zoom="1" role="region" aria-label="Interactive sublet map">
-                                <div class="map-canvas" data-map-canvas>
-                                    <div class="map-water" aria-hidden="true"></div>
-                                    <div class="map-campus" aria-hidden="true"></div>
-                                    <div class="map-road horizontal" style="top: 18%" aria-hidden="true"></div>
-                                    <div class="map-road horizontal" style="top: 36%" aria-hidden="true"></div>
-                                    <div class="map-road horizontal" style="top: 54%" aria-hidden="true"></div>
-                                    <div class="map-road horizontal" style="top: 72%" aria-hidden="true"></div>
-                                    <div class="map-road vertical" style="left: 18%" aria-hidden="true"></div>
-                                    <div class="map-road vertical" style="left: 36%" aria-hidden="true"></div>
-                                    <div class="map-road vertical" style="left: 54%" aria-hidden="true"></div>
-                                    <div class="map-road diagonal" aria-hidden="true"></div>
-                                    <span class="map-label" style="top: 24%; right: 31%">Northwestern</span>
-                                    <span class="map-label" style="top: 48%; right: 5%">Lake Michigan</span>
-                                    <span class="map-label" style="bottom: 18%; left: 10%">Evanston</span>
-
-                                    <div class="map-campus-landmarks" aria-label="Northwestern campus landmarks" data-campus-landmarks>
-                                        <% campus_landmarks.each do |landmark| %>
-                                            <span class="map-campus-landmark" style="left: <%= landmark[:x] %>%; top: <%= landmark[:y] %>%"><%= landmark[:name] %></span>
-                                        <% end %>
-                                    </div>
-
-                                    <% map_groups.each_with_index do |group, index| %>
-                                        <% listings = group[:listings] %>
-                                        <% single_listing = listings.one? %>
-                                        <% pin_label = single_listing ? number_to_currency(listings.first.price, precision: 0) : listings.count.to_s %>
-                                        <% pin_aria_label = single_listing ? "#{pin_label} sublet at #{group[:address]}" : "#{pluralize(listings.count, 'listing')} at #{group[:address]}" %>
-                                        <% popup_id = "map-popup-#{index}" %>
-                                        <button
-                                            class="map-pin <%= "count-pin" unless single_listing %>"
-                                            type="button"
-                                            style="left: <%= group[:x] %>%; top: <%= group[:y] %>%"
-                                            aria-label="<%= pin_aria_label %>"
-                                            aria-expanded="false"
-                                            aria-controls="<%= popup_id %>"
-                                            data-map-pin
-                                            data-popup-id="<%= popup_id %>"
-                                        >
-                                            <%= single_listing ? pin_label : listings.count %>
-                                        </button>
-
-                                        <div
-                                            class="map-popup"
-                                            id="<%= popup_id %>"
-                                            style="left: <%= group[:x] %>%; top: <%= group[:y] %>%"
-                                            hidden
-                                            data-map-popup
-                                        >
-                                            <button class="map-popup-close" type="button" aria-label="Close listing popup" data-map-popup-close>&times;</button>
-                                            <p class="map-popup-title"><%= group[:address] %></p>
-                                            <% listings.each do |listing| %>
-                                                <a class="map-popup-listing" href="<%= sublet_listing_path(listing) %>" aria-label="View <%= listing.title.presence || listing.address.presence || 'sublet listing' %>, <%= number_to_currency(listing.price, precision: 0) %> per month">
-                                                    <p class="map-popup-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
-                                                    <p class="map-popup-name"><%= listing.title %></p>
-                                                    <p class="map-popup-meta"><%= pluralize(listing.bedrooms, "bedroom") %> · <%= pluralize(listing.bathrooms, "bathroom") %> · <%= listing.available_from.strftime("%b %-d") %> - <%= listing.available_until.strftime("%b %-d") %></p>
-                                                    <p class="map-popup-address"><%= listing.address %></p>
-                                                </a>
-                                            <% end %>
-                                        </div>
-                                    <% end %>
-
-                                    <% if map_groups.empty? %>
-                                        <div class="map-empty">Search results with addresses will appear on the map.</div>
+                        <aside class="map-card" aria-label="Google map of listings">
+                            <% map_payload = google_map_listing_payload(@map_listings) %>
+                            <div
+                                class="google-map-stage"
+                                data-google-map-stage
+                                data-google-maps-api-key="<%= google_maps_api_key %>"
+                                data-google-maps-key-present="<%= google_maps_enabled? %>"
+                                data-google-maps-map-id="<%= google_maps_map_id %>"
+                                role="region"
+                                aria-label="Interactive Google map of sublets"
+                            >
+                                <div class="google-map-canvas" data-google-map-canvas></div>
+                                <div class="map-loading" data-google-map-loading <%= "hidden" unless google_maps_enabled? && map_payload.any? %>>Loading map...</div>
+                                <div class="map-empty" data-google-map-empty <%= "hidden" if google_maps_enabled? && map_payload.any? %>>
+                                    <% if google_maps_enabled? %>
+                                        Listings with mapped addresses will appear here.
+                                    <% else %>
+                                        Add <code>GOOGLE_MAPS_API_KEY</code> to enable the interactive Google map.
                                     <% end %>
                                 </div>
-
-                                <div class="map-controls" aria-label="Map zoom controls">
-                                    <button class="map-zoom-button" type="button" aria-label="Zoom in" data-map-zoom-in>+</button>
-                                    <span class="map-zoom-status" aria-live="polite" data-map-zoom-status>1x</span>
-                                    <button class="map-zoom-button" type="button" aria-label="Zoom out" data-map-zoom-out>&minus;</button>
-                                </div>
+                                <script type="text/template" data-google-map-listings><%= raw json_escape(JSON.generate(map_payload)) %></script>
                             </div>
                         </aside>
                     </div>
@@ -1976,89 +1674,226 @@
             })();
 
             (() => {
-                const stage = document.querySelector("[data-map-stage]");
+                const stage = document.querySelector("[data-google-map-stage]");
 
                 if (!stage) {
                     return;
                 }
 
-                let zoom = Number.parseInt(stage.dataset.zoom || "1", 10);
-                const pins = Array.from(stage.querySelectorAll("[data-map-pin]"));
-                const popups = Array.from(stage.querySelectorAll("[data-map-popup]"));
-                const zoomInButton = stage.querySelector("[data-map-zoom-in]");
-                const zoomOutButton = stage.querySelector("[data-map-zoom-out]");
-                const zoomStatus = stage.querySelector("[data-map-zoom-status]");
-                const minZoom = 1;
-                const maxZoom = 5;
+                const mapCanvas = stage.querySelector("[data-google-map-canvas]");
+                const loadingState = stage.querySelector("[data-google-map-loading]");
+                const emptyState = stage.querySelector("[data-google-map-empty]");
+                const payloadScript = stage.querySelector("[data-google-map-listings]");
+                const listingCards = Array.from(document.querySelectorAll("[data-listing-card]"));
+                const apiKey = stage.dataset.googleMapsApiKey || "";
+                const mapId = stage.dataset.googleMapsMapId || "DEMO_MAP_ID";
+                const listings = JSON.parse(payloadScript?.textContent || "[]");
+                const evanstonCenter = { lat: 42.0451, lng: -87.6877 };
+                const markersByListingId = new Map();
+                let activeMarkerContent;
+                let infoWindow;
+                let map;
 
-                const closePopups = () => {
-                    pins.forEach((pin) => pin.setAttribute("aria-expanded", "false"));
-                    popups.forEach((popup) => {
-                        popup.hidden = true;
-                    });
-                };
-
-                const setZoom = (nextZoom) => {
-                    zoom = Math.min(maxZoom, Math.max(minZoom, nextZoom));
-                    stage.dataset.zoom = String(zoom);
-
-                    if (zoomStatus) {
-                        zoomStatus.textContent = `${zoom}x`;
+                const setMapState = (state, message) => {
+                    if (loadingState) {
+                        loadingState.hidden = state !== "loading";
                     }
 
-                    if (zoomInButton) {
-                        zoomInButton.disabled = zoom >= maxZoom;
-                    }
-
-                    if (zoomOutButton) {
-                        zoomOutButton.disabled = zoom <= minZoom;
-                    }
-                };
-
-                zoomInButton?.addEventListener("click", () => {
-                    setZoom(zoom + 1);
-                });
-
-                zoomOutButton?.addEventListener("click", () => {
-                    setZoom(zoom - 1);
-                });
-
-                setZoom(zoom);
-
-                pins.forEach((pin) => {
-                    pin.addEventListener("click", (event) => {
-                        event.stopPropagation();
-                        const popup = document.getElementById(pin.dataset.popupId);
-                        const shouldOpen = popup?.hidden;
-
-                        closePopups();
-
-                        if (popup && shouldOpen) {
-                            popup.hidden = false;
-                            pin.setAttribute("aria-expanded", "true");
+                    if (emptyState) {
+                        emptyState.hidden = state !== "empty";
+                        if (message) {
+                            emptyState.textContent = message;
                         }
-                    });
-                });
-
-                stage.querySelectorAll("[data-map-popup-close]").forEach((button) => {
-                    button.addEventListener("click", (event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        closePopups();
-                    });
-                });
-
-                popups.forEach((popup) => {
-                    popup.addEventListener("click", (event) => {
-                        event.stopPropagation();
-                    });
-                });
-
-                document.addEventListener("click", closePopups);
-                document.addEventListener("keydown", (event) => {
-                    if (event.key === "Escape") {
-                        closePopups();
                     }
+                };
+
+                if (!apiKey || listings.length === 0 || !mapCanvas) {
+                    setMapState("empty");
+                    return;
+                }
+
+                const escapeHtml = (value) => {
+                    const element = document.createElement("span");
+                    element.textContent = value ?? "";
+                    return element.innerHTML;
+                };
+
+                const groupedListings = () => {
+                    const groups = new Map();
+
+                    listings.forEach((listing) => {
+                        const key = `${Number(listing.latitude).toFixed(6)},${Number(listing.longitude).toFixed(6)}`;
+                        if (!groups.has(key)) {
+                            groups.set(key, []);
+                        }
+                        groups.get(key).push(listing);
+                    });
+
+                    return Array.from(groups.values());
+                };
+
+                const loadGoogleMaps = () => {
+                    if (window.google?.maps?.importLibrary) {
+                        return Promise.resolve();
+                    }
+
+                    if (window.nuSubletsGoogleMapsPromise) {
+                        return window.nuSubletsGoogleMapsPromise;
+                    }
+
+                    window.nuSubletsGoogleMapsPromise = new Promise((resolve, reject) => {
+                        const callbackName = "initNuSubletsGoogleMaps";
+                        window[callbackName] = () => resolve();
+
+                        const script = document.createElement("script");
+                        script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&v=weekly&callback=${callbackName}`;
+                        script.async = true;
+                        script.onerror = () => reject(new Error("Google Maps could not load"));
+                        document.head.append(script);
+                    });
+
+                    return window.nuSubletsGoogleMapsPromise;
+                };
+
+                const markerLabel = (group) => group.length > 1 ? String(group.length) : group[0].priceLabel;
+
+                const markerTitle = (group) => {
+                    if (group.length > 1) {
+                        return `${group.length} listings at this location`;
+                    }
+
+                    return `${group[0].rentLabel} ${group[0].title}`;
+                };
+
+                const markerContent = (group) => {
+                    const element = document.createElement("button");
+                    element.type = "button";
+                    element.className = `price-marker${group.length > 1 ? " is-group" : ""}`;
+                    element.textContent = markerLabel(group);
+                    element.setAttribute("aria-label", markerTitle(group));
+                    element.dataset.listingIds = group.map((listing) => listing.id).join(",");
+                    return element;
+                };
+
+                const clearActiveListings = () => {
+                    activeMarkerContent?.classList.remove("is-active");
+                    activeMarkerContent = undefined;
+                    listingCards.forEach((card) => card.classList.remove("is-map-active"));
+                };
+
+                const setActiveListings = (listingIds, markerContentElement, options = {}) => {
+                    clearActiveListings();
+
+                    if (markerContentElement) {
+                        markerContentElement.classList.add("is-active");
+                        activeMarkerContent = markerContentElement;
+                    }
+
+                    const matchedCards = listingCards.filter((card) => listingIds.includes(card.dataset.listingId));
+                    matchedCards.forEach((card) => card.classList.add("is-map-active"));
+
+                    if (options.scrollToCard && matchedCards[0]) {
+                        matchedCards[0].scrollIntoView({ behavior: "smooth", block: "nearest" });
+                    }
+                };
+
+                const infoWindowContent = (group) => {
+                    const listingsMarkup = group.map((listing) => `
+                        <a class="map-info-card" href="${escapeHtml(listing.href)}">
+                            <img class="map-info-image" src="${escapeHtml(listing.thumbnailUrl)}" alt="${escapeHtml(listing.thumbnailAlt)}" />
+                            <span>
+                                <p class="map-info-price">${escapeHtml(listing.rentLabel)}</p>
+                                <p class="map-info-title">${escapeHtml(listing.title)}</p>
+                                <p class="map-info-meta">${escapeHtml(listing.bedrooms)} bed · ${escapeHtml(listing.bathrooms)} bath · ${escapeHtml(listing.availableFrom)} - ${escapeHtml(listing.availableUntil)}</p>
+                                <p class="map-info-address">${escapeHtml(listing.address)}</p>
+                            </span>
+                        </a>
+                    `).join("");
+
+                    return `<div>${listingsMarkup}</div>`;
+                };
+
+                const openListingGroup = (group, marker, content) => {
+                    setActiveListings(group.map((listing) => listing.id), content, { scrollToCard: true });
+                    infoWindow.setContent(infoWindowContent(group));
+                    infoWindow.open({ map, anchor: marker });
+                };
+
+                const initializeMap = async () => {
+                    setMapState("loading");
+                    await loadGoogleMaps();
+
+                    const { Map: GoogleMap, InfoWindow } = await google.maps.importLibrary("maps");
+                    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+
+                    map = new GoogleMap(mapCanvas, {
+                        center: evanstonCenter,
+                        zoom: 14,
+                        mapId,
+                        clickableIcons: false,
+                        fullscreenControl: true,
+                        mapTypeControl: false,
+                        streetViewControl: false,
+                    });
+
+                    infoWindow = new InfoWindow({ maxWidth: 360 });
+                    const bounds = new google.maps.LatLngBounds();
+
+                    groupedListings().forEach((group) => {
+                        const position = {
+                            lat: Number(group[0].latitude),
+                            lng: Number(group[0].longitude),
+                        };
+                        const content = markerContent(group);
+                        const marker = new AdvancedMarkerElement({
+                            map,
+                            position,
+                            content,
+                            title: markerTitle(group),
+                            gmpClickable: true,
+                        });
+
+                        group.forEach((listing) => markersByListingId.set(listing.id, { marker, content, group }));
+                        bounds.extend(position);
+
+                        marker.addListener("click", () => {
+                            openListingGroup(group, marker, content);
+                        });
+
+                        content.addEventListener("mouseenter", () => {
+                            setActiveListings(group.map((listing) => listing.id), content);
+                        });
+                    });
+
+                    if (listings.length === 1) {
+                        map.setCenter(bounds.getCenter());
+                        map.setZoom(15);
+                    } else {
+                        map.fitBounds(bounds, 72);
+                    }
+
+                    listingCards.forEach((card) => {
+                        const activateListing = () => {
+                            const markerData = markersByListingId.get(card.dataset.listingId);
+                            if (markerData) {
+                                setActiveListings([card.dataset.listingId], markerData.content);
+                            }
+                        };
+
+                        card.addEventListener("mouseenter", activateListing);
+                        card.addEventListener("focusin", activateListing);
+                    });
+
+                    map.addListener("click", () => {
+                        infoWindow.close();
+                        clearActiveListings();
+                    });
+
+                    setMapState("ready");
+                };
+
+                initializeMap().catch(() => {
+                    setMapState("empty", "The Google map could not load. Check your API key, billing, and referrer restrictions.");
                 });
             })();
         </script>

@@ -62,6 +62,40 @@ module ApplicationHelper
             .map { |group| listing_map_group(group) }
   end
 
+  def google_maps_api_key
+    ENV["GOOGLE_MAPS_API_KEY"].to_s
+  end
+
+  def google_maps_map_id
+    ENV["GOOGLE_MAPS_MAP_ID"].presence || "DEMO_MAP_ID"
+  end
+
+  def google_maps_enabled?
+    google_maps_api_key.present?
+  end
+
+  def google_map_listing_payload(listings)
+    listings.select(&:geocoded?).map do |listing|
+      {
+        id: listing.id.to_s,
+        href: sublet_listing_path(listing),
+        title: listing.title.presence || listing.short_address.presence || "Sublet listing",
+        price: listing.price.to_f,
+        priceLabel: compact_price_label(listing.price),
+        rentLabel: "#{number_to_currency(listing.price, precision: 0)}/month",
+        address: listing.address,
+        thumbnailUrl: apartment_listing_image_path(listing),
+        thumbnailAlt: listing.title.presence || "Sublet listing",
+        bedrooms: listing.bedrooms,
+        bathrooms: listing.bathrooms,
+        availableFrom: listing.available_from&.strftime("%b %-d"),
+        availableUntil: listing.available_until&.strftime("%b %-d"),
+        latitude: listing.latitude.to_f,
+        longitude: listing.longitude.to_f
+      }
+    end
+  end
+
   def apartment_listing_image_path(listing_or_index = nil, offset: 0)
     if listing_or_index.respond_to?(:photos) && listing_or_index.photos.attached?
       return url_for(listing_or_index.photos[offset % listing_or_index.photos.size])
@@ -110,6 +144,13 @@ module ApplicationHelper
   end
 
   private
+
+  def compact_price_label(price)
+    amount = price.to_i
+    return number_to_currency(amount, precision: 0) if amount < 1_000
+
+    "$#{(amount / 1_000.0).round(1).to_s.sub(/\.0\z/, '')}k"
+  end
 
   def listing_compare_payload(listing)
     amenities = listing.displayed_amenities

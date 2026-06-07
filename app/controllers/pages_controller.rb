@@ -41,7 +41,7 @@ class PagesController < ApplicationController
     respond_to do |format|
       format.html do
         @pagy, @listings = pagy(:offset, listings, limit: 12)
-        @map_listings = listings.limit(150)
+        @map_listings = listings.where.not(latitude: nil, longitude: nil).limit(150)
       end
 
       format.pdf do
