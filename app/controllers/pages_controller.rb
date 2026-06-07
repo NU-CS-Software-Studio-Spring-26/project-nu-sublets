@@ -203,10 +203,10 @@ class PagesController < ApplicationController
 
     @move_in = search_date_value("move-in", @search_params["move-in"])
     @move_out = search_date_value("move-out", @search_params["move-out"])
-    @min_price = @search_params["min_price"].to_s
-    @max_price = @search_params["max_price"].to_s
-    @bedrooms = @search_params["bedrooms"].to_s
-    @bathrooms = @search_params["bathrooms"].to_s
+    @min_price = sanitize_search_price(@search_params["min_price"])
+    @max_price = sanitize_search_price(@search_params["max_price"])
+    @bedrooms = sanitize_search_room(@search_params["bedrooms"])
+    @bathrooms = sanitize_search_room(@search_params["bathrooms"])
     @selected_amenities = Array(@search_params["amenities"]).reject(&:blank?)
     @selected_preferences = Array(@search_params["preferences"]).reject(&:blank?)
     @sort = sanitize_search_sort(params[:sort])
@@ -281,6 +281,22 @@ class PagesController < ApplicationController
   rescue Date::Error
     @filter_error = "Invalid date format for #{key.humanize}. Please use MM/DD/YYYY format."
     nil
+  end
+
+  def sanitize_search_price(value)
+    return "" if value.blank?
+
+    amount = BigDecimal(SubletListing.normalize_numeric_string(value))
+    return "" if amount.negative? || amount > SubletListing::MAX_PRICE
+
+    amount.to_i == amount ? amount.to_i.to_s : amount.to_s("F")
+  rescue ArgumentError
+    ""
+  end
+
+  def sanitize_search_room(value)
+    room_count = SubletListing.normalize_room_filter(value)
+    room_count.nil? ? "" : room_count.to_s
   end
 
   def merged_search_params(parsed_filters)

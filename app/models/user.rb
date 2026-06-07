@@ -1,6 +1,11 @@
 class User < ApplicationRecord
   NORTHWESTERN_EMAIL_DOMAINS = %w[u.northwestern.edu northwestern.edu ads.northwestern.edu].freeze
   MINIMUM_PASSWORD_LENGTH = 8
+  MAX_NAME_LENGTH = 100
+  MAX_BIO_LENGTH = 500
+  MAX_PHONE_NUMBER_LENGTH = 30
+  MAX_PROFILE_PHOTO_SIZE = 5.megabytes
+  ALLOWED_PROFILE_PHOTO_CONTENT_TYPES = %w[image/png image/jpeg image/webp image/gif].freeze
 
   attr_accessor :require_password
 
@@ -11,7 +16,9 @@ class User < ApplicationRecord
   before_validation :normalize_profile_text
 
   validates :email, presence: true, uniqueness: { case_sensitive: false }, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :name, presence: true
+  validates :name, presence: true, length: { maximum: MAX_NAME_LENGTH }
+  validates :bio, length: { maximum: MAX_BIO_LENGTH }, allow_blank: true
+  validates :phone_number, length: { maximum: MAX_PHONE_NUMBER_LENGTH }, allow_blank: true
   validates_no_profanity_in :name, :bio
   validate :northwestern_email_domain
   validate :password_presence, if: :require_password?
@@ -177,7 +184,12 @@ class User < ApplicationRecord
 
   def profile_photo_must_be_image
     return unless profile_photo.attached?
-    return if profile_photo.content_type.in?(%w[image/png image/jpeg image/webp image/gif])
+
+    if profile_photo.blob.byte_size > MAX_PROFILE_PHOTO_SIZE
+      errors.add(:profile_photo, "must be 5 MB or smaller")
+    end
+
+    return if profile_photo.content_type.in?(ALLOWED_PROFILE_PHOTO_CONTENT_TYPES)
 
     errors.add(:profile_photo, "must be a PNG, JPG, WebP, or GIF image")
   end

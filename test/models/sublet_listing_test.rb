@@ -325,6 +325,20 @@ class SubletListingTest < ActiveSupport::TestCase
     assert_equal [ matching_listing ], results.to_a
   end
 
+  test "search_listings ignores unsafe numeric filters" do
+    listing = @user.sublet_listings.create!(valid_listing_params)
+
+    results = SubletListing.search_listings(
+      min_price: "-500",
+      max_price: "999999999999999999999",
+      bedrooms: "999",
+      bathrooms: "nope",
+      available_only: true
+    )
+
+    assert_includes results, listing
+  end
+
   test "search_listings matches preference labels exactly" do
     female_listing = @user.sublet_listings.create!(
       valid_listing_params.merge(
