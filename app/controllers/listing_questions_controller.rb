@@ -99,7 +99,7 @@ class ListingQuestionsController < ApplicationController
     @listing_host = @listing.user || User.new(name: "Listing Host")
     @listing_questions = @listing.listing_questions.includes(:user).order(created_at: :desc).to_a
 
-    if defined?(@question) && @question.present?
+    if @question.present?
       question_index = @listing_questions.index { |question| question.id == @question.id }
       @listing_questions[question_index] = @question if question_index
     end
