@@ -29,6 +29,8 @@ module ApplicationHelper
     "Hardwood floors" => '<path d="M4 5h16M4 12h16M4 19h16M8 5v7m8 0v7M12 12v7" />',
     "Natural light" => '<circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" />',
     "Storage" => '<path d="M5 8h14v13H5zM8 8V5h8v3M10 13h4" />',
+    "Private bathroom" => '<path d="M5 11h14v4a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5zM8 11V6a3 3 0 0 1 5-2M4 21h16" />',
+    "Shared bathroom" => '<path d="M5 11h14v4a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5zM8 11V6a3 3 0 0 1 5-2M4 21h16" />',
     "Private bath / Shared bath" => '<path d="M5 11h14v4a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5zM8 11V6a3 3 0 0 1 5-2M4 21h16" />',
     "Updated kitchen" => '<path d="M5 3h14v18H5zM9 3v18M13 8h3M13 14h3" />',
     "Dishwasher" => '<rect x="6" y="3" width="12" height="18" rx="2" /><path d="M6 8h12M9 13h6M10 17h4" />',
