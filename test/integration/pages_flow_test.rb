@@ -1542,6 +1542,18 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     get post_sublet_path
 
     assert_select "form[action='#{submit_sublet_path}'][method='post']"
+    assert_select ".required-indicator", text: "*", count: 7
+    assert_select "#address-section-title .required-indicator", text: "*"
+    assert_select "#rent-section-title .required-indicator", text: "*"
+    assert_select "#description-section-title .required-indicator", text: "*"
+    assert_select "span.field-label", text: /Start Date\s*\*/
+    assert_select "span.field-label", text: /End Date\s*\*/
+    assert_select "span.field-label", text: /Bedrooms\s*\*/
+    assert_select "span.field-label", text: /Bathrooms\s*\*/
+    assert_select "h2#amenities-section-title .required-indicator", count: 0
+    assert_select "h2#preferences-section-title .required-indicator", count: 0
+    assert_select "h2#photos-section-title .required-indicator", count: 0
+    assert_select "h2#phone-section-title .required-indicator", count: 0
     assert_select "form[data-profanity-check]"
     assert_select "textarea[name='description'][data-profanity-field]"
     assert_select "select[name='bedrooms'] option[value='0']", text: "Studio"

@@ -267,6 +267,12 @@
                 color: var(--nu-text);
             }
 
+            .required-indicator {
+                margin-left: 4px;
+                color: #dc2626;
+                font-weight: 600;
+            }
+
             .field-input,
             .field-textarea,
             .date-field {
@@ -894,7 +900,7 @@
                     <%= form_with url: submit_sublet_path, method: :post, local: true, html: { multipart: true, aria: { label: "Post a sublet listing" } }, class: "post-card", data: { profanity_check: true } do %>
                         <section class="section-block field-stack" aria-labelledby="address-section-title">
                             <div>
-                                <h2 class="section-title" id="address-section-title">Address</h2>
+                                <h2 class="section-title" id="address-section-title">Address<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden"> required</span></h2>
                                 <p class="section-helper">Tell us where your room is</p>
                             </div>
 
@@ -918,7 +924,7 @@
 
                             <div class="availability-grid">
                                 <label class="field-stack date-picker-label" data-date-picker>
-                                    <span class="field-label">Start Date</span>
+                                    <span class="field-label">Start Date<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden"> required</span></span>
                                     <span class="date-field">
                                         <input class="date-value" type="text" name="start-date" placeholder="mm/dd/yyyy" aria-label="Start date" value="<%= params["start-date"] %>" data-date-input />
                                         <button class="icon-button" type="button" aria-label="Open start date picker" aria-expanded="false" aria-controls="start-date-picker" data-date-toggle>
@@ -932,7 +938,7 @@
                                 </label>
 
                                 <label class="field-stack date-picker-label" data-date-picker>
-                                    <span class="field-label">End Date</span>
+                                    <span class="field-label">End Date<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden"> required</span></span>
                                     <span class="date-field">
                                         <input class="date-value" type="text" name="end-date" placeholder="mm/dd/yyyy" aria-label="End date" value="<%= params["end-date"] %>" data-date-input />
                                         <button class="icon-button" type="button" aria-label="Open end date picker" aria-expanded="false" aria-controls="end-date-picker" data-date-toggle>
@@ -948,7 +954,7 @@
                         </section>
 
                         <section class="section-block field-stack" aria-labelledby="rent-section-title">
-                            <h2 class="section-title" id="rent-section-title">Rent</h2>
+                            <h2 class="section-title" id="rent-section-title">Rent<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden"> required</span></h2>
                             <label class="field-input price-field">
                                 <span class="prefix">$</span>
                                 <input class="field-input no-border" type="text" name="price" placeholder="Price" aria-label="Monthly rent" value="<%= params[:price] %>" />
@@ -959,7 +965,7 @@
                             <h2 class="section-title" id="space-section-title">Space</h2>
                             <div class="field-grid two-col">
                                 <label class="field-stack">
-                                    <span class="field-label">Bedrooms</span>
+                                    <span class="field-label">Bedrooms<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden"> required</span></span>
                                     <select class="field-input" name="bedrooms" aria-label="Bedrooms">
                                         <option value="">Select bedrooms</option>
                                         <% (0..SubletListing::MAX_ROOMS).each do |count| %>
@@ -969,7 +975,7 @@
                                 </label>
 
                                 <label class="field-stack">
-                                    <span class="field-label">Bathrooms</span>
+                                    <span class="field-label">Bathrooms<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden"> required</span></span>
                                     <select class="field-input" name="bathrooms" aria-label="Bathrooms">
                                         <option value="">Select bathrooms</option>
                                         <% (0..SubletListing::MAX_ROOMS).each do |count| %>
@@ -981,7 +987,7 @@
                         </section>
 
                         <section class="section-block field-stack" aria-labelledby="description-section-title">
-                            <h2 class="section-title" id="description-section-title">Description</h2>
+                            <h2 class="section-title" id="description-section-title">Description<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden"> required</span></h2>
                             <textarea class="field-textarea" name="description" placeholder="Describe apartment here" aria-label="Listing description" data-description-input data-profanity-field><%= params[:description] %></textarea>
                             <p class="description-counter" data-description-counter aria-live="polite">0 / 1000 characters</p>
                         </section>
