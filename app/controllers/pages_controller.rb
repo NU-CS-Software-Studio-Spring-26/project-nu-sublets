@@ -3,6 +3,16 @@ class PagesController < ApplicationController
   RECOMMENDED_LISTINGS_LIMIT = 6
   ALLOWED_PER_PAGE = [ 25, 50, 100 ].freeze
   DEFAULT_PER_PAGE = 25
+  DEFAULT_SEARCH_SORT = "price_asc"
+  SEARCH_SORT_OPTIONS = {
+    "newest" => "Recently posted",
+    "price_asc" => "Rent: low to high",
+    "price_desc" => "Rent: high to low",
+    "available_from_asc" => "Move-in date: earliest first",
+    "available_until_desc" => "Move-out date: latest first",
+    "bedrooms_desc" => "Bedrooms",
+    "bathrooms_desc" => "Bathrooms"
+  }.freeze
   MAP_GEOCODE_BACKFILL_LIMIT = 20
 
   layout false
@@ -41,6 +51,7 @@ class PagesController < ApplicationController
     listings = search_results_scope
     @total_listings_count = listings.count
     @per_page = sanitize_per_page(params[:per_page])
+    @sort_options = SEARCH_SORT_OPTIONS
 
     respond_to do |format|
       format.html do
@@ -198,7 +209,7 @@ class PagesController < ApplicationController
     @bathrooms = @search_params["bathrooms"].to_s
     @selected_amenities = Array(@search_params["amenities"]).reject(&:blank?)
     @selected_preferences = Array(@search_params["preferences"]).reject(&:blank?)
-    @sort = params[:sort].presence || "price_asc"
+    @sort = sanitize_search_sort(params[:sort])
   end
 
   def search_listing_filters
@@ -222,14 +233,25 @@ class PagesController < ApplicationController
   def sort_search_results(listings)
     case @sort
     when "price_desc"
-      listings.order(price: :desc)
+      listings.order(price: :desc, created_at: :desc)
     when "newest"
-      listings.order(created_at: :desc)
-    when "available_from"
-      listings.order(:available_from, :price)
+      listings.order(created_at: :desc, price: :asc)
+    when "available_from_asc"
+      listings.order(available_from: :asc, price: :asc)
+    when "available_until_desc"
+      listings.order(available_until: :desc, price: :asc)
+    when "bedrooms_desc"
+      listings.order(bedrooms: :desc, price: :asc)
+    when "bathrooms_desc"
+      listings.order(bathrooms: :desc, price: :asc)
     else
-      listings.order(:price)
+      listings.order(price: :asc, created_at: :desc)
     end
+  end
+
+  def sanitize_search_sort(value)
+    sort = value.to_s
+    SEARCH_SORT_OPTIONS.key?(sort) ? sort : DEFAULT_SEARCH_SORT
   end
 
   def applied_search_filters
@@ -249,12 +271,7 @@ class PagesController < ApplicationController
   end
 
   def sort_label(sort)
-    {
-      "price_asc" => "Price: low to high",
-      "price_desc" => "Price: high to low",
-      "newest" => "Newest first",
-      "available_from" => "Soonest available"
-    }.fetch(sort, sort.to_s.humanize)
+    SEARCH_SORT_OPTIONS.fetch(sort, SEARCH_SORT_OPTIONS.fetch(DEFAULT_SEARCH_SORT))
   end
 
   def search_date_value(key, value)
