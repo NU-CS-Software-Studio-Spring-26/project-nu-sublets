@@ -31,7 +31,8 @@ class Message < ApplicationRecord
         sender_id: sender_id,
         sender_name: sender.display_name,
         body: body,
-        created_at: created_at.strftime("%b %-d, %Y %-l:%M %p")
+        created_at: CentralTimeHelper.format_central_time(created_at),
+        created_at_iso: created_at.iso8601
       }
     )
   end

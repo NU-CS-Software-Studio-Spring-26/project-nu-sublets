@@ -1,6 +1,7 @@
 require "prawn"
 
 class SearchResultsPdf
+  include CentralTimeHelper
   include ActionView::Helpers::NumberHelper
   include ActionView::Helpers::TextHelper
 
@@ -38,7 +39,7 @@ class SearchResultsPdf
     pdf.text "NU Sublets Search Results", size: 24, style: :bold
     pdf.fill_color "000000"
     pdf.move_down 6
-    pdf.text "Generated #{generated_at.strftime("%B %-d, %Y at %-I:%M %p %Z")}", size: 10, color: "555555"
+    pdf.text "Generated #{central_time_display(generated_at)}", size: 10, color: "555555"
     pdf.text "#{listings.size} #{'listing'.pluralize(listings.size)} matched this search.", size: 10, color: "555555"
     pdf.move_down 18
   end
