@@ -71,7 +71,7 @@ class SearchResultsPdf
     listings.each_with_index do |listing, index|
       pdf.start_new_page if pdf.cursor < 155
       listing_card(listing, index + 1)
-      pdf.move_down 10
+      pdf.move_down 20
     end
   end
 
