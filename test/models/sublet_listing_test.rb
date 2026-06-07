@@ -170,16 +170,29 @@ class SubletListingTest < ActiveSupport::TestCase
     assert_includes listing.errors[:bathrooms], "must be greater than or equal to 0"
   end
 
-  test "rejects unsupported and excessive listing labels" do
+  test "accepts comma formatted numeric listing input" do
     listing = @user.sublet_listings.new(
       valid_listing_params.merge(
-        amenities: SubletListing::AMENITY_OPTIONS.first(13),
+        price: "1,200",
+        bedrooms: "1",
+        bathrooms: "1"
+      )
+    )
+
+    assert listing.valid?
+    assert_equal 1200, listing.price.to_i
+  end
+
+  test "allows all supported amenities while rejecting unsupported labels" do
+    listing = @user.sublet_listings.new(
+      valid_listing_params.merge(
+        amenities: SubletListing::AMENITY_OPTIONS,
         preferences: [ "Quiet", "<script>alert(1)</script>" ]
       )
     )
 
     assert_not listing.valid?
-    assert_includes listing.errors[:amenities], "can include at most 12 options"
+    assert_empty listing.errors[:amenities]
     assert_includes listing.errors[:preferences], "include unsupported options"
   end
 
@@ -263,7 +276,7 @@ class SubletListingTest < ActiveSupport::TestCase
 
     results = SubletListing.search_listings(
       min_price: "800",
-      max_price: "1200",
+      max_price: "1,200",
       amenities: [ "Laundry", "Utilities included" ],
       preferences: [ "Graduate student" ]
     )
