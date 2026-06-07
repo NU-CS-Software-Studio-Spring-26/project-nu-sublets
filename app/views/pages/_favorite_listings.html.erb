@@ -245,9 +245,13 @@
                 updateFavoriteCarousel(target);
             });
 
-            document.querySelectorAll("[data-favorites-empty]").forEach((emptyState) => {
-                emptyState.hidden = favorites.length > 0;
-            });
+            // Only update [data-favorites-empty] on pages that don't use the saved grid
+            // (on the saved page, renderSavedGrid manages the empty state instead)
+            if (!document.querySelector("[data-saved-grid]")) {
+                document.querySelectorAll("[data-favorites-empty]").forEach((emptyState) => {
+                    emptyState.hidden = favorites.length > 0;
+                });
+            }
 
             bindFavoriteButtons();
         };
@@ -275,6 +279,9 @@
             });
 
             renderFavoriteCards();
+            if (document.querySelector("[data-saved-grid]")) {
+                renderSavedGrid();
+            }
         };
 
         function bindFavoriteButtons() {
@@ -367,7 +374,177 @@
             bindFavoriteCarousels();
             bindFavoriteButtons();
             renderFavoriteCards();
+            initializeSavedGrid();
         };
+
+        // ── Saved page paginated grid ────────────────────────────────────────
+        const SAVED_PER_PAGE_KEY = "nuSublets.savedPerPage";
+        const ALLOWED_PER_PAGE = [25, 50, 100];
+        const DEFAULT_PER_PAGE = 25;
+
+        let savedCurrentPage = 1;
+
+        const readSavedPerPage = () => {
+            const stored = parseInt(localStorage.getItem(SAVED_PER_PAGE_KEY), 10);
+            return ALLOWED_PER_PAGE.includes(stored) ? stored : DEFAULT_PER_PAGE;
+        };
+
+        const writeSavedPerPage = (value) => {
+            const safe = ALLOWED_PER_PAGE.includes(value) ? value : DEFAULT_PER_PAGE;
+            localStorage.setItem(SAVED_PER_PAGE_KEY, safe);
+        };
+
+        const renderSavedGrid = () => {
+            const grid = document.querySelector("[data-saved-grid]");
+            if (!grid) return;
+
+            const toolbar = document.querySelector("[data-saved-toolbar]");
+            const countEl = document.querySelector("[data-saved-count]");
+            const paginationNav = document.querySelector("[data-saved-pagination]");
+            const emptyState = document.querySelector("[data-favorites-empty]");
+            const perPageSelect = document.querySelector("[data-saved-per-page]");
+
+            const favorites = readFavorites();
+            const perPage = readSavedPerPage();
+
+            if (perPageSelect && parseInt(perPageSelect.value, 10) !== perPage) {
+                perPageSelect.value = perPage;
+            }
+
+            if (favorites.length === 0) {
+                grid.innerHTML = "";
+                if (toolbar) toolbar.hidden = true;
+                if (paginationNav) paginationNav.hidden = true;
+                if (emptyState) emptyState.hidden = false;
+                return;
+            }
+
+            if (emptyState) emptyState.hidden = true;
+            if (toolbar) toolbar.hidden = false;
+
+            const totalPages = Math.ceil(favorites.length / perPage);
+            if (savedCurrentPage > totalPages) savedCurrentPage = totalPages;
+            if (savedCurrentPage < 1) savedCurrentPage = 1;
+
+            const start = (savedCurrentPage - 1) * perPage;
+            const pageItems = favorites.slice(start, start + perPage);
+
+            const from = start + 1;
+            const to = Math.min(start + perPage, favorites.length);
+
+            if (countEl) {
+                countEl.textContent = `Showing ${from}-${to} of ${favorites.length}`;
+            }
+
+            grid.innerHTML = "";
+            pageItems.forEach((listing) => {
+                const card = document.createElement("a");
+                card.className = "listing-card";
+                card.href = listing.href || "#";
+                card.setAttribute("aria-label", `View ${escapeHtml(listing.title || listing.address || "sublet listing")}${listing.price ? `, ${escapeHtml(listing.price)}` : ""}`);
+                card.innerHTML = `
+                    <div class="listing-media">
+                        <img class="listing-main-image" src="${escapeHtml(listing.imageSrc)}" alt="${escapeHtml(listing.imageAlt)}" />
+                        ${listing.avatarSrc ? `<img class="listing-avatar" src="${escapeHtml(listing.avatarSrc)}" alt="${escapeHtml(listing.avatarAlt)}" />` : ""}
+                    </div>
+                    <div class="listing-body">
+                        <p class="listing-price">${escapeHtml(listing.price)}</p>
+                        ${listing.title ? `<p class="listing-card-title">${escapeHtml(listing.title)}</p>` : ""}
+                        <div class="listing-meta">
+                            ${(listing.meta || []).map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
+                        </div>
+                        <p class="listing-address">${escapeHtml(listing.address)}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            bindFavoriteButtons();
+            renderSavedPagination(paginationNav, totalPages);
+        };
+
+        const renderSavedPagination = (nav, totalPages) => {
+            if (!nav) return;
+
+            if (totalPages <= 1) {
+                nav.hidden = true;
+                nav.innerHTML = "";
+                return;
+            }
+
+            nav.hidden = false;
+
+            const buildPageButton = (label, page, isCurrent, isDisabled) => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.textContent = label;
+                if (isCurrent) btn.className = "current";
+                if (isDisabled) {
+                    btn.className = "disabled";
+                    btn.disabled = true;
+                } else if (!isCurrent) {
+                    btn.addEventListener("click", () => {
+                        savedCurrentPage = page;
+                        renderSavedGrid();
+                    });
+                }
+                return btn;
+            };
+
+            const pagy = document.createElement("div");
+            pagy.className = "pagy";
+            pagy.setAttribute("aria-label", "Pagination");
+
+            // Prev
+            pagy.appendChild(buildPageButton("‹ Prev", savedCurrentPage - 1, false, savedCurrentPage === 1));
+
+            // Page numbers with gaps
+            const pages = [];
+            for (let p = 1; p <= totalPages; p++) {
+                if (p === 1 || p === totalPages || (p >= savedCurrentPage - 2 && p <= savedCurrentPage + 2)) {
+                    pages.push(p);
+                }
+            }
+
+            let lastAdded = 0;
+            pages.forEach((p) => {
+                if (lastAdded && p - lastAdded > 1) {
+                    const gap = document.createElement("span");
+                    gap.className = "gap";
+                    gap.textContent = "…";
+                    pagy.appendChild(gap);
+                }
+                pagy.appendChild(buildPageButton(String(p), p, p === savedCurrentPage, false));
+                lastAdded = p;
+            });
+
+            // Next
+            pagy.appendChild(buildPageButton("Next ›", savedCurrentPage + 1, false, savedCurrentPage === totalPages));
+
+            nav.innerHTML = "";
+            nav.appendChild(pagy);
+        };
+
+        const initializeSavedGrid = () => {
+            const grid = document.querySelector("[data-saved-grid]");
+            if (!grid) return;
+
+            const perPageSelect = document.querySelector("[data-saved-per-page]");
+            if (perPageSelect) {
+                perPageSelect.value = readSavedPerPage();
+                perPageSelect.addEventListener("change", () => {
+                    const requested = parseInt(perPageSelect.value, 10);
+                    if (ALLOWED_PER_PAGE.includes(requested)) {
+                        writeSavedPerPage(requested);
+                        savedCurrentPage = 1;
+                        renderSavedGrid();
+                    }
+                });
+            }
+
+            renderSavedGrid();
+        };
+        // ── End saved page paginated grid ────────────────────────────────────
 
         if (document.readyState === "loading") {
             document.addEventListener("DOMContentLoaded", initializeFavorites);

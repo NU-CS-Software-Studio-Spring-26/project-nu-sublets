@@ -1,6 +1,8 @@
 class PagesController < ApplicationController
   RECENTLY_VIEWED_LISTINGS_LIMIT = 6
   RECOMMENDED_LISTINGS_LIMIT = 6
+  ALLOWED_PER_PAGE = [ 25, 50, 100 ].freeze
+  DEFAULT_PER_PAGE = 25
 
   layout false
   before_action :authenticate_user!, only: %i[listing profile update_profile destroy_account user_profile another_user_account submit_sublet]
@@ -37,10 +39,11 @@ class PagesController < ApplicationController
   def search_results
     listings = search_results_scope
     @total_listings_count = listings.count
+    @per_page = sanitize_per_page(params[:per_page])
 
     respond_to do |format|
       format.html do
-        @pagy, @listings = pagy(:offset, listings, limit: 12)
+        @pagy, @listings = pagy(:offset, listings, limit: @per_page)
         @map_listings = listings.where.not(latitude: nil, longitude: nil).limit(150)
       end
 
@@ -161,6 +164,11 @@ class PagesController < ApplicationController
 
   def search_date_param(key)
     search_date_value(key, params[key])
+  end
+
+  def sanitize_per_page(value)
+    requested = value.to_i
+    ALLOWED_PER_PAGE.include?(requested) ? requested : DEFAULT_PER_PAGE
   end
 
   def search_results_scope

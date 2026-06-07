@@ -562,6 +562,33 @@
                 text-align: right;
             }
 
+            .per-page-label {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                color: var(--nu-muted);
+                font-family: "Rubik", sans-serif;
+                font-size: 13px;
+                white-space: nowrap;
+            }
+
+            .per-page-select {
+                padding: 5px 8px;
+                border: 1px solid var(--nu-border);
+                border-radius: 6px;
+                background: #fff;
+                color: var(--nu-text);
+                font-family: "Rubik", sans-serif;
+                font-size: 13px;
+                cursor: pointer;
+            }
+
+            .per-page-select:focus-visible {
+                border-color: rgba(78, 42, 132, 0.5);
+                box-shadow: 0 0 0 3px rgba(78, 42, 132, 0.12);
+                outline: none;
+            }
+
             .export-pdf-link {
                 display: inline-flex;
                 align-items: center;
@@ -1204,6 +1231,14 @@
                         <h1 class="results-title"><%= pluralize(@total_listings_count, "Sublet") %> Available</h1>
                         <div class="results-actions">
                             <%= link_to "Export PDF", search_results_path(request.query_parameters.except("page").merge(format: :pdf)), class: "export-pdf-link", aria: { label: "Export search results as PDF" } %>
+                            <label class="per-page-label">
+                                Per page:
+                                <select class="per-page-select" aria-label="Listings per page" data-per-page-select>
+                                    <% [25, 50, 100].each do |n| %>
+                                        <option value="<%= n %>" <%= "selected" if @per_page == n %>><%= n %></option>
+                                    <% end %>
+                                </select>
+                            </label>
                             <% if @total_listings_count.positive? %>
                                 <p class="results-page-count">
                                     Showing <%= @pagy.from %>-<%= @pagy.to %> of <%= @pagy.count %>
@@ -1912,6 +1947,18 @@
         </script>
         <%= render "shared/skeleton_loaders" %>
     <%= render "shared/service_worker_registration" %>
+        <script>
+            (() => {
+                const perPageSelect = document.querySelector("[data-per-page-select]");
+                if (!perPageSelect) return;
+                perPageSelect.addEventListener("change", () => {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set("per_page", perPageSelect.value);
+                    url.searchParams.delete("page");
+                    window.location.href = url.toString();
+                });
+            })();
+        </script>
 
     </body>
 </html>
