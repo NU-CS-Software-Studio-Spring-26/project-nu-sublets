@@ -1,6 +1,16 @@
 require "test_helper"
 
 class ApplicationHelperTest < ActionView::TestCase
+  test "brand logo partial centers image and text without vertical nudges" do
+    render partial: "shared/brand_logo"
+
+    assert_includes rendered, 'class="brand-logo-mark"'
+    assert_includes rendered, "display: inline-flex; align-items: center; gap: 8px; line-height: 1;"
+    assert_includes rendered, "width: 32px; height: 32px;"
+    assert_includes rendered, "display: inline-flex; align-items: center; margin: 0; padding: 0; line-height: 1;"
+    refute_includes rendered, "translateY"
+  end
+
   test "central_time_display formats timestamps in America Chicago with CT label" do
     assert_equal "Jun 7, 2026 8:18 PM CT", central_time_display(Time.utc(2026, 6, 8, 1, 18, 0))
   end

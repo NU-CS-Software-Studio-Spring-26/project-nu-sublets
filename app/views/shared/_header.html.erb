@@ -1,0 +1,16 @@
+<% current_nav = local_assigns[:current_nav]&.to_sym %>
+
+<header class="topbar" role="banner">
+  <div class="topbar-inner d-flex align-items-center justify-content-between">
+    <a class="brand d-flex align-items-center" href="<%= root_path %>" aria-label="NU Sublets home" style="text-decoration: none; color: #4E2A84; font-weight: bold; font-size: 1.25rem;">
+      <%= render "shared/brand_logo" %>
+    </a>
+    <nav class="d-flex align-items-center topbar-nav" aria-label="Main navigation">
+      <a class="nav-link p-0" href="<%= root_path(anchor: 'recommendations') %>" <%= 'aria-current="page"'.html_safe if current_nav == :browse %>><%= nav_item_label_with_icon(:browse, "Browse") %></a>
+      <a class="nav-link p-0" href="<%= search_results_path %>" <%= 'aria-current="page"'.html_safe if current_nav == :search %>><%= nav_item_label_with_icon(:search, "Search") %></a>
+      <a class="nav-link p-0" href="<%= saved_path %>" <%= 'aria-current="page"'.html_safe if current_nav == :saved %>><%= nav_item_label_with_icon(:saved, "Saved") %></a>
+      <a class="nav-link p-0" href="<%= post_sublet_path %>" <%= 'aria-current="page"'.html_safe if current_nav == :post_sublet %>><%= nav_item_label_with_icon(:post_sublet, "Post Sublet") %></a>
+      <%= render "pages/auth_nav", current_nav: current_nav %>
+    </nav>
+  </div>
+</header>

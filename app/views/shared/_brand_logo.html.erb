@@ -1,8 +1,10 @@
 <% size = local_assigns.fetch(:size, 32) %>
 <% label = local_assigns.fetch(:label, "NU Sublets") %>
 <% text_class = local_assigns[:text_class] %>
-<%= image_tag "NUSublets Logo.svg",
-              alt: "",
-              aria: { hidden: true },
-              style: "width: #{size}px; height: #{size}px; object-fit: contain; margin-right: 8px; flex: 0 0 auto; transform: translateY(-3px);" %>
-<span<%= text_class.present? ? " class=\"#{text_class}\"".html_safe : "" %>><%= label %></span>
+<span class="brand-logo-mark" style="display: inline-flex; align-items: center; gap: 8px; line-height: 1;">
+  <%= image_tag "NUSublets Logo.svg",
+                alt: "",
+                aria: { hidden: true },
+                style: "width: #{size}px; height: #{size}px; object-fit: contain; flex: 0 0 #{size}px; display: block;" %>
+  <span<%= text_class.present? ? " class=\"#{text_class}\"".html_safe : "" %> style="display: inline-flex; align-items: center; margin: 0; padding: 0; line-height: 1;"><%= label %></span>
+</span>

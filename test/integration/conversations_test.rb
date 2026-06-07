@@ -62,6 +62,16 @@ class ConversationsTest < ActionDispatch::IntegrationTest
     assert_select "a[aria-label='Open conversation with Chat Host'][href='#{conversation_path(conversation)}']"
     assert_select ".conversation-list-context", text: @listing.title
     assert_select ".conversation-list-heading span", text: "Jun 7, 2026 8:18 PM CT"
+    assert_select "header.topbar nav.topbar-nav"
+    assert_select ".chat-topbar", count: 0
+    assert_select "a[href='#{root_path(anchor: 'recommendations')}'] svg.nav-item-icon"
+    assert_select "a[href='#{search_results_path}'] svg.nav-item-icon"
+    assert_select "a[href='#{saved_path}'] svg.nav-item-icon"
+    assert_select "a[href='#{post_sublet_path}'] svg.nav-item-icon"
+    assert_select "a[href='#{conversations_path}'] svg.nav-item-icon"
+    assert_select "a[href='#{conversations_path}'][aria-current='page']", count: 0
+    assert_select "a[href='#{profile_path}'] svg.nav-item-icon"
+    assert_select "form[action='#{session_path}'] button", text: "Log out"
   end
 
   test "conversation thread message timestamps display in central time" do
@@ -78,6 +88,10 @@ class ConversationsTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "time[datetime='#{message.created_at.iso8601}']", text: "Jun 7, 2026 8:18 PM CT"
+    assert_select "header.topbar nav.topbar-nav"
+    assert_select ".chat-topbar", count: 0
+    assert_select "a[href='#{conversations_path}'] svg.nav-item-icon"
+    assert_select "a[href='#{conversations_path}'][aria-current='page']", count: 0
   end
 
   test "signed in user can start a chat with an existing account holder" do

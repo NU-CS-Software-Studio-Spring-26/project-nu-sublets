@@ -53,14 +53,41 @@ body.is-page-leaving .page-shell {
 }
 
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  min-height: 60px;
+  padding: 0 24px;
+  border-bottom: 1px solid #d9d9d9;
+  background: #fff;
+  font-family: "Rubik", sans-serif;
   transition: box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.brand,
+.nav-link {
+  color: #111;
+  font-size: 16px;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .topbar-nav {
   align-items: center;
-  display: grid !important;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(86px, max-content);
+  display: flex !important;
+  gap: 28px;
   justify-content: end;
 }
 
@@ -69,28 +96,24 @@ body.is-page-leaving .page-shell {
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  min-height: 36px;
-  min-width: 86px;
-  border-radius: 8px;
-  padding: 0 8px !important;
+  padding: 0 !important;
   text-align: center;
-  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  transition: color 0.2s ease;
   white-space: nowrap;
 }
 
 .topbar-nav .nav-link:hover,
 .topbar-nav .nav-link:focus-visible,
 .topbar-nav .btn:hover,
-.topbar-nav .btn:focus-visible,
-.topbar-nav .nav-link[aria-current="page"] {
-  background: #f4eff8;
+.topbar-nav .btn:focus-visible {
   color: #4E2A84 !important;
+  outline: none;
   text-decoration: none;
 }
 
 .topbar-nav .nav-link:active,
 .topbar-nav .btn:active {
-  transform: translateY(1px);
+  transform: none;
 }
 
 .nav-item-link {
@@ -171,11 +194,6 @@ footer nav[aria-label="Footer links"] a:focus * {
 
 .topbar-nav form {
   display: inline-flex !important;
-  min-width: 86px;
-}
-
-.topbar-nav form .nav-link {
-  width: 100%;
 }
 
 @keyframes page-enter {
@@ -206,51 +224,13 @@ footer nav[aria-label="Footer links"] a:focus * {
   min-height: 100vh;
   background: #f7f7f9;
   color: #111;
-  font-family: "Fustat", system-ui, sans-serif;
+  font-family: "Rubik", system-ui, sans-serif;
 }
 
 .chat-page *,
 .chat-page *::before,
 .chat-page *::after {
   box-sizing: border-box;
-}
-
-.chat-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  min-height: 64px;
-  padding: 0 32px;
-  border-bottom: 1px solid #d9d9d9;
-  background: #fff;
-}
-
-.chat-brand {
-  color: #4E2A84;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.chat-nav {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  font-family: "Rubik", system-ui, sans-serif;
-}
-
-.chat-nav a,
-.chat-nav .nav-link {
-  color: #111;
-  text-decoration: none;
-}
-
-.chat-nav a[aria-current="page"] {
-  color: #4E2A84;
-  font-weight: 700;
 }
 
 .chat-shell {
@@ -517,15 +497,21 @@ footer nav[aria-label="Footer links"] a:focus * {
 }
 
 @media (max-width: 800px) {
-  .chat-topbar {
+  .topbar,
+  .topbar-inner {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .topbar {
     padding: 16px;
   }
 
-  .chat-nav {
+  .topbar-nav {
+    display: flex !important;
     flex-wrap: wrap;
     gap: 14px;
+    justify-content: flex-start;
   }
 
   .chat-panel {

@@ -1,16 +1,7 @@
 <% content_for :title, "#{@other_participant.display_name} | Chat | NU Sublets" %>
 
 <div class="chat-page" data-conversation-id="<%= @conversation.id %>" data-current-user-id="<%= current_user.id %>">
-  <header class="chat-topbar">
-    <a class="chat-brand" href="<%= root_path %>" aria-label="NU Sublets home"><%= render "shared/brand_logo" %></a>
-    <nav class="chat-nav" aria-label="Main navigation">
-      <a href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
-      <a href="<%= search_results_path %>">Search</a>
-      <a href="<%= saved_path %>">Saved</a>
-      <a href="<%= post_sublet_path %>">Post Sublet</a>
-      <%= render "pages/auth_nav" %>
-    </nav>
-  </header>
+  <%= render "shared/header" %>
 
   <main class="chat-shell">
     <section class="chat-panel conversation-panel" aria-labelledby="conversation-title">
