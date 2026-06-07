@@ -189,7 +189,7 @@ puts "Creating #{LISTING_COUNT} sublet listings..."
 LISTING_COUNT.times do |index|
   bedrooms = index % 6
   bathrooms = bedrooms.zero? ? 1 : 1 + (index % 2)
-  furnished = index.even?
+  furnished = index.even? || bedrooms == 1
   pets_allowed = (index % 4).zero?
   utilities_included = (index % 3).zero?
   available_from = Date.current + ((index % 90) + 1).days
