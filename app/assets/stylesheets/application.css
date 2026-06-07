@@ -132,6 +132,27 @@ footer .footer-nav-icon--github {
   white-space: nowrap;
 }
 
+.nav-item-badge {
+  position: absolute;
+  top: -0.15rem;
+  right: -0.15rem;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background-color: #ff5a5f;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1rem;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
 footer nav[aria-label="Footer links"] {
   display: flex;
   flex-wrap: wrap;

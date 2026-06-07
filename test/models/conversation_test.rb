@@ -37,4 +37,33 @@ class ConversationTest < ActiveSupport::TestCase
     assert_includes @initiator.conversations, included
     assert_not_includes @initiator.conversations, excluded
   end
+
+  test "tracks unread messages and marks conversations read for participants" do
+    conversation = Conversation.between(@initiator, @recipient)
+    conversation.save!
+    conversation.messages.create!(sender: @initiator, body: "Hello")
+
+    assert conversation.unread_for?(@recipient)
+    assert_not conversation.unread_for?(@initiator)
+    assert_equal 1, conversation.unread_message_count_for(@recipient)
+
+    conversation.mark_as_read_for(@recipient)
+
+    assert_not conversation.unread_for?(@recipient)
+    assert_equal 0, conversation.unread_message_count_for(@recipient)
+  end
+
+  test "unread_conversations_count returns only conversations with unread messages" do
+    other = User.create!(name: "Other", email: "other@u.northwestern.edu", active: true, confirmed_at: Time.current)
+    conversation = Conversation.between(@initiator, @recipient)
+    conversation.save!
+    conversation.messages.create!(sender: @initiator, body: "Hello")
+
+    direct = Conversation.between(@initiator, other)
+    direct.save!
+    direct.messages.create!(sender: @initiator, body: "Hi")
+
+    assert_equal 2, @recipient.unread_conversations_count
+    assert_equal 0, @initiator.unread_conversations_count
+  end
 end

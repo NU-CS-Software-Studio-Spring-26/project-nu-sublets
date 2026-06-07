@@ -12,6 +12,7 @@ class ConversationsController < ApplicationController
     @messages = @conversation.messages.includes(:sender).order(:created_at)
     @message = Message.new
     @other_participant = @conversation.other_participant(current_user)
+    @conversation.mark_as_read_for(current_user)
   end
 
   def create

@@ -40,6 +40,37 @@ class Conversation < ApplicationRecord
     initiator if user&.id == recipient_id
   end
 
+  def last_read_at_for(user)
+    return unless participant?(user)
+
+    user.id == initiator_id ? last_read_at_initiator : last_read_at_recipient
+  end
+
+  def unread_messages_for(user)
+    return Message.none unless participant?(user)
+
+    messages.where.not(sender_id: user.id)
+            .where("created_at > ?", last_read_at_for(user) || Time.at(0))
+  end
+
+  def unread_message_count_for(user)
+    unread_messages_for(user).count
+  end
+
+  def unread_for?(user)
+    unread_message_count_for(user).positive?
+  end
+
+  def mark_as_read_for(user)
+    return unless participant?(user)
+
+    if user.id == initiator_id
+      update(last_read_at_initiator: Time.current)
+    else
+      update(last_read_at_recipient: Time.current)
+    end
+  end
+
   private
 
   def assign_conversation_key
