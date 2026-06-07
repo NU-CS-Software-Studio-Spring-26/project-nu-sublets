@@ -2,7 +2,7 @@
 
 <div class="chat-page">
   <header class="chat-topbar">
-    <a class="chat-brand" href="<%= root_path %>"><%= render "shared/brand_logo" %></a>
+    <a class="chat-brand" href="<%= root_path %>" aria-label="NU Sublets home"><%= render "shared/brand_logo" %></a>
     <nav class="chat-nav" aria-label="Main navigation">
       <a href="<%= root_path(anchor: 'recommendations') %>">Browse</a>
       <a href="<%= search_results_path %>">Search</a>
@@ -30,7 +30,7 @@
           <% @conversations.each do |conversation| %>
             <% other_user = conversation.other_participant(current_user) %>
             <% last_message = conversation.messages.max_by(&:created_at) %>
-            <a class="conversation-list-item" href="<%= conversation_path(conversation) %>">
+            <a class="conversation-list-item" href="<%= conversation_path(conversation) %>" aria-label="Open conversation with <%= other_participant&.display_name || 'student' %>">
               <img src="<%= user_avatar_url(other_user, size: 96) %>" alt="<%= other_user.display_name %> profile photo" />
               <div class="conversation-list-copy">
                 <div class="conversation-list-heading">

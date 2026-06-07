@@ -1306,7 +1306,7 @@
         <div class="page-shell">
             <header class="topbar">
                 <div class="topbar-inner">
-                    <a class="brand d-flex align-items-center" href="<%= root_path %>" style="text-decoration: none; color: #4E2A84; font-weight: bold; font-size: 1.25rem;">
+                    <a class="brand d-flex align-items-center" href="<%= root_path %>" aria-label="NU Sublets home" style="text-decoration: none; color: #4E2A84; font-weight: bold; font-size: 1.25rem;">
                         <%= render 'shared/brand_logo' %>
                     </a>
                     <nav class="d-flex align-items-center topbar-nav">
@@ -1325,15 +1325,15 @@
 
             <section class="results-toolbar" aria-label="Search filters">
                 <div class="toolbar-inner">
-                    <form class="filter-form" action="<%= search_results_path %>" method="get" data-search-filter-form novalidate>
+                    <form class="filter-form" action="<%= search_results_path %>" method="get" aria-label="Search and filter sublets" data-search-filter-form novalidate>
                         <label class="natural-search-filter">
                             <span class="visually-hidden">Natural language search</span>
-                            <input class="natural-search-input" type="search" name="natural_query" value="<%= @natural_query %>" placeholder="Try: furnished 1 bed under $1200 near campus" maxlength="500" data-natural-query-input />
+                            <input class="natural-search-input" type="search" name="natural_query" value="<%= @natural_query %>" placeholder="Try: furnished 1 bed under $1200 near campus" maxlength="500" aria-label="Natural language search" data-natural-query-input />
                         </label>
 
                         <div class="date-range" role="group" aria-label="Selected dates">
                             <div class="date-filter" data-date-picker>
-                                <input class="date-filter-input" type="text" name="move-in" value="<%= @move_in&.strftime("%m/%d/%Y") %>" data-date-input />
+                                <input class="date-filter-input" type="text" name="move-in" value="<%= @move_in&.strftime("%m/%d/%Y") %>" aria-label="Move in date" data-date-input />
                                 <button class="date-filter-toggle" type="button" aria-label="Open move in date picker" aria-expanded="false" aria-controls="search-move-in-picker" data-date-toggle>
                                     <span data-date-label><%= @move_in&.strftime("%b %-d %Y") || "Move in" %></span>
                                 </button>
@@ -1341,7 +1341,7 @@
                             </div>
 
                             <div class="date-filter" data-date-picker>
-                                <input class="date-filter-input" type="text" name="move-out" value="<%= @move_out&.strftime("%m/%d/%Y") %>" data-date-input />
+                                <input class="date-filter-input" type="text" name="move-out" value="<%= @move_out&.strftime("%m/%d/%Y") %>" aria-label="Move out date" data-date-input />
                                 <button class="date-filter-toggle" type="button" aria-label="Open move out date picker" aria-expanded="false" aria-controls="search-move-out-picker" data-date-toggle>
                                     <span data-date-label><%= @move_out&.strftime("%b %-d %Y") || "Move out" %></span>
                                 </button>
@@ -1350,7 +1350,7 @@
                         </div>
 
                         <details class="filter-menu" data-filter-menu>
-                            <summary class="filter-menu-toggle">
+                            <summary class="filter-menu-toggle" aria-label="Open more search filters">
                                 <svg class="filter-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                     <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                                 </svg>
@@ -1435,7 +1435,7 @@
                     <div class="results-summary">
                         <h1 class="results-title"><%= pluralize(@total_listings_count, "Sublet") %> Available</h1>
                         <div class="results-actions">
-                            <%= link_to "Export PDF", search_results_path(request.query_parameters.except("page").merge(format: :pdf)), class: "export-pdf-link" %>
+                            <%= link_to "Export PDF", search_results_path(request.query_parameters.except("page").merge(format: :pdf)), class: "export-pdf-link", aria: { label: "Export search results as PDF" } %>
                             <% if @total_listings_count.positive? %>
                                 <p class="results-page-count">
                                     Showing <%= @pagy.from %>-<%= @pagy.to %> of <%= @pagy.count %>
@@ -1452,7 +1452,7 @@
                                       <% listing_host = listing.user %>
                                       <article class="listing-card" <%= listing_compare_data_attributes(listing) %>>
                                           <div class="listing-media">
-                                              <a class="listing-card-link listing-media-link" href="<%= sublet_listing_path(listing) %>">
+                                              <a class="listing-card-link listing-media-link" href="<%= sublet_listing_path(listing) %>" aria-label="View photos for <%= listing.title.presence || listing.address.presence || 'sublet listing' %>">
                                                   <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title %>" />
                                               </a>
 
@@ -1463,7 +1463,7 @@
                                               <% end %>
                                           </div>
 
-                                          <a class="listing-card-link listing-body" href="<%= sublet_listing_path(listing) %>">
+                                          <a class="listing-card-link listing-body" href="<%= sublet_listing_path(listing) %>" aria-label="View <%= listing.title.presence || listing.address.presence || 'sublet listing' %>, <%= number_to_currency(listing.price, precision: 0) %> per month">
                                               <p class="listing-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
                                               <p class="listing-card-title"><%= listing.title %></p>
                                               <div class="listing-meta">
@@ -1497,7 +1497,7 @@
                                 { name: "Norris", x: 68, y: 38 },
                                 { name: "SPAC", x: 58, y: 24 }
                             ] %>
-                            <div class="map-stage" data-map-stage data-zoom="1" aria-label="Sublet map">
+                            <div class="map-stage" data-map-stage data-zoom="1" role="region" aria-label="Interactive sublet map">
                                 <div class="map-canvas" data-map-canvas>
                                     <div class="map-water" aria-hidden="true"></div>
                                     <div class="map-campus" aria-hidden="true"></div>
@@ -1548,7 +1548,7 @@
                                             <button class="map-popup-close" type="button" aria-label="Close listing popup" data-map-popup-close>&times;</button>
                                             <p class="map-popup-title"><%= group[:address] %></p>
                                             <% listings.each do |listing| %>
-                                                <a class="map-popup-listing" href="<%= sublet_listing_path(listing) %>">
+                                                <a class="map-popup-listing" href="<%= sublet_listing_path(listing) %>" aria-label="View <%= listing.title.presence || listing.address.presence || 'sublet listing' %>, <%= number_to_currency(listing.price, precision: 0) %> per month">
                                                     <p class="map-popup-price"><%= number_to_currency(listing.price, precision: 0) %>/month</p>
                                                     <p class="map-popup-name"><%= listing.title %></p>
                                                     <p class="map-popup-meta"><%= pluralize(listing.bedrooms, "bedroom") %> · <%= pluralize(listing.bathrooms, "bathroom") %> · <%= listing.available_from.strftime("%b %-d") %> - <%= listing.available_until.strftime("%b %-d") %></p>

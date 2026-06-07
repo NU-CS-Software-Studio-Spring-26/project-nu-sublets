@@ -820,7 +820,7 @@
                             </label>
                             <label class="recommendation-filter-field">
                                 <span class="recommendation-filter-label">Bedrooms</span>
-                                <select class="recommendation-filter-select" name="recommendation_bedrooms">
+                                <select class="recommendation-filter-select" name="recommendation_bedrooms" aria-label="Recommended listing bedrooms">
                                     <option value="">Any bedrooms</option>
                                     <% (0..5).each do |count| %>
                                         <option value="<%= count %>" <%= "selected" if @recommendation_bedrooms == count.to_s %>><%= count.zero? ? "Studio" : pluralize(count, "bedroom") %></option>
@@ -829,7 +829,7 @@
                             </label>
                             <label class="recommendation-filter-field">
                                 <span class="recommendation-filter-label">Bathrooms</span>
-                                <select class="recommendation-filter-select" name="recommendation_bathrooms">
+                                <select class="recommendation-filter-select" name="recommendation_bathrooms" aria-label="Recommended listing bathrooms">
                                     <option value="">Any bathrooms</option>
                                     <% (0..5).each do |count| %>
                                         <option value="<%= count %>" <%= "selected" if @recommendation_bathrooms == count.to_s %>><%= pluralize(count, "bathroom") %></option>

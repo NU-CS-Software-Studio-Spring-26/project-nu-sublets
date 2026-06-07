@@ -207,6 +207,8 @@
     .compare-modal-backdrop {
         position: absolute;
         inset: 0;
+        border: 0;
+        padding: 0;
         background: rgba(0, 0, 0, 0.58);
     }
 
@@ -416,15 +418,15 @@
         </p>
         <div class="compare-tray-items" data-compare-tray-items aria-label="Selected listings to compare"></div>
         <div class="compare-tray-actions">
-            <button class="compare-clear-button" type="button" data-compare-clear>Clear all</button>
-            <button class="compare-open-button" type="button" data-compare-open disabled>Compare</button>
+            <button class="compare-clear-button" type="button" aria-label="Clear all compared listings" data-compare-clear>Clear all</button>
+            <button class="compare-open-button" type="button" aria-label="Open listing comparison" data-compare-open disabled>Compare</button>
         </div>
         <p class="compare-message" data-compare-message role="alert" hidden>You can compare up to 3 listings at a time.</p>
     </div>
 </div>
 
 <div class="compare-modal" data-compare-modal hidden aria-hidden="true">
-    <div class="compare-modal-backdrop" data-compare-modal-close></div>
+    <button class="compare-modal-backdrop" type="button" aria-label="Close comparison" data-compare-modal-close></button>
     <div class="compare-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="compare-modal-title">
         <div class="compare-modal-header">
             <div>
@@ -639,7 +641,7 @@
                                         ${listing.thumbnailUrl ? `<img class="comparison-listing-thumb" src="${escapeHtml(listing.thumbnailUrl)}" alt="${escapeHtml(listing.thumbnailAlt)}" />` : ""}
                                         <a class="comparison-listing-title" href="${escapeHtml(listing.href)}">${escapeHtml(listing.titleOrAddress)}</a>
                                         <span class="comparison-listing-rent">${escapeHtml(listing.rentLabel)}</span>
-                                        <button class="comparison-remove-link" type="button" data-compare-remove="${escapeHtml(listing.id)}">Remove</button>
+                                        <button class="comparison-remove-link" type="button" aria-label="Remove ${escapeHtml(listing.titleOrAddress)} from comparison" data-compare-remove="${escapeHtml(listing.id)}">Remove</button>
                                     </div>
                                 </th>
                             `).join("")}
