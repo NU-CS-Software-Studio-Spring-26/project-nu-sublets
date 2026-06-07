@@ -961,9 +961,18 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     )
 
     assert_select "a.export-pdf-link[href*='format=pdf']", text: "Export PDF"
+    assert_select "a.export-pdf-link[data-turbo='false'][download]"
     assert_select "a.export-pdf-link[href*='max_price=1200']"
     assert_select "a.export-pdf-link[href*='amenities%5B%5D=Laundry']"
     assert_select "a.export-pdf-link[href*='sort=price_desc']"
+  end
+
+  test "search results skeleton loader ignores pdf export links" do
+    get search_results_path
+
+    assert_response :success
+    assert_includes response.body, 'if (link.hasAttribute("download")) return false;'
+    assert_includes response.body, 'if (link.dataset.turbo === "false") return false;'
   end
 
   test "search results pdf route returns pdf content" do

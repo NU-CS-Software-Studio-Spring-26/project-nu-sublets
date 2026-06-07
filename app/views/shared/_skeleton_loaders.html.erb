@@ -291,6 +291,7 @@
             if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return false;
             if (link.target && link.target !== "_self") return false;
             if (link.hasAttribute("download")) return false;
+            if (link.dataset.turbo === "false") return false;
             if (link.closest("[data-login-trigger], .favorite-button, [data-image-popup-trigger]")) return false;
 
             const url = new URL(link.href, window.location.href);

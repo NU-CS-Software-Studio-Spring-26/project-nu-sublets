@@ -1230,7 +1230,7 @@
                     <div class="results-summary">
                         <h1 class="results-title"><%= pluralize(@total_listings_count, "Sublet") %> Available</h1>
                         <div class="results-actions">
-                            <%= link_to "Export PDF", search_results_path(request.query_parameters.except("page").merge(format: :pdf)), class: "export-pdf-link", aria: { label: "Export search results as PDF" } %>
+                            <%= link_to "Export PDF", search_results_path(request.query_parameters.except("page").merge(format: :pdf)), class: "export-pdf-link", aria: { label: "Export search results as PDF" }, data: { turbo: false }, download: true %>
                             <label class="per-page-label">
                                 Per page:
                                 <select class="per-page-select" aria-label="Listings per page" data-per-page-select>
