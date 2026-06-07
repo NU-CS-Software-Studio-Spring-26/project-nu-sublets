@@ -1,6 +1,14 @@
 require "test_helper"
 
 class ApplicationHelperTest < ActionView::TestCase
+  test "central_time_display formats timestamps in America Chicago with CT label" do
+    assert_equal "Jun 7, 2026 8:18 PM CT", central_time_display(Time.utc(2026, 6, 8, 1, 18, 0))
+  end
+
+  test "central_time_display handles nil safely" do
+    assert_equal "", central_time_display(nil)
+  end
+
   test "user_avatar_url uses initials for demo placeholder photos" do
     user = User.new(
       name: "Melinda Tester",

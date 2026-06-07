@@ -50,12 +50,34 @@ class ConversationsTest < ActionDispatch::IntegrationTest
     renter = sign_in_with_firebase_email("chat.inbox@u.northwestern.edu")
     conversation = Conversation.between(renter, @host, listing: @listing)
     conversation.save!
+    conversation.messages.create!(
+      sender: @host,
+      body: "The room is still available.",
+      created_at: Time.utc(2026, 6, 8, 1, 18, 0)
+    )
 
     get conversations_path
 
     assert_response :success
     assert_select "a[aria-label='Open conversation with Chat Host'][href='#{conversation_path(conversation)}']"
     assert_select ".conversation-list-context", text: @listing.title
+    assert_select ".conversation-list-heading span", text: "Jun 7, 2026 8:18 PM CT"
+  end
+
+  test "conversation thread message timestamps display in central time" do
+    renter = sign_in_with_firebase_email("chat.timestamp@u.northwestern.edu")
+    conversation = Conversation.between(renter, @host, listing: @listing)
+    conversation.save!
+    message = conversation.messages.create!(
+      sender: @host,
+      body: "Central time check.",
+      created_at: Time.utc(2026, 6, 8, 1, 18, 0)
+    )
+
+    get conversation_path(conversation)
+
+    assert_response :success
+    assert_select "time[datetime='#{message.created_at.iso8601}']", text: "Jun 7, 2026 8:18 PM CT"
   end
 
   test "signed in user can start a chat with an existing account holder" do

@@ -90,10 +90,11 @@ const appendChatMessage = (message) => {
   const article = document.createElement("article")
   article.className = `message-bubble ${ownMessage ? "is-own-message" : "is-other-message"}`
   article.dataset.messageId = message.id
+  const datetimeAttribute = message.created_at_iso ? ` datetime="${escapeHtml(message.created_at_iso)}"` : ""
   article.innerHTML = `
     <p class="message-meta">
       <span>${escapeHtml(message.sender_name)}</span>
-      <time>${escapeHtml(message.created_at)}</time>
+      <time${datetimeAttribute}>${escapeHtml(message.created_at)}</time>
     </p>
     <p class="message-body">${escapeHtml(message.body)}</p>
   `
