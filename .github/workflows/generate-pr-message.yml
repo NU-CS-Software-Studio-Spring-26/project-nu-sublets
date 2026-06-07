@@ -1,59 +1,61 @@
 name: Generate PR Message
 
 on:
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: "Pull request number to update"
-        required: true
-        type: number
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, edited]
 
 permissions:
   contents: read
   pull-requests: write
-  models: read
 
 env:
-  PR_MESSAGE_MODEL: openai/gpt-4o-mini
-  PR_CONTEXT_MAX_BYTES: "60000"
+  PR_MESSAGE_MODEL: gpt-4.1-nano
+  PR_CONTEXT_MAX_BYTES: "18000"
 
 jobs:
   generate:
-    name: Generate concise PR message
+    name: Generate concise PR message with OpenAI
     runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Validate PR and check out branch
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby
+
+      - name: Load PR metadata
         env:
           GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ inputs.pr_number }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
           gh pr view "$PR_NUMBER" --json number,title,body,baseRefName,headRefName,url > pr.json
-          gh pr checkout "$PR_NUMBER"
 
       - name: Build PR context
         env:
           GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ inputs.pr_number }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_CONTEXT_MAX_BYTES: ${{ env.PR_CONTEXT_MAX_BYTES }}
         run: |
           set -euo pipefail
 
           mkdir -p tmp/pr-message
 
-          base_ref="$(node -e 'const fs = require("fs"); console.log(JSON.parse(fs.readFileSync("pr.json", "utf8")).baseRefName)')"
-          pr_title="$(node -e 'const fs = require("fs"); console.log(JSON.parse(fs.readFileSync("pr.json", "utf8")).title)')"
-          pr_url="$(node -e 'const fs = require("fs"); console.log(JSON.parse(fs.readFileSync("pr.json", "utf8")).url)')"
+          base_ref="$(ruby -rjson -e 'puts JSON.parse(File.read("pr.json")).fetch("baseRefName")')"
+          pr_title="$(ruby -rjson -e 'puts JSON.parse(File.read("pr.json")).fetch("title")')"
+          pr_url="$(ruby -rjson -e 'puts JSON.parse(File.read("pr.json")).fetch("url")')"
 
           git fetch origin "$base_ref" --depth=100
-          base_sha="$(git merge-base "origin/$base_ref" HEAD)"
-          git diff --unified=2 "$base_sha"..HEAD > tmp/pr-message/full-diff.patch
+          base_sha="${{ github.event.pull_request.base.sha }}"
+          head_sha="${{ github.event.pull_request.head.sha }}"
+          git diff --unified=2 "$base_sha".."$head_sha" > tmp/pr-message/full-diff.patch
 
           {
             echo "# Pull request"
@@ -62,16 +64,16 @@ jobs:
             echo "Title: $pr_title"
             echo "URL: $pr_url"
             echo "Base: $base_ref"
-            echo "Head SHA: $(git rev-parse HEAD)"
+            echo "Head SHA: $head_sha"
             echo
             echo "# Commits"
-            git log --oneline "$base_sha"..HEAD
+            git log --oneline "$base_sha".."$head_sha"
             echo
             echo "# Changed files"
-            git diff --name-status "$base_sha"..HEAD
+            git diff --name-status "$base_sha".."$head_sha"
             echo
             echo "# Diff stat"
-            git diff --stat "$base_sha"..HEAD
+            git diff --stat "$base_sha".."$head_sha"
             echo
             echo "# Diff excerpt"
             head -c "$PR_CONTEXT_MAX_BYTES" tmp/pr-message/full-diff.patch
@@ -112,61 +114,94 @@ jobs:
 
           cat tmp/pr-message/context.md >> tmp/pr-message/prompt.txt
 
-      - name: Generate PR message with GitHub Models
-        id: inference
-        uses: actions/ai-inference@v2
-        with:
-          token: ${{ github.token }}
-          prompt-file: tmp/pr-message/prompt.txt
-          model: ${{ env.PR_MESSAGE_MODEL }}
-          max-completion-tokens: 500
-          temperature: 0.2
-
-      - name: Update PR body
+      - name: Generate PR message with OpenAI
+        id: openai
         env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ inputs.pr_number }}
-          RESPONSE_FILE: ${{ steps.inference.outputs.response-file }}
-          RESPONSE_TEXT: ${{ steps.inference.outputs.response }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PR_MESSAGE_MODEL: ${{ env.PR_MESSAGE_MODEL }}
         run: |
           set -euo pipefail
 
-          if [ -n "${RESPONSE_FILE:-}" ] && [ -f "$RESPONSE_FILE" ]; then
-            cp "$RESPONSE_FILE" tmp/pr-message/generated.md
-          else
-            printf '%s\n' "$RESPONSE_TEXT" > tmp/pr-message/generated.md
+          if [ -z "${OPENAI_API_KEY:-}" ]; then
+            echo "generated=false" >> "$GITHUB_OUTPUT"
+            echo "OPENAI_API_KEY is not configured; skipping PR message generation."
+            exit 0
           fi
 
-          node <<'NODE'
-          const fs = require("fs");
+          ruby <<'RUBY'
+          require "json"
+          require "net/http"
+          require "uri"
 
-          const pr = JSON.parse(fs.readFileSync("pr.json", "utf8"));
-          const currentBody = pr.body || "";
-          const generated = fs.readFileSync("tmp/pr-message/generated.md", "utf8").trim();
+          prompt = File.read("tmp/pr-message/prompt.txt")
+          uri = URI("https://api.openai.com/v1/responses")
 
-          if (!generated) {
-            throw new Error("AI inference returned an empty PR message.");
-          }
+          request = Net::HTTP::Post.new(uri)
+          request["Authorization"] = "Bearer #{ENV.fetch("OPENAI_API_KEY")}"
+          request["Content-Type"] = "application/json"
+          request.body = JSON.generate(
+            model: ENV.fetch("PR_MESSAGE_MODEL"),
+            instructions: "You write concise, factual pull request messages for a Rails project. Return markdown only.",
+            input: prompt,
+            max_output_tokens: 500,
+            temperature: 0.2
+          )
 
-          const startMarker = "<!-- ai-pr-message:start -->";
-          const endMarker = "<!-- ai-pr-message:end -->";
-          const block = `${startMarker}\n${generated}\n${endMarker}`;
+          response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+            http.request(request)
+          end
 
-          let updatedBody;
-          if (currentBody.includes(startMarker) && currentBody.includes(endMarker)) {
-            const pattern = new RegExp(`${escapeRegExp(startMarker)}[\\s\\S]*?${escapeRegExp(endMarker)}`);
-            updatedBody = currentBody.replace(pattern, block);
-          } else if (currentBody.trim().length === 0) {
-            updatedBody = block;
-          } else {
-            updatedBody = `${block}\n\n${currentBody}`;
-          }
+          unless response.is_a?(Net::HTTPSuccess)
+            warn "OpenAI API request failed with HTTP #{response.code}: #{response.body}"
+            exit 1
+          end
 
-          fs.writeFileSync("tmp/pr-message/body.md", updatedBody);
+          data = JSON.parse(response.body)
+          text = data["output_text"].to_s
 
-          function escapeRegExp(value) {
-            return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-          }
-          NODE
+          if text.strip.empty?
+            text = Array(data["output"]).flat_map do |item|
+              Array(item["content"]).filter_map { |content| content["text"] }
+            end.join("\n")
+          end
+
+          raise "OpenAI returned an empty PR message." if text.strip.empty?
+
+          File.write("tmp/pr-message/generated.md", text.strip)
+          RUBY
+
+          echo "generated=true" >> "$GITHUB_OUTPUT"
+
+      - name: Update PR body
+        if: steps.openai.outputs.generated == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          ruby <<'RUBY'
+          require "json"
+
+          pr = JSON.parse(File.read("pr.json"))
+          current_body = pr["body"].to_s
+          generated = File.read("tmp/pr-message/generated.md").strip
+          raise "OpenAI returned an empty PR message." if generated.empty?
+
+          start_marker = "<!-- ai-pr-message:start -->"
+          end_marker = "<!-- ai-pr-message:end -->"
+          block = "#{start_marker}\n#{generated}\n#{end_marker}"
+
+          updated_body =
+            if current_body.include?(start_marker) && current_body.include?(end_marker)
+              current_body.sub(/#{Regexp.escape(start_marker)}[\s\S]*?#{Regexp.escape(end_marker)}/, block)
+            elsif current_body.strip.empty?
+              block
+            else
+              "#{block}\n\n#{current_body}"
+            end
+
+          File.write("tmp/pr-message/body.md", updated_body)
+          RUBY
 
           gh pr edit "$PR_NUMBER" --body-file tmp/pr-message/body.md
