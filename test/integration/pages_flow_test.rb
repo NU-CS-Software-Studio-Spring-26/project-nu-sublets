@@ -1094,7 +1094,9 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_no_match "Starts Too Late", response.body
   end
 
-  test "search results map shows price pins and grouped count pins" do
+  test "search results map renders google map payload for geocoded listings" do
+    previous_google_maps_api_key = ENV["GOOGLE_MAPS_API_KEY"]
+    ENV["GOOGLE_MAPS_API_KEY"] = "test-google-maps-key"
     user = User.create!(
       name: "Map Owner",
       email: "map.owner@u.northwestern.edu",
@@ -1109,6 +1111,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 3)
       )
     )
+    single_listing.update_columns(latitude: 42.0583, longitude: -87.6831, geocoding_status: "geocoded", geocoded_at: Time.current)
     grouped_listing = listing_owner("map-group-a").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Apartment Option A",
@@ -1118,7 +1121,8 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 3)
       )
     )
-    listing_owner("map-group-b").sublet_listings.create!(
+    grouped_listing.update_columns(latitude: 42.0479, longitude: -87.6872, geocoding_status: "geocoded", geocoded_at: Time.current)
+    second_grouped_listing = listing_owner("map-group-b").sublet_listings.create!(
       valid_listing_attributes.merge(
         title: "Apartment Option B",
         address: "1570 Oak Ave, Apt 2, Evanston, IL 60201",
@@ -1127,20 +1131,32 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 3)
       )
     )
+    second_grouped_listing.update_columns(latitude: 42.0479, longitude: -87.6872, geocoding_status: "geocoded", geocoded_at: Time.current)
 
     get search_results_path("move-in": "06/12/2026", "move-out": "09/11/2026")
 
-    assert_select "[data-map-stage]"
-    assert_select "[data-map-pin]", count: 2
-    assert_select "[data-map-pin]", text: "$850"
-    assert_select "[data-map-pin].count-pin", text: "2"
-    assert_select "[data-map-zoom-status]", text: "1x"
-    assert_select "[data-campus-landmarks] .map-campus-landmark", text: "Tech"
-    assert_select "[data-campus-landmarks] .map-campus-landmark", text: "Norris"
-    assert_select "[data-campus-landmarks] .map-campus-landmark", text: "SPAC"
-    assert_includes response.body, "const maxZoom = 5"
-    assert_select "[data-map-popup] a[href='#{sublet_listing_path(single_listing)}']", text: /Single Address Listing/
-    assert_select "[data-map-popup] a[href='#{sublet_listing_path(grouped_listing)}']", text: /Apartment Option A/
+    assert_select "[data-google-map-stage][data-google-maps-key-present='true']"
+    assert_select "[data-google-map-canvas]"
+    assert_select "[data-google-map-listings]", text: /Single Address Listing/
+    assert_select "article.listing-card[data-listing-card][data-listing-id='#{single_listing.id}']"
+    assert_includes response.body, "AdvancedMarkerElement"
+    assert_includes response.body, "fitBounds"
+    assert_includes response.body, "price-marker"
+    assert_includes response.body, sublet_listing_path(grouped_listing)
+  ensure
+    ENV["GOOGLE_MAPS_API_KEY"] = previous_google_maps_api_key
+  end
+
+  test "search results map shows setup message without google maps key" do
+    previous_google_maps_api_key = ENV["GOOGLE_MAPS_API_KEY"]
+    ENV["GOOGLE_MAPS_API_KEY"] = nil
+
+    get search_results_path
+
+    assert_select "[data-google-map-stage][data-google-maps-key-present='false']"
+    assert_select "[data-google-map-empty]", text: /GOOGLE_MAPS_API_KEY/
+  ensure
+    ENV["GOOGLE_MAPS_API_KEY"] = previous_google_maps_api_key
   end
 
   test "listing page shows the selected listing dates" do

@@ -39,6 +39,24 @@ STREETS = [
   "Garnett Pl"
 ].freeze
 
+STREET_LONGITUDES = {
+  "Ridge Ave" => -87.6888,
+  "Oak Ave" => -87.6868,
+  "Maple Ave" => -87.6849,
+  "Sherman Ave" => -87.6819,
+  "Orrington Ave" => -87.6796,
+  "Chicago Ave" => -87.6776,
+  "Hinman Ave" => -87.6763,
+  "Judson Ave" => -87.6752,
+  "Davis St" => -87.6830,
+  "Clark St" => -87.6778,
+  "Central St" => -87.6887,
+  "Noyes St" => -87.6837,
+  "Foster St" => -87.6812,
+  "Emerson St" => -87.6799,
+  "Garnett Pl" => -87.6745
+}.freeze
+
 TITLE_PREFIXES = [
   "Sunny",
   "Furnished",
@@ -102,6 +120,15 @@ def generated_address(index)
   street = STREETS[index % STREETS.length]
   zip = index.even? ? "60201" : "60202"
   "#{street_number} #{street}, Evanston, IL #{zip}"
+end
+
+def generated_coordinates(index)
+  street_number = 600 + ((index * 37) % 1700)
+  street = STREETS[index % STREETS.length]
+  latitude = 42.0200 + ((street_number - 600).to_f / 1700 * 0.0500)
+  longitude = STREET_LONGITUDES.fetch(street)
+
+  [ latitude.round(6), longitude.round(6) ]
 end
 
 def generated_amenities(index, furnished:, utilities_included:, pets_allowed:)
@@ -169,6 +196,7 @@ LISTING_COUNT.times do |index|
   available_until = available_from + (60 + (index % 240)).days
   home_type = HOME_TYPES[index % HOME_TYPES.length]
   title = "#{TITLE_PREFIXES[index % TITLE_PREFIXES.length]} #{home_type} Near Campus ##{index + 1}"
+  latitude, longitude = generated_coordinates(index)
 
   SubletListing.create!(
     user: users[index % users.length],
@@ -184,7 +212,11 @@ LISTING_COUNT.times do |index|
     amenities: generated_amenities(index, furnished: furnished, utilities_included: utilities_included, pets_allowed: pets_allowed),
     preferences: generated_preferences(index, pets_allowed: pets_allowed),
     available_from: available_from,
-    available_until: available_until
+    available_until: available_until,
+    latitude: latitude,
+    longitude: longitude,
+    geocoded_at: Time.current,
+    geocoding_status: "seeded"
   )
 end
 

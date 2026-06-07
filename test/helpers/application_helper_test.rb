@@ -44,6 +44,37 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal south_group[:x], north_group[:x]
   end
 
+  test "google map listing payload includes only geocoded listings" do
+    geocoded_listing = SubletListing.new(
+      id: 42,
+      title: "Mapped Listing",
+      address: "820 Noyes St, Evanston, IL 60201",
+      price: 1250,
+      bedrooms: 1,
+      bathrooms: 1,
+      available_from: Date.new(2026, 6, 1),
+      available_until: Date.new(2026, 8, 31),
+      latitude: 42.0583,
+      longitude: -87.6831
+    )
+    unmapped_listing = SubletListing.new(
+      id: 43,
+      title: "Unmapped Listing",
+      address: "910 Noyes St, Evanston, IL 60201",
+      price: 950,
+      bedrooms: 1,
+      bathrooms: 1
+    )
+
+    payload = google_map_listing_payload([ geocoded_listing, unmapped_listing ])
+
+    assert_equal 1, payload.length
+    assert_equal "42", payload.first[:id]
+    assert_equal "$1.3k", payload.first[:priceLabel]
+    assert_equal 42.0583, payload.first[:latitude]
+    assert_equal -87.6831, payload.first[:longitude]
+  end
+
   test "amenity icon renders accessible decorative svg" do
     icon = amenity_icon("Laundry")
 

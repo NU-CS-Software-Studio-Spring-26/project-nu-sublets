@@ -213,6 +213,47 @@ class SubletListingTest < ActiveSupport::TestCase
     assert_equal "820 Noyes St", listing.short_address
   end
 
+  test "geocodes listing address when coordinates are returned" do
+    result = GoogleGeocodingClient::Result.new(
+      success?: true,
+      latitude: BigDecimal("42.058300"),
+      longitude: BigDecimal("-87.683100"),
+      status: "geocoded"
+    )
+    client = fake_geocoding_client(result)
+
+    with_geocoding_client(client) do
+      listing = @user.sublet_listings.create!(valid_listing_params)
+
+      assert_equal BigDecimal("42.058300"), listing.latitude
+      assert_equal BigDecimal("-87.683100"), listing.longitude
+      assert_equal "geocoded", listing.geocoding_status
+      assert listing.geocoded_at.present?
+    end
+
+    assert_equal [ "820 Noyes St, Evanston, IL 60201" ], client.addresses
+  end
+
+  test "geocoding failure does not block listing creation" do
+    result = GoogleGeocodingClient::Result.new(
+      success?: false,
+      status: "OVER_QUERY_LIMIT",
+      error: "Quota exceeded"
+    )
+    client = fake_geocoding_client(result)
+
+    with_geocoding_client(client) do
+      listing = @user.sublet_listings.create!(valid_listing_params)
+
+      assert_nil listing.latitude
+      assert_nil listing.longitude
+      assert_nil listing.geocoded_at
+      assert_equal "OVER_QUERY_LIMIT", listing.geocoding_status
+    end
+
+    assert_equal [ "820 Noyes St, Evanston, IL 60201" ], client.addresses
+  end
+
   test "search_listings only returns listings covering the full requested stay" do
     covers_full_stay = @user.sublet_listings.create!(
       valid_listing_params.merge(
@@ -348,5 +389,28 @@ class SubletListingTest < ActiveSupport::TestCase
       email: "listing.owner.#{slug}@u.northwestern.edu",
       active: true
     )
+  end
+
+  def fake_geocoding_client(result)
+    Class.new do
+      attr_reader :addresses
+
+      define_method(:initialize) do
+        @addresses = []
+      end
+
+      define_method(:geocode) do |address|
+        @addresses << address
+        result
+      end
+    end.new
+  end
+
+  def with_geocoding_client(client)
+    original_new = GoogleGeocodingClient.method(:new)
+    GoogleGeocodingClient.define_singleton_method(:new) { client }
+    yield
+  ensure
+    GoogleGeocodingClient.define_singleton_method(:new) { |*args, **kwargs| original_new.call(*args, **kwargs) }
   end
 end
