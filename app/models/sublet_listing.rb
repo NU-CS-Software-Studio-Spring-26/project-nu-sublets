@@ -16,7 +16,8 @@ class SubletListing < ApplicationRecord
     "Hardwood floors",
     "Natural light",
     "Storage",
-    "Private bath / Shared bath",
+    "Private bathroom",
+    "Shared bathroom",
     "Updated kitchen",
     "Dishwasher",
     "Microwave",
@@ -46,6 +47,9 @@ class SubletListing < ApplicationRecord
     "Work setup",
     "Quiet / Social"
   ].freeze
+  LEGACY_AMENITY_LABEL_REPLACEMENTS = {
+    "Private bath / Shared bath" => [ "Private bathroom", "Shared bathroom" ]
+  }.freeze
 
   PREFERENCE_OPTIONS = [
     "Student preferred",
@@ -152,7 +156,7 @@ class SubletListing < ApplicationRecord
   end
 
   def displayed_amenities
-    labels = Array(amenities)
+    labels = expand_legacy_amenity_labels(Array(amenities))
     labels << "Furnished" if furnished
     labels << "Utilities included" if utilities_included
     labels << "Pet-friendly" if pets_allowed
@@ -312,7 +316,7 @@ class SubletListing < ApplicationRecord
     self.bedrooms = self.class.normalize_numeric_string(bedrooms_before_type_cast) if bedrooms_before_type_cast.present?
     self.bathrooms = self.class.normalize_numeric_string(bathrooms_before_type_cast) if bathrooms_before_type_cast.present?
     self.address = normalize_text(address)
-    self.amenities = normalize_labels(amenities, AMENITY_OPTIONS)
+    self.amenities = expand_legacy_amenity_labels(normalize_labels(amenities, AMENITY_OPTIONS))
     self.preferences = normalize_labels(preferences, PREFERENCE_OPTIONS)
     self.furnished = false if furnished.nil?
     self.pets_allowed = false if pets_allowed.nil?
@@ -325,6 +329,10 @@ class SubletListing < ApplicationRecord
 
   def normalize_labels(labels, allowed_labels)
     Array(labels).map { |label| normalize_text(label) }.compact.uniq
+  end
+
+  def expand_legacy_amenity_labels(labels)
+    labels.flat_map { |label| LEGACY_AMENITY_LABEL_REPLACEMENTS.fetch(label, label) }.uniq
   end
 
   def amenity_labels_are_allowed
