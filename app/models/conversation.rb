@@ -53,5 +53,4 @@ class Conversation < ApplicationRecord
 
     errors.add(:recipient, "must be a different student")
   end
-
 end
