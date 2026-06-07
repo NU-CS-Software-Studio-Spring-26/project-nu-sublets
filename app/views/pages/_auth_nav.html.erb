@@ -1,7 +1,8 @@
 <% if user_signed_in? %>
-    <a class="nav-link p-0" href="<%= conversations_path %>"><%= nav_item_label_with_icon(:chat, "Chat") %></a>
+    <% current_nav = local_assigns[:current_nav]&.to_sym %>
+    <a class="nav-link p-0" href="<%= conversations_path %>" <%= 'aria-current="page"'.html_safe if current_nav == :chat %>><%= nav_item_label_with_icon(:chat, "Chat") %></a>
     <% if local_assigns.fetch(:show_profile, true) %>
-        <a class="nav-link p-0" href="<%= profile_path %>"><%= nav_item_label_with_icon(:profile, "Profile") %></a>
+        <a class="nav-link p-0" href="<%= profile_path %>" <%= 'aria-current="page"'.html_safe if current_nav == :profile %>><%= nav_item_label_with_icon(:profile, "Profile") %></a>
     <% end %>
     <%= button_to "Log out", session_path, method: :delete, class: "nav-link p-0", form: { style: "display: inline" }, style: "border: 0; background: transparent; font: inherit; cursor: pointer;" %>
 <% else %>
