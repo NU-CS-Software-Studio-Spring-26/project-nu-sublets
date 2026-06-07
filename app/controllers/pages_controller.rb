@@ -3,7 +3,7 @@ class PagesController < ApplicationController
   RECOMMENDED_LISTINGS_LIMIT = 6
 
   layout false
-  before_action :authenticate_user!, only: %i[profile update_profile destroy_account user_profile another_user_account submit_sublet]
+  before_action :authenticate_user!, only: %i[listing profile update_profile destroy_account user_profile another_user_account submit_sublet]
 
   def home
     prepare_recommendation_filters
