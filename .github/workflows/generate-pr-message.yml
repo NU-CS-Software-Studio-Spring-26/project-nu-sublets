@@ -138,13 +138,13 @@ jobs:
           uri = URI("https://api.openai.com/v1/responses")
           max_attempts = 3
 
-          def write_generated_output(value)
+          write_generated_output = lambda do |value|
             File.open(ENV.fetch("GITHUB_OUTPUT"), "a") do |file|
               file.puts("generated=#{value}")
             end
           end
 
-          transient_error = Class.new(StandardError)
+          TransientOpenAIError = Class.new(StandardError)
 
           request = Net::HTTP::Post.new(uri)
           request["Authorization"] = "Bearer #{ENV.fetch("OPENAI_API_KEY")}"
@@ -167,8 +167,8 @@ jobs:
             end
 
             status = response.code.to_i
-            raise transient_error, "HTTP #{response.code}: #{response.body}" if status == 429 || status >= 500
-          rescue transient_error, EOFError, Errno::ECONNRESET, Errno::ECONNREFUSED, Net::OpenTimeout, Net::ReadTimeout, OpenSSL::SSL::SSLError, SocketError => error
+            raise TransientOpenAIError, "HTTP #{response.code}: #{response.body}" if status == 429 || status >= 500
+          rescue TransientOpenAIError, EOFError, Errno::ECONNRESET, Errno::ECONNREFUSED, Net::OpenTimeout, Net::ReadTimeout, OpenSSL::SSL::SSLError, SocketError => error
             if attempts < max_attempts
               warn "OpenAI request attempt #{attempts} failed (#{error.message}); retrying..."
               sleep attempts
@@ -176,7 +176,7 @@ jobs:
             end
 
             warn "OpenAI request skipped after #{attempts} failed attempts: #{error.message}"
-            write_generated_output(false)
+            write_generated_output.call(false)
             exit 0
           end
 
@@ -197,7 +197,7 @@ jobs:
           raise "OpenAI returned an empty PR message." if text.strip.empty?
 
           File.write("tmp/pr-message/generated.md", text.strip)
-          write_generated_output(true)
+          write_generated_output.call(true)
           RUBY
 
       - name: Update PR body
