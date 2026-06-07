@@ -43,4 +43,19 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_operator south_group[:y], :>, north_group[:y]
     assert_equal south_group[:x], north_group[:x]
   end
+
+  test "amenity icon renders accessible decorative svg" do
+    icon = amenity_icon("Laundry")
+
+    assert_includes icon, 'class="amenity-icon"'
+    assert_includes icon, 'aria-hidden="true"'
+    assert_includes icon, 'focusable="false"'
+    assert_includes icon, 'stroke="currentColor"'
+  end
+
+  test "amenity icon has a mapping for every allowed amenity" do
+    missing_amenities = SubletListing::AMENITY_OPTIONS - ApplicationHelper::AMENITY_ICON_PATHS.keys
+
+    assert_empty missing_amenities
+  end
 end

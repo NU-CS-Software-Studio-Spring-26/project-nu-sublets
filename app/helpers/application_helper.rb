@@ -19,6 +19,46 @@ module ApplicationHelper
     "apartment-exterior.png"
   ].freeze
 
+  AMENITY_ICON_PATHS = {
+    "Furnished" => '<path d="M4 11h16v7H4zM7 11V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v4M7 18v2m10-2v2" />',
+    "Laundry" => '<rect x="6" y="3" width="12" height="18" rx="2" /><circle cx="12" cy="13" r="4" /><path d="M9 7h.01M13 7h2" />',
+    "AC / Heat" => '<path d="M12 3v18M8 5l4 4 4-4M8 19l4-4 4 4M4 8l16 8M4 16l16-8" />',
+    "WiFi" => '<path d="M5 10a11 11 0 0 1 14 0M8 13a6.5 6.5 0 0 1 8 0M11 16a2 2 0 0 1 2 0" /><circle cx="12" cy="19" r="1" />',
+    "TV" => '<rect x="4" y="6" width="16" height="11" rx="2" /><path d="M9 21h6M12 17v4" />',
+    "Hardwood floors" => '<path d="M4 5h16M4 12h16M4 19h16M8 5v7m8 0v7M12 12v7" />',
+    "Natural light" => '<circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" />',
+    "Storage" => '<path d="M5 8h14v13H5zM8 8V5h8v3M10 13h4" />',
+    "Private bath / Shared bath" => '<path d="M5 11h14v4a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5zM8 11V6a3 3 0 0 1 5-2M4 21h16" />',
+    "Updated kitchen" => '<path d="M5 3h14v18H5zM9 3v18M13 8h3M13 14h3" />',
+    "Dishwasher" => '<rect x="6" y="3" width="12" height="18" rx="2" /><path d="M6 8h12M9 13h6M10 17h4" />',
+    "Microwave" => '<rect x="3" y="6" width="18" height="12" rx="2" /><path d="M15 6v12M18 10h.01M18 14h.01M6 10h8v4H6z" />',
+    "Balcony / Patio" => '<path d="M4 20h16M6 20V9h12v11M9 20v-6m3 6v-6m3 6v-6M8 9V5h8v4" />',
+    "Elevator" => '<rect x="6" y="3" width="12" height="18" rx="2" /><path d="M10 8l2-2 2 2M10 16l2 2 2-2M12 6v12" />',
+    "Secure entry" => '<rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" />',
+    "Doorman" => '<path d="M7 21V5a2 2 0 0 1 2-2h8v18M7 21h12M11 12h.01" />',
+    "Package room" => '<path d="M4 8l8-4 8 4-8 4zM4 8v8l8 4 8-4V8M12 12v8" />',
+    "Bike storage" => '<circle cx="6" cy="17" r="3" /><circle cx="18" cy="17" r="3" /><path d="M8 17l4-8 4 8M10 13h6M12 9h3" />',
+    "Gym" => '<path d="M3 12h18M5 9v6M8 8v8M16 8v8M19 9v6" />',
+    "Rooftop" => '<path d="M3 12l9-7 9 7M6 10v10h12V10M10 20v-5h4v5" />',
+    "Study rooms" => '<path d="M5 4h11a3 3 0 0 1 3 3v14H8a3 3 0 0 1-3-3zM5 4v14a3 3 0 0 0 3 3M9 8h6M9 12h6" />',
+    "Parking" => '<rect x="5" y="3" width="14" height="18" rx="2" /><path d="M9 17V7h4a3 3 0 0 1 0 6H9" />',
+    "Pet-friendly" => '<path d="M8 11c1.5-2 6.5-2 8 0 2 2.5 1 6-4 6s-6-3.5-4-6z" /><circle cx="6" cy="7" r="1.5" /><circle cx="10" cy="5" r="1.5" /><circle cx="14" cy="5" r="1.5" /><circle cx="18" cy="7" r="1.5" />',
+    "Near Northwestern University" => '<path d="M3 8l9-5 9 5-9 5zM6 10v6c2 2 10 2 12 0v-6M8 21h8" />',
+    "Downtown Evanston" => '<path d="M4 21V7h6v14M10 21V3h10v18M7 11h.01M7 15h.01M14 7h.01M17 7h.01M14 11h.01M17 11h.01M14 15h.01M17 15h.01" />',
+    "Transit access" => '<rect x="5" y="4" width="14" height="13" rx="2" /><path d="M8 17l-2 3M16 17l2 3M8 8h8M8 13h.01M16 13h.01" />',
+    "Lakefront (Lake Michigan)" => '<path d="M3 16c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 20c2-2 4-2 6 0s4 2 6 0 4-2 6 0M12 4v8M8 8l4-4 4 4" />',
+    "Grocery nearby" => '<path d="M6 7h15l-2 8H8zM6 7 5 4H3M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2M18 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2" />',
+    "Restaurants" => '<path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10M15 3v18M15 3c3 2 4 6 1 9" />',
+    "Safe area" => '<path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7zM9 12l2 2 4-4" />',
+    "Utilities included" => '<path d="M13 2 5 13h7l-1 9 8-12h-7z" />',
+    "Flexible lease" => '<rect x="4" y="5" width="16" height="16" rx="2" /><path d="M8 3v4M16 3v4M4 10h16M9 15h6" />',
+    "Lease option" => '<path d="M6 3h9l3 3v18H6zM14 3v5h5M9 13h6M9 17h6" />',
+    "Clean space" => '<path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2zM5 16l1 2 2 1-2 1-1 2-1-2-2-1 2-1z" />',
+    "Stocked kitchen" => '<path d="M5 4h14v17H5zM8 8h11M9 4v17M12 12h4M12 16h4" />',
+    "Work setup" => '<path d="M4 5h16v11H4zM9 21h6M12 16v5M8 9h8" />',
+    "Quiet / Social" => '<path d="M4 9v6h4l5 4V5L8 9zM17 9a4 4 0 0 1 0 6M20 7a8 8 0 0 1 0 10" />'
+  }.freeze
+
   PLACEHOLDER_PROFILE_PHOTO_URLS = [
     "https://randomuser.me/api/portraits/women/65.jpg",
     "https://randomuser.me/api/portraits/men/73.jpg",
@@ -103,6 +143,12 @@ module ApplicationHelper
     content_tag(:span, class: "nav-item-with-icon", style: "display:inline-flex;align-items:center;gap:0.35em;white-space:nowrap;") do
       safe_join([ tiny_icon_markup, content_tag(:span, label, class: "nav-item-text", style: "white-space:nowrap;") ])
     end
+  end
+
+  def amenity_icon(amenity, css_class: "amenity-icon")
+    paths = AMENITY_ICON_PATHS.fetch(amenity, AMENITY_ICON_PATHS.fetch("Furnished"))
+
+    %(<svg class="#{css_class}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true" focusable="false">#{paths}</svg>).html_safe
   end
 
   def listing_compare_data_attributes(listing)
