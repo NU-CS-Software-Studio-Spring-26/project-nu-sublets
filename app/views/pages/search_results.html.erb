@@ -1256,8 +1256,23 @@
                             <span>Filter</span>
                         </button>
 
+                        <% active_filter_chips = [] %>
+                        <% active_filter_chips << "Search: #{@natural_query}" if @natural_query.present? %>
+                        <% active_filter_chips << "Dates: #{@move_in&.strftime("%m/%d/%Y") || "move in"} to #{@move_out&.strftime("%m/%d/%Y") || "move out"}" if @move_in || @move_out %>
+                        <% active_filter_chips << "Rent: #{@min_price.present? ? "$#{@min_price}" : "$0"}-#{@max_price.present? ? "$#{@max_price}" : "any"}" if @min_price.present? || @max_price.present? %>
+                        <% active_filter_chips << (@bedrooms == "0" ? "Studio" : pluralize(@bedrooms, "bedroom")) if @bedrooms.present? %>
+                        <% active_filter_chips << pluralize(@bathrooms, "bathroom") if @bathrooms.present? %>
+                        <% active_filter_chips.concat(@selected_amenities) %>
+                        <% active_filter_chips.concat(@selected_preferences) %>
                         <p class="filter-error" role="alert" <%= "hidden" unless @filter_error.present? %> data-filter-error><%= @filter_error %></p>
-                        <div class="active-filter-summary" data-active-filter-summary aria-live="polite" hidden></div>
+                        <div class="active-filter-summary" data-active-filter-summary aria-live="polite" <%= "hidden" if active_filter_chips.empty? %>>
+                            <% if active_filter_chips.any? %>
+                                <span class="active-filter-label">Active filters</span>
+                                <% active_filter_chips.each do |chip_text| %>
+                                    <span class="active-filter-chip"><%= chip_text %></span>
+                                <% end %>
+                            <% end %>
+                        </div>
                     </form>
                 </div>
             </section>

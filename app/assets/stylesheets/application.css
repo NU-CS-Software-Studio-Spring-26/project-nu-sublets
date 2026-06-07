@@ -114,6 +114,19 @@ body.is-page-leaving .page-shell {
   vertical-align: middle;
 }
 
+footer .footer-nav-icon {
+  width: 0.95em !important;
+  height: 0.95em !important;
+  flex-basis: 0.95em !important;
+  vertical-align: -0.08em;
+}
+
+footer .footer-nav-icon--github {
+  width: 0.92em !important;
+  height: 0.92em !important;
+  flex-basis: 0.92em !important;
+}
+
 .nav-item-text {
   line-height: 1.2;
   white-space: nowrap;

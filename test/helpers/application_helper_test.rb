@@ -84,6 +84,29 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_includes icon, 'stroke="currentColor"'
   end
 
+  test "footer nav icons use consistent current color glyphs" do
+    footer_outline_icons = %i[about_us privacy_policy community_guidelines disclaimer]
+
+    footer_outline_icons.each do |icon_name|
+      icon = ApplicationHelper::NAV_ITEM_ICONS.fetch(icon_name)
+
+      assert_includes icon, 'class="nav-item-icon footer-nav-icon"'
+      assert_includes icon, 'viewBox="0 0 16 16"'
+      assert_includes icon, 'aria-hidden="true"'
+      assert_includes icon, 'focusable="false"'
+      assert_includes icon, 'fill="none"'
+      assert_includes icon, 'stroke="currentColor"'
+      assert_includes icon, 'stroke-width="1.45"'
+      refute_includes icon, 'fill="currentColor"'
+      refute_includes icon, 'fill="white"'
+    end
+
+    github_icon = ApplicationHelper::NAV_ITEM_ICONS.fetch(:github)
+
+    assert_includes github_icon, 'class="nav-item-icon footer-nav-icon footer-nav-icon--github"'
+    assert_includes github_icon, 'transform="translate(1.25 1.25) scale(0.84375)"'
+  end
+
   test "amenity icon has a mapping for every allowed amenity" do
     missing_amenities = SubletListing::AMENITY_OPTIONS - ApplicationHelper::AMENITY_ICON_PATHS.keys
 
