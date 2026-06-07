@@ -726,6 +726,7 @@
             }
         </style>
         <%= render "focus_styles" %>
+        <%= render "listing_access_styles" %>
     <%= render "shared/pwa_meta" %>
 
     </head>
@@ -800,6 +801,10 @@
                         </form>
                     </div>
                 </section>
+
+                <% browse_locked = !user_signed_in? %>
+                <div class="<%= "listing-access-lock" if browse_locked %>">
+                    <div class="<%= "listing-access-lock__content" if browse_locked %>" <% if browse_locked %>aria-hidden="true" inert<% end %>>
 
                 <section class="section-block" id="recommendations" aria-labelledby="recommendations-title">
                     <div class="section-inner">
@@ -1349,6 +1354,14 @@
                         </div>
                     </div>
                 </section>
+                    </div>
+
+                    <% if browse_locked %>
+                        <%= render "listing_access_prompt",
+                                   title: "Please log in to view sublet listings.",
+                                   message: "Use your Northwestern email account to browse, filter-search, save, and post sublet listings." %>
+                    <% end %>
+                </div>
 
                 <div class="bottom-space" aria-hidden="true"></div>
             </main>
@@ -1361,8 +1374,10 @@
             crossorigin="anonymous"
         ></script>
         <%= render "login_modal" %>
-        <%= render "favorite_listings" %>
-        <%= render "compare_listings" %>
+        <% if user_signed_in? %>
+            <%= render "favorite_listings" %>
+            <%= render "compare_listings" %>
+        <% end %>
         <script>
             (() => {
                 const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" });
