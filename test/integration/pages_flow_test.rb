@@ -594,6 +594,11 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "form#delete-account-form input[name='_method'][value='delete']", visible: false
     assert_select "button.delete-account-button[form='delete-account-form']", text: "Delete Account"
     assert_select "textarea[name='user[bio]'][data-profanity-field]"
+    assert_select "input[type='file'][name='user[profile_photo]'][accept='image/png,image/jpeg,image/webp,image/gif']"
+    assert_includes response.body, "Choose a PNG, JPG, WebP, or GIF image up to 5 MB"
+    assert_select "input[name='user[name]'][maxlength='#{User::MAX_NAME_LENGTH}'][required]"
+    assert_select "input[name='user[phone_number]'][maxlength='#{User::MAX_PHONE_NUMBER_LENGTH}'][autocomplete='tel']"
+    assert_select "textarea[name='user[bio]'][maxlength='#{User::MAX_BIO_LENGTH}']"
   end
 
   test "profile post listing button reflects active listing status" do
@@ -848,7 +853,9 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "[data-date-toggle]", text: "Jun 12 2026"
     assert_select "[data-date-toggle]", text: "Sep 11 2026"
     assert_select "input[name='min_price']"
+    assert_select "input[name='min_price'][max='#{SubletListing::MAX_PRICE}']"
     assert_select "input[name='max_price']"
+    assert_select "input[name='max_price'][max='#{SubletListing::MAX_PRICE}']"
     assert_select "select[name='bedrooms']"
     assert_select "select[name='bathrooms']"
     assert_select "input[name='amenities[]'][value='Laundry']"
@@ -859,6 +866,16 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "const validateDateRange = () =>"
     assert_includes response.body, "moveOutDate <= moveInDate"
     assert_select "button[data-filter-submit]"
+  end
+
+  test "search results drops unsafe numeric filter values" do
+    get search_results_path(min_price: "-500", max_price: "999999999", bedrooms: "999", bathrooms: "invalid")
+
+    assert_response :success
+    assert_select "input[name='min_price'][value='']", count: 1
+    assert_select "input[name='max_price'][value='']", count: 1
+    assert_select "select[name='bedrooms'] option[selected]", count: 0
+    assert_select "select[name='bathrooms'] option[selected]", count: 0
   end
 
   test "home page includes natural language search input" do
@@ -1899,6 +1916,17 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "h2#phone-section-title .required-indicator", count: 0
     assert_select "form[data-profanity-check]"
     assert_select "textarea[name='description'][data-profanity-field]"
+    assert_select "textarea[name='description'][maxlength='#{SubletListing::MAX_DESCRIPTION_LENGTH}'][required]"
+    assert_select "input[name='street-address'][maxlength='120'][required]"
+    assert_select "input[name='city'][maxlength='80'][required]"
+    assert_select "input[name='state'][maxlength='30'][required]"
+    assert_select "input[name='start-date'][maxlength='10'][required]"
+    assert_select "input[name='end-date'][maxlength='10'][required]"
+    assert_includes response.body, 'pattern="\d{2}/\d{2}/\d{4}"'
+    assert_select "input[name='price'][maxlength='9'][required]"
+    assert_select "select[name='bedrooms'][required]"
+    assert_select "select[name='bathrooms'][required]"
+    assert_select "input[name='phone'][maxlength='#{User::MAX_PHONE_NUMBER_LENGTH}'][autocomplete='tel']"
     assert_select "select[name='bedrooms'] option[value='0']", text: "Studio"
     assert_select "select[name='bedrooms'] option[value='20']", text: "20 bedrooms"
     assert_select "select[name='bathrooms'] option[value='0']", text: "0 bathrooms"

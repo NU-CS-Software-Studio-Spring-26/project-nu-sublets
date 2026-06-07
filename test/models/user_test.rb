@@ -42,6 +42,35 @@ class UserTest < ActiveSupport::TestCase
     assert_includes user.errors[:base], ProfanityFilter::ERROR_MESSAGE
   end
 
+  test "rejects overly long profile text" do
+    user = User.new(
+      name: "N" * (User::MAX_NAME_LENGTH + 1),
+      email: "long.profile@u.northwestern.edu",
+      bio: "B" * (User::MAX_BIO_LENGTH + 1),
+      active: true
+    )
+
+    assert_not user.valid?
+    assert_includes user.errors[:name], "is too long (maximum is #{User::MAX_NAME_LENGTH} characters)"
+    assert_includes user.errors[:bio], "is too long (maximum is #{User::MAX_BIO_LENGTH} characters)"
+  end
+
+  test "rejects oversized profile photos" do
+    user = User.new(
+      name: "Profile Photo",
+      email: "profile.photo@u.northwestern.edu",
+      active: true
+    )
+    user.profile_photo.attach(
+      io: StringIO.new("x" * (User::MAX_PROFILE_PHOTO_SIZE + 1)),
+      filename: "large-profile.png",
+      content_type: "image/png"
+    )
+
+    assert_not user.valid?
+    assert_includes user.errors[:profile_photo], "must be 5 MB or smaller"
+  end
+
   test "soft_delete marks user inactive" do
     user = User.create!(
       name: "Soft Delete",

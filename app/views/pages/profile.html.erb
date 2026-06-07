@@ -1357,12 +1357,12 @@
                                             </svg>
                                         </label>
                                     </div>
-                                    <p class="avatar-file-name" data-avatar-file-name>Choose an image, then save changes.</p>
+                                    <p class="avatar-file-name" data-avatar-file-name>Choose a PNG, JPG, WebP, or GIF image up to 5 MB, then save changes.</p>
                                 </div>
 
                                 <div class="account-field">
                                     <%= form.label :name, "Name", class: "account-label" %>
-                                    <%= form.text_field :name, class: "account-input", required: true, data: { profanity_field: true } %>
+                                    <%= form.text_field :name, class: "account-input", required: true, maxlength: User::MAX_NAME_LENGTH, data: { profanity_field: true } %>
                                 </div>
 
                                 <div class="account-field">
@@ -1372,7 +1372,7 @@
 
                                 <div class="account-field">
                                     <%= form.label :phone_number, "Phone Number", class: "account-label" %>
-                                    <%= form.telephone_field :phone_number, class: "account-input", placeholder: "Optional" %>
+                                    <%= form.telephone_field :phone_number, class: "account-input", placeholder: "Optional", maxlength: User::MAX_PHONE_NUMBER_LENGTH, autocomplete: "tel" %>
                                 </div>
 
                                 <div class="account-field">
@@ -1429,7 +1429,7 @@
 
                                 <div class="account-field">
                                     <%= form.label :bio, "Bio", class: "account-label" %>
-                                    <%= form.text_area :bio, class: "account-input", placeholder: "Tell other Northwestern students a little about yourself.", data: { profanity_field: true } %>
+                                    <%= form.text_area :bio, class: "account-input", placeholder: "Tell other Northwestern students a little about yourself.", maxlength: User::MAX_BIO_LENGTH, data: { profanity_field: true } %>
                                 </div>
 
                                 <div class="account-actions">

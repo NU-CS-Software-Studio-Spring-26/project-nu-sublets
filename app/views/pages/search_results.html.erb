@@ -1165,7 +1165,7 @@
 
                         <div class="date-range" role="group" aria-label="Selected dates">
                             <div class="date-filter" data-date-picker>
-                                <input class="date-filter-input" type="text" name="move-in" value="<%= @move_in&.strftime("%m/%d/%Y") %>" aria-label="Move in date" data-date-input />
+                                <input class="date-filter-input" type="text" name="move-in" value="<%= @move_in&.strftime("%m/%d/%Y") %>" aria-label="Move in date" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" data-date-input />
                                 <button class="date-filter-toggle" type="button" aria-label="Open move in date picker" aria-expanded="false" aria-controls="search-move-in-picker" data-date-toggle>
                                     <span data-date-label><%= @move_in&.strftime("%b %-d %Y") || "Move in" %></span>
                                 </button>
@@ -1173,7 +1173,7 @@
                             </div>
 
                             <div class="date-filter" data-date-picker>
-                                <input class="date-filter-input" type="text" name="move-out" value="<%= @move_out&.strftime("%m/%d/%Y") %>" aria-label="Move out date" data-date-input />
+                                <input class="date-filter-input" type="text" name="move-out" value="<%= @move_out&.strftime("%m/%d/%Y") %>" aria-label="Move out date" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" data-date-input />
                                 <button class="date-filter-toggle" type="button" aria-label="Open move out date picker" aria-expanded="false" aria-controls="search-move-out-picker" data-date-toggle>
                                     <span data-date-label><%= @move_out&.strftime("%b %-d %Y") || "Move out" %></span>
                                 </button>
@@ -1194,8 +1194,8 @@
                                     <div class="filter-group">
                                         <p class="filter-group-title">Monthly rent</p>
                                         <div class="filter-input-row">
-                                            <input class="filter-field" type="number" name="min_price" min="0" step="50" value="<%= @min_price %>" placeholder="Min $" aria-label="Minimum monthly rent" data-filter-control />
-                                            <input class="filter-field" type="number" name="max_price" min="0" step="50" value="<%= @max_price %>" placeholder="Max $" aria-label="Maximum monthly rent" data-filter-control />
+                                            <input class="filter-field" type="number" name="min_price" min="0" max="<%= SubletListing::MAX_PRICE %>" step="50" value="<%= @min_price %>" placeholder="Min $" aria-label="Minimum monthly rent" data-filter-control />
+                                            <input class="filter-field" type="number" name="max_price" min="0" max="<%= SubletListing::MAX_PRICE %>" step="50" value="<%= @max_price %>" placeholder="Max $" aria-label="Maximum monthly rent" data-filter-control />
                                         </div>
                                     </div>
 

@@ -912,17 +912,17 @@
                             </div>
 
                             <div class="field-grid two-col">
-                                <input class="field-input" type="text" name="street-address" placeholder="Street Address" aria-label="Street address" value="<%= params["street-address"] %>" data-profanity-field />
-                                <input class="field-input" type="text" name="address-line-2" placeholder="Apt, suite, etc. (optional)" aria-label="Apartment, suite, or unit" value="<%= params["address-line-2"] %>" data-profanity-field />
+                                <input class="field-input" type="text" name="street-address" placeholder="Street Address" aria-label="Street address" value="<%= params["street-address"] %>" maxlength="120" required data-profanity-field />
+                                <input class="field-input" type="text" name="address-line-2" placeholder="Apt, suite, etc. (optional)" aria-label="Apartment, suite, or unit" value="<%= params["address-line-2"] %>" maxlength="80" data-profanity-field />
                             </div>
 
                             <div class="field-grid city-row">
-                                <input class="field-input" type="text" name="city" placeholder="City" aria-label="City" value="<%= params[:city] %>" data-profanity-field />
+                                <input class="field-input" type="text" name="city" placeholder="City" aria-label="City" value="<%= params[:city] %>" maxlength="80" required data-profanity-field />
                             </div>
 
                             <div class="field-grid state-row">
-                                <input class="field-input" type="text" name="state" placeholder="State" aria-label="State" value="<%= params[:state] %>" data-profanity-field />
-                                <input class="field-input" type="text" name="zip-code" placeholder="Zip Code" aria-label="Zip code" value="<%= params["zip-code"] %>" />
+                                <input class="field-input" type="text" name="state" placeholder="State" aria-label="State" value="<%= params[:state] %>" maxlength="30" required data-profanity-field />
+                                <input class="field-input" type="text" name="zip-code" placeholder="Zip Code" aria-label="Zip code" value="<%= params["zip-code"] %>" maxlength="10" inputmode="numeric" autocomplete="postal-code" />
                             </div>
                         </section>
 
@@ -933,7 +933,7 @@
                                 <label class="field-stack date-picker-label" data-date-picker>
                                     <span class="field-label">Start Date<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden"> required</span></span>
                                     <span class="date-field">
-                                        <input class="date-value" type="text" name="start-date" placeholder="mm/dd/yyyy" aria-label="Start date" value="<%= params["start-date"] %>" data-date-input />
+                                        <input class="date-value" type="text" name="start-date" placeholder="mm/dd/yyyy" aria-label="Start date" value="<%= params["start-date"] %>" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" required data-date-input />
                                         <button class="icon-button" type="button" aria-label="Open start date picker" aria-expanded="false" aria-controls="start-date-picker" data-date-toggle>
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                                 <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -947,7 +947,7 @@
                                 <label class="field-stack date-picker-label" data-date-picker>
                                     <span class="field-label">End Date<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden"> required</span></span>
                                     <span class="date-field">
-                                        <input class="date-value" type="text" name="end-date" placeholder="mm/dd/yyyy" aria-label="End date" value="<%= params["end-date"] %>" data-date-input />
+                                        <input class="date-value" type="text" name="end-date" placeholder="mm/dd/yyyy" aria-label="End date" value="<%= params["end-date"] %>" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" required data-date-input />
                                         <button class="icon-button" type="button" aria-label="Open end date picker" aria-expanded="false" aria-controls="end-date-picker" data-date-toggle>
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                                 <path d="M7 2v3M17 2v3M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -964,7 +964,7 @@
                             <h2 class="section-title" id="rent-section-title">Rent<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden"> required</span></h2>
                             <label class="field-input price-field">
                                 <span class="prefix">$</span>
-                                <input class="field-input no-border" type="text" name="price" placeholder="Price" aria-label="Monthly rent" value="<%= params[:price] %>" />
+                                <input class="field-input no-border" type="text" name="price" placeholder="Price" aria-label="Monthly rent" value="<%= params[:price] %>" inputmode="decimal" pattern="[0-9,]+(\.[0-9]{1,2})?" maxlength="9" required />
                             </label>
                         </section>
 
@@ -973,7 +973,7 @@
                             <div class="field-grid two-col">
                                 <label class="field-stack">
                                     <span class="field-label">Bedrooms<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden"> required</span></span>
-                                    <select class="field-input" name="bedrooms" aria-label="Bedrooms">
+                                    <select class="field-input" name="bedrooms" aria-label="Bedrooms" required>
                                         <option value="">Select bedrooms</option>
                                         <% (0..SubletListing::MAX_ROOMS).each do |count| %>
                                             <option value="<%= count %>" <%= "selected" if params[:bedrooms].to_s == count.to_s %>><%= count.zero? ? "Studio" : pluralize(count, "bedroom") %></option>
@@ -983,7 +983,7 @@
 
                                 <label class="field-stack">
                                     <span class="field-label">Bathrooms<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden"> required</span></span>
-                                    <select class="field-input" name="bathrooms" aria-label="Bathrooms">
+                                    <select class="field-input" name="bathrooms" aria-label="Bathrooms" required>
                                         <option value="">Select bathrooms</option>
                                         <% (0..SubletListing::MAX_ROOMS).each do |count| %>
                                             <option value="<%= count %>" <%= "selected" if params[:bathrooms].to_s == count.to_s %>><%= pluralize(count, "bathroom") %></option>
@@ -995,7 +995,7 @@
 
                         <section class="section-block field-stack" aria-labelledby="description-section-title">
                             <h2 class="section-title" id="description-section-title">Description<span class="required-indicator" aria-hidden="true">*</span><span class="visually-hidden"> required</span></h2>
-                            <textarea class="field-textarea" name="description" placeholder="Describe apartment here" aria-label="Listing description" data-description-input data-profanity-field><%= params[:description] %></textarea>
+                            <textarea class="field-textarea" name="description" placeholder="Describe apartment here" aria-label="Listing description" maxlength="<%= SubletListing::MAX_DESCRIPTION_LENGTH %>" required data-description-input data-profanity-field><%= params[:description] %></textarea>
                             <p class="description-counter" data-description-counter aria-live="polite">0 / 1000 characters</p>
                         </section>
 
@@ -1075,7 +1075,7 @@
                             <h2 class="section-title" id="phone-section-title">Phone</h2>
                             <label class="field-input phone-field">
                                 <span class="prefix">+1</span>
-                                <input class="field-input no-border rubik-input" type="tel" name="phone" aria-label="Phone number" value="<%= params[:phone] %>" />
+                                <input class="field-input no-border rubik-input" type="tel" name="phone" aria-label="Phone number" value="<%= params[:phone] %>" maxlength="<%= User::MAX_PHONE_NUMBER_LENGTH %>" autocomplete="tel" />
                             </label>
                         </section>
 

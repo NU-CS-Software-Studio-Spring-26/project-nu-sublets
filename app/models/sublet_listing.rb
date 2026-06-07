@@ -3,6 +3,9 @@ class SubletListing < ApplicationRecord
   MAX_ROOMS = 20
   MAX_PHOTOS = 5
   MAX_PHOTO_SIZE = 5.megabytes
+  MAX_TITLE_LENGTH = 100
+  MAX_DESCRIPTION_LENGTH = 1_000
+  MAX_ADDRESS_LENGTH = 250
   ACTIVE_LISTING_LIMIT_MESSAGE = "You can only have one active sublet listing at a time. To keep NU Sublets accurate and easy to browse, please mark your current listing as inactive or delete it before posting a new one."
   ALLOWED_PHOTO_CONTENT_TYPES = %w[image/png image/jpeg image/webp].freeze
 
@@ -91,14 +94,14 @@ class SubletListing < ApplicationRecord
   before_validation :normalize_user_input
   before_save :geocode_address_if_needed
 
-  validates :title, presence: true, length: { minimum: 5, maximum: 100 }
-  validates :description, presence: true, length: { minimum: 10, maximum: 1000 }
+  validates :title, presence: true, length: { minimum: 5, maximum: MAX_TITLE_LENGTH }
+  validates :description, presence: true, length: { minimum: 10, maximum: MAX_DESCRIPTION_LENGTH }
   validates :price, presence: true, numericality: {
     greater_than: 0,
     less_than_or_equal_to: MAX_PRICE,
     message: "must be between $1 and $#{MAX_PRICE.to_fs(:delimited)}"
   }
-  validates :address, presence: true, length: { maximum: 250 }
+  validates :address, presence: true, length: { maximum: MAX_ADDRESS_LENGTH }
   validates :available_from, presence: true
   validates :available_until, presence: true
   validates :bedrooms, presence: true, numericality: {
@@ -200,8 +203,11 @@ class SubletListing < ApplicationRecord
 
     listings = listings.minimum_price(min_price) if min_price
     listings = listings.maximum_price(max_price) if max_price
-    listings = listings.by_bedrooms(filters[:bedrooms]) if filters[:bedrooms].present?
-    listings = listings.by_bathrooms(filters[:bathrooms]) if filters[:bathrooms].present?
+    bedrooms = normalize_room_filter(filters[:bedrooms])
+    bathrooms = normalize_room_filter(filters[:bathrooms])
+
+    listings = listings.by_bedrooms(bedrooms) if bedrooms
+    listings = listings.by_bathrooms(bathrooms) if bathrooms
     listings = listings.furnished_only if filters[:furnished] == true
     listings = listings.pets_allowed_only if filters[:pets_allowed] == true
     listings = listings.utilities_included_only if filters[:utilities_included] == true
@@ -298,13 +304,25 @@ class SubletListing < ApplicationRecord
   def self.normalize_numeric_filter(value)
     return if value.blank?
 
-    BigDecimal(normalize_numeric_string(value))
+    amount = BigDecimal(normalize_numeric_string(value))
+    return if amount.negative? || amount > MAX_PRICE
+
+    amount
   rescue ArgumentError
     nil
   end
 
   def self.normalize_numeric_string(value)
     value.to_s.delete(",").strip
+  end
+
+  def self.normalize_room_filter(value)
+    return if value.blank?
+
+    room_count = Integer(normalize_numeric_string(value), exception: false)
+    return unless room_count&.between?(0, MAX_ROOMS)
+
+    room_count
   end
 
   def self.matching_serialized_label(relation, column, label)
