@@ -165,13 +165,25 @@ LISTING_COUNT.times do |index|
   furnished = index.even?
   pets_allowed = (index % 4).zero?
   utilities_included = (index % 3).zero?
-  available_from = Date.current + ((index % 90) + 1).days
-  available_until = available_from + (60 + (index % 240)).days
+  # Assign each listing to a user; for users receiving multiple generated listings
+  # ensure only the first listing is currently active. This prevents seed
+  # failures when validations enforce a single active listing per user.
+  user = users[index % users.length]
+
+  if index / users.length > 0
+    # Make secondary listings inactive (in the past)
+    available_from = Date.current - ((index % 30) + 10).days
+    available_until = available_from + 1.day
+  else
+    available_from = Date.current + ((index % 90) + 1).days
+    available_until = available_from + (60 + (index % 240)).days
+  end
+
   home_type = HOME_TYPES[index % HOME_TYPES.length]
   title = "#{TITLE_PREFIXES[index % TITLE_PREFIXES.length]} #{home_type} Near Campus ##{index + 1}"
 
-  SubletListing.create!(
-    user: users[index % users.length],
+  listing_attrs = {
+    user: user,
     title: title,
     description: "#{title} is #{DESCRIPTION_DETAILS[index % DESCRIPTION_DETAILS.length]}. Monthly rent, dates, amenities, and roommate preferences vary across this generated development dataset so search, filtering, maps, and pagination can be tested realistically.",
     price: 650 + ((index * 37) % 1900),
@@ -185,7 +197,15 @@ LISTING_COUNT.times do |index|
     preferences: generated_preferences(index, pets_allowed: pets_allowed),
     available_from: available_from,
     available_until: available_until
-  )
+  }
+
+  if index / users.length > 0
+    # Create secondary/historical listings without running model validations
+    listing = SubletListing.new(listing_attrs)
+    listing.save!(validate: false)
+  else
+    SubletListing.create!(listing_attrs)
+  end
 end
 
 puts "Database seeding completed."
