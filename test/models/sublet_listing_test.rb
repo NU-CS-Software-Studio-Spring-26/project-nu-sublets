@@ -82,6 +82,37 @@ class SubletListingTest < ActiveSupport::TestCase
     end
   end
 
+  test "user cannot create a second active listing" do
+    @user.sublet_listings.create!(valid_listing_params)
+    second_listing = @user.sublet_listings.new(
+      valid_listing_params.merge(address: "910 Noyes St, Evanston, IL 60201")
+    )
+
+    assert_not second_listing.valid?
+    assert_includes second_listing.errors[:base], SubletListing::ACTIVE_LISTING_LIMIT_MESSAGE
+  end
+
+  test "expired listing does not block a new active listing" do
+    expired_listing = @user.sublet_listings.create!(valid_listing_params)
+    expired_listing.update_columns(
+      available_from: Date.current - 60.days,
+      available_until: Date.current - 1.day
+    )
+
+    new_listing = @user.sublet_listings.new(
+      valid_listing_params.merge(address: "910 Noyes St, Evanston, IL 60201")
+    )
+
+    assert new_listing.valid?
+  end
+
+  test "user can update their existing active listing" do
+    listing = @user.sublet_listings.create!(valid_listing_params)
+
+    assert listing.update(price: 1350)
+    assert_equal 1350, listing.reload.price.to_i
+  end
+
   test "invalid when available_until is before available_from" do
     listing = @user.sublet_listings.new(
       valid_listing_params.merge(
@@ -177,14 +208,14 @@ class SubletListingTest < ActiveSupport::TestCase
         available_until: Date.new(2026, 9, 30)
       )
     )
-    @user.sublet_listings.create!(
+    another_user("ends-before").sublet_listings.create!(
       valid_listing_params.merge(
         title: "Ends Before Requested Move Out",
         available_from: Date.new(2026, 6, 1),
         available_until: Date.new(2026, 8, 15)
       )
     )
-    @user.sublet_listings.create!(
+    another_user("starts-after").sublet_listings.create!(
       valid_listing_params.merge(
         title: "Starts After Requested Move In",
         available_from: Date.new(2026, 7, 1),
@@ -211,7 +242,7 @@ class SubletListingTest < ActiveSupport::TestCase
         utilities_included: true
       )
     )
-    @user.sublet_listings.create!(
+    another_user("wrong-amenities").sublet_listings.create!(
       valid_listing_params.merge(
         title: "Wrong Amenities",
         price: 900,
@@ -220,7 +251,7 @@ class SubletListingTest < ActiveSupport::TestCase
         utilities_included: false
       )
     )
-    @user.sublet_listings.create!(
+    another_user("too-expensive").sublet_listings.create!(
       valid_listing_params.merge(
         title: "Too Expensive",
         price: 1800,
@@ -247,7 +278,7 @@ class SubletListingTest < ActiveSupport::TestCase
         preferences: [ "Female", "Clean" ]
       )
     )
-    male_listing = @user.sublet_listings.create!(
+    male_listing = another_user("male-preferences").sublet_listings.create!(
       valid_listing_params.merge(
         title: "Male Roommate Match",
         preferences: [ "Male", "Clean" ]
@@ -296,5 +327,13 @@ class SubletListingTest < ActiveSupport::TestCase
 
   def large_png_bytes
     png_bytes + ("0" * (SubletListing::MAX_PHOTO_SIZE + 1))
+  end
+
+  def another_user(slug)
+    User.create!(
+      name: "Listing Owner #{slug.titleize}",
+      email: "listing.owner.#{slug}@u.northwestern.edu",
+      active: true
+    )
   end
 end

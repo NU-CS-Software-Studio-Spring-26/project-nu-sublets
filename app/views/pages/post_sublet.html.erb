@@ -178,6 +178,57 @@
                 margin-bottom: 4px;
             }
 
+            .active-listing-warning {
+                margin: 0 0 24px;
+                padding: 22px;
+                border: 1px solid rgba(78, 42, 132, 0.22);
+                border-radius: 8px;
+                background: #f7f2fb;
+                color: var(--nu-text);
+                box-shadow: var(--nu-card-shadow);
+            }
+
+            .active-listing-warning-title {
+                margin: 0 0 8px;
+                font-family: "Rubik", sans-serif;
+                font-size: 20px;
+                font-weight: 700;
+                line-height: 1.25;
+            }
+
+            .active-listing-warning-copy {
+                margin: 0 0 16px;
+                color: var(--nu-muted);
+                font-size: 15px;
+                line-height: 1.45;
+            }
+
+            .active-listing-warning-actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .active-listing-warning-link {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 40px;
+                padding: 9px 16px;
+                border-radius: 6px;
+                background: var(--nu-accent);
+                color: #fff;
+                font-family: "Rubik", sans-serif;
+                font-weight: 700;
+                text-decoration: none;
+            }
+
+            .active-listing-warning-link.secondary {
+                border: 1px solid var(--nu-accent);
+                background: #fff;
+                color: var(--nu-accent);
+            }
+
             .field-stack {
                 display: flex;
                 flex-direction: column;
@@ -830,6 +881,16 @@
                     <% selected_amenities = Array(params[:amenities]).reject(&:blank?) %>
                     <% selected_preferences = Array(params[:preferences]).reject(&:blank?) %>
 
+                    <% if user_signed_in? && @active_sublet_listing.present? %>
+                        <section class="active-listing-warning" aria-labelledby="active-listing-warning-title">
+                            <h2 class="active-listing-warning-title" id="active-listing-warning-title">You already have an active sublet listing.</h2>
+                            <p class="active-listing-warning-copy"><%= SubletListing::ACTIVE_LISTING_LIMIT_MESSAGE %></p>
+                            <div class="active-listing-warning-actions">
+                                <%= link_to "View current listing", sublet_listing_path(@active_sublet_listing), class: "active-listing-warning-link" %>
+                                <%= link_to "Manage listings", profile_path, class: "active-listing-warning-link secondary" %>
+                            </div>
+                        </section>
+                    <% else %>
                     <% post_locked = !user_signed_in? %>
                     <div class="<%= "listing-access-lock" if post_locked %>">
                         <div class="<%= "listing-access-lock__content" if post_locked %>" <% if post_locked %>aria-hidden="true" inert<% end %>>
@@ -1031,6 +1092,7 @@
                                        message: "Posting is limited to verified Northwestern students." %>
                         <% end %>
                     </div>
+                    <% end %>
                 </div>
             </main>
             <%= render "shared/footer" %>

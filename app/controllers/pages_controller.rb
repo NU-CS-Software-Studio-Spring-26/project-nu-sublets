@@ -67,7 +67,9 @@ class PagesController < ApplicationController
 
   def saved; end
 
-  def post_sublet; end
+  def post_sublet
+    @active_sublet_listing = current_user&.active_sublet_listing
+  end
 
   def profile
     @profile_user = current_user
@@ -144,6 +146,7 @@ class PagesController < ApplicationController
   end
 
   def submit_sublet
+    @active_sublet_listing = current_user.active_sublet_listing
     @listing = current_user.sublet_listings.new(sublet_listing_params)
 
     if @listing.save
