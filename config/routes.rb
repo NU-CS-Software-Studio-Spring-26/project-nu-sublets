@@ -32,6 +32,7 @@ Rails.application.routes.draw do
   get "another-user-account" => "pages#another_user_account", as: :another_user_account
   get "about" => "pages#about", as: :about
   get "about-us" => "pages#about_us", as: :about_us
+  get "community-guidelines" => "pages#community_guidelines", as: :community_guidelines
   get "disclaimer" => "pages#disclaimer", as: :disclaimer
   get "privacy-policy" => "pages#privacy_policy", as: :privacy_policy
   get "login" => "pages#login", as: :login
