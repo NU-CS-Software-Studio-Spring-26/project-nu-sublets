@@ -3,7 +3,7 @@ class PagesController < ApplicationController
   RECOMMENDED_LISTINGS_LIMIT = 6
 
   layout false
-  before_action :authenticate_user!, only: %i[profile update_profile destroy_account user_profile another_user_account submit_sublet]
+  before_action :authenticate_user!, only: %i[listing profile update_profile destroy_account user_profile another_user_account submit_sublet]
 
   def home
     prepare_recommendation_filters
@@ -45,6 +45,11 @@ class PagesController < ApplicationController
       end
 
       format.pdf do
+        unless user_signed_in?
+          redirect_to login_path, alert: "Log in with your Northwestern email first."
+          return
+        end
+
         pdf = SearchResultsPdf.new(
           listings: listings.includes(:user).to_a,
           applied_filters: applied_search_filters,

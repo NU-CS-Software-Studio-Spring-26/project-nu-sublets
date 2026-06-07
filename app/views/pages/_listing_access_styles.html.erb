@@ -1,0 +1,74 @@
+<style>
+    .listing-access-lock {
+        position: relative;
+        isolation: isolate;
+    }
+
+    .listing-access-lock__content {
+        filter: blur(7px);
+        opacity: 0.68;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .listing-access-lock__content[aria-hidden="true"] {
+        touch-action: none;
+    }
+
+    .listing-access-lock__overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        display: grid;
+        place-items: start center;
+        padding: clamp(24px, 6vw, 64px) 16px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.12));
+    }
+
+    .listing-access-lock__prompt {
+        width: min(100%, 440px);
+        padding: 24px;
+        border: 1px solid rgba(78, 42, 132, 0.18);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 18px 45px rgba(30, 18, 54, 0.18);
+        color: #17121f;
+        text-align: center;
+    }
+
+    .listing-access-lock__title {
+        margin: 0 0 8px;
+        font-family: "Rubik", system-ui, sans-serif;
+        font-size: clamp(1.25rem, 3vw, 1.65rem);
+        font-weight: 800;
+        line-height: 1.18;
+    }
+
+    .listing-access-lock__copy {
+        margin: 0 0 18px;
+        color: #495057;
+        font-size: 15px;
+        line-height: 1.45;
+    }
+
+    .listing-access-lock__button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 9px 18px;
+        border-radius: 6px;
+        background: #4E2A84;
+        color: #fff;
+        font-family: "Rubik", system-ui, sans-serif;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .listing-access-lock__button:hover,
+    .listing-access-lock__button:focus-visible {
+        background: #3f1f6d;
+        color: #fff;
+        text-decoration: none;
+    }
+</style>

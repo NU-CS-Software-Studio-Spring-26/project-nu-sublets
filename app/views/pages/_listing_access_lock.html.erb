@@ -1,0 +1,10 @@
+<% title = local_assigns.fetch(:title) %>
+<% message = local_assigns.fetch(:message) %>
+<% button_text = local_assigns.fetch(:button_text, "Log in") %>
+
+<div class="listing-access-lock">
+    <div class="listing-access-lock__content" aria-hidden="true" inert>
+        <%= yield %>
+    </div>
+    <%= render "listing_access_prompt", title: title, message: message, button_text: button_text %>
+</div>

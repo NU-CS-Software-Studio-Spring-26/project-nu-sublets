@@ -791,6 +791,7 @@
             }
         </style>
         <%= render "focus_styles" %>
+        <%= render "listing_access_styles" %>
     <%= render "shared/pwa_meta" %>
 
     </head>
@@ -828,6 +829,10 @@
 
                     <% selected_amenities = Array(params[:amenities]).reject(&:blank?) %>
                     <% selected_preferences = Array(params[:preferences]).reject(&:blank?) %>
+
+                    <% post_locked = !user_signed_in? %>
+                    <div class="<%= "listing-access-lock" if post_locked %>">
+                        <div class="<%= "listing-access-lock__content" if post_locked %>" <% if post_locked %>aria-hidden="true" inert<% end %>>
 
                     <%= form_with url: submit_sublet_path, method: :post, local: true, html: { multipart: true, aria: { label: "Post a sublet listing" } }, class: "post-card", data: { profanity_check: true } do %>
                         <section class="section-block field-stack" aria-labelledby="address-section-title">
@@ -1018,6 +1023,14 @@
                             <% end %>
                         </section>
                     <% end %>
+                        </div>
+
+                        <% if post_locked %>
+                            <%= render "listing_access_prompt",
+                                       title: "Please log in with your Northwestern account to post a sublet.",
+                                       message: "Posting is limited to verified Northwestern students." %>
+                        <% end %>
+                    </div>
                 </div>
             </main>
             <%= render "shared/footer" %>

@@ -1,0 +1,11 @@
+<% title = local_assigns.fetch(:title) %>
+<% message = local_assigns.fetch(:message) %>
+<% button_text = local_assigns.fetch(:button_text, "Log in") %>
+
+<div class="listing-access-lock__overlay">
+    <div class="listing-access-lock__prompt" role="region" aria-label="<%= title %>">
+        <p class="listing-access-lock__title"><%= title %></p>
+        <p class="listing-access-lock__copy"><%= message %></p>
+        <%= link_to button_text, login_path, class: "listing-access-lock__button" %>
+    </div>
+</div>

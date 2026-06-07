@@ -20,10 +20,10 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "listing page is reachable" do
+  test "listing page requires login" do
     get listing_path
 
-    assert_response :success
+    assert_redirected_to login_path
   end
 
   test "search results page is reachable" do
@@ -105,6 +105,53 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     }
 
     assert_redirected_to login_path
+  end
+
+  test "logged out home page locks browse listing sections" do
+    get root_path
+
+    assert_response :success
+    assert_select ".listing-access-lock__prompt", text: /Please log in to view sublet listings/
+    assert_select ".listing-access-lock__content[inert]"
+    assert_select "a.listing-access-lock__button[href='#{login_path}']", text: "Log in"
+    assert_select "#recommendations-track a.listing-card"
+    assert_select "[data-compare-tray]", count: 0
+  end
+
+  test "logged out search results are locked behind login" do
+    get search_results_path
+
+    assert_response :success
+    assert_select ".listing-access-lock__prompt", text: /Please log in to search and view sublet listings/
+    assert_select ".listing-access-lock__content[inert]"
+    assert_select "a.listing-access-lock__button[href='#{login_path}']", text: "Log in"
+    assert_select "[data-compare-tray]", count: 0
+  end
+
+  test "logged out search PDF export redirects to login" do
+    get search_results_path(format: :pdf)
+
+    assert_redirected_to login_path
+  end
+
+  test "logged out saved page hides saved listing content" do
+    get saved_path
+
+    assert_response :success
+    assert_select ".listing-access-lock__prompt", text: /Please log in to view saved listings/
+    assert_select ".listing-access-lock__content[inert]"
+    assert_select "[data-favorite-listings]", count: 0
+    refute_includes response.body, "nuSublets.favoriteListings"
+  end
+
+  test "logged out post sublet page locks the form" do
+    get post_sublet_path
+
+    assert_response :success
+    assert_select ".listing-access-lock__prompt", text: /Please log in with your Northwestern account to post a sublet/
+    assert_select ".listing-access-lock__content[inert] form[action='#{submit_sublet_path}']"
+    assert_select ".post-card button[type='submit']", count: 0
+    assert_select "button[data-login-trigger]", text: "Post Sublet"
   end
 
   test "logged in post sublet form submits to an app endpoint" do
@@ -358,6 +405,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 9, 1)
       )
     )
+    sign_in_with_firebase_email("student@u.northwestern.edu")
 
     get root_path
 
@@ -384,7 +432,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{conversations_path}']", text: "Chat", count: 1
     assert_select "form[action='#{session_path}'] button", text: "Log out"
     assert_select "a[data-login-trigger]", text: "Create a Posting", count: 0
-    assert_select "a[href='#{post_sublet_path}']", text: "Create a Posting"
+    assert_select "a.cta-button[href='#{post_sublet_path}']", text: "Create a Posting"
   end
 
   test "profile page is tailored to the signed in user" do
@@ -499,6 +547,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "browse and search pages expose compare listing data and tray" do
+    sign_in_with_firebase_email("student@u.northwestern.edu")
     user = User.create!(
       name: "Compare Owner",
       email: "compare.owner@u.northwestern.edu",
@@ -533,6 +582,8 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "saved page renders the saved listings shell" do
+    sign_in_with_firebase_email("student@u.northwestern.edu")
+
     get saved_path
 
     assert_select "h1", text: "Saved Sublets"
@@ -683,6 +734,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 8, 31)
       )
     )
+    sign_in_with_firebase_email("pdf.viewer@u.northwestern.edu")
 
     get search_results_path(format: :pdf, "move-in": "06/12/2026", "move-out": "08/01/2026")
 
@@ -737,6 +789,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
       captured_listings = listings
       fake_pdf.new
     end
+    sign_in_with_firebase_email("pdf.filter.viewer@u.northwestern.edu")
 
     begin
       get search_results_path(
@@ -919,6 +972,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
         available_until: Date.new(2026, 10, 3)
       )
     )
+    sign_in_with_firebase_email("detail.viewer@u.northwestern.edu")
 
     get sublet_listing_path(listing)
 
@@ -937,14 +991,6 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "mailto:#{user.email}"
     assert_not_includes response.body, "+1 (123) 456-7890"
     assert_not_includes response.body, "tel:+11234567890"
-    assert_includes response.body, "Log in to email the host"
-
-    sign_in_with_firebase_email("detail.viewer@u.northwestern.edu")
-    get sublet_listing_path(listing)
-
-    assert_response :success
-    assert_not_includes response.body, user.email
-    assert_not_includes response.body, "mailto:#{user.email}"
     assert_includes response.body, "Hidden by profile setting"
     assert_select "form.question-form[data-profanity-check]"
     assert_select "textarea[name='listing_question[body]'][data-profanity-field]"
@@ -959,6 +1005,8 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "listing fallback page has a clickable compare button" do
+    sign_in_with_firebase_email("fallback.viewer@u.northwestern.edu")
+
     get listing_path
 
     assert_response :success
@@ -991,6 +1039,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
       answer: "Yes, utilities are included.",
       answered_at: Time.current
     )
+    sign_in_with_firebase_email("question.viewer@u.northwestern.edu")
 
     get sublet_listing_path(listing)
 
