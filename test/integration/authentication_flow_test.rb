@@ -205,6 +205,43 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to sublet_listing_path(listing)
   end
 
+  test "listing owner can delete their listing and dependent records" do
+    owner = create_password_user(email: "delete.self@u.northwestern.edu")
+    renter = create_password_user(email: "delete.self.renter@u.northwestern.edu")
+    listing = owner.sublet_listings.create!(valid_listing_attributes.merge(title: "Delete My Listing"))
+    listing.listing_questions.create!(user: renter, body: "Is this still available?")
+    listing.listing_reports.create!(user: renter, description: "This looks stale.")
+    conversation = Conversation.between(renter, owner, listing: listing)
+    conversation.save!
+    conversation.messages.create!(sender: renter, body: "Interested in this listing.")
+    post session_path, params: { email: owner.email, password: "password123" }
+
+    assert_difference("SubletListing.count", -1) do
+      assert_difference("ListingQuestion.count", -1) do
+        assert_difference("ListingReport.count", -1) do
+          assert_difference("Conversation.count", -1) do
+            delete sublet_listing_path(listing)
+          end
+        end
+      end
+    end
+
+    assert_redirected_to profile_path
+    assert_nil SubletListing.find_by(id: listing.id)
+  end
+
+  test "logged out users cannot delete listings" do
+    owner = create_password_user(email: "delete.logged.out.owner@u.northwestern.edu")
+    listing = owner.sublet_listings.create!(valid_listing_attributes.merge(title: "Logged Out Protected Listing"))
+
+    assert_no_difference("SubletListing.count") do
+      delete sublet_listing_path(listing)
+    end
+
+    assert_redirected_to login_path
+    assert SubletListing.exists?(listing.id)
+  end
+
   private
 
   def create_password_user(email:, password: "password123", confirmed: true)

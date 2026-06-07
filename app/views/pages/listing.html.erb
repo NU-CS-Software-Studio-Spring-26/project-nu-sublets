@@ -252,6 +252,25 @@
                 justify-content: flex-end;
             }
 
+            .owner-listing-actions {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+            }
+
+            .owner-delete-button {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .owner-delete-button svg {
+                width: 16px;
+                height: 16px;
+                flex: 0 0 auto;
+            }
+
             .report-listing-button:hover,
             .report-listing-button:focus-visible {
                 border-color: var(--nu-accent);
@@ -869,6 +888,7 @@
         <% preferences = @listing.displayed_preferences %>
         <% preferences = ["Ask host for roommate preferences"] if preferences.empty? %>
         <% gallery_images = apartment_gallery_image_paths(@listing) %>
+        <% listing_owner = user_signed_in? && current_user.id == @listing_host.id %>
         <div class="page-shell">
             <header class="topbar">
                 <div class="topbar-inner">
@@ -944,30 +964,50 @@
                                 </div>
 
                                 <div class="listing-action-group" <%= listing_compare_data_attributes(@listing) %>>
-                                    <button
-                                        class="btn btn-outline-secondary report-listing-button listing-compare-button"
-                                        type="button"
-                                        aria-label="Compare <%= @listing.title.presence || @listing.address.presence || 'this listing' %>"
-                                        data-compare-trigger
-                                        data-compare-default-label="Compare listing"
-                                        data-compare-selected-label="Selected for comparison"
-                                    >
-                                        Compare listing
-                                    </button>
-                                    <% if @listing.persisted? %>
-                                        <% if user_signed_in? %>
-                                            <button class="btn btn-outline-secondary report-listing-button" type="button" data-report-modal-trigger aria-label="Report <%= @listing.title.presence || 'this listing' %>" aria-haspopup="dialog" aria-controls="report-modal">
+                                    <% if listing_owner %>
+                                        <div class="owner-listing-actions" aria-label="Manage your listing">
+                                            <a class="btn btn-outline-secondary report-listing-button" href="<%= profile_path %>">Edit listing</a>
+                                            <%= button_to sublet_listing_path(@listing),
+                                                          method: :delete,
+                                                          class: "btn btn-outline-danger report-listing-button owner-delete-button",
+                                                          data: { turbo_confirm: "Are you sure you want to delete this listing?" },
+                                                          form: {
+                                                              class: "d-inline",
+                                                              data: { turbo_confirm: "Are you sure you want to delete this listing?" },
+                                                              onsubmit: "return !!window.Turbo || confirm('Are you sure you want to delete this listing?');"
+                                                          } do %>
+                                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                                                    <path d="M4 7h16M10 11v6M14 11v6M9 7l1-3h4l1 3M6 7l1 14h10l1-14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
+                                                <span>Delete listing</span>
+                                            <% end %>
+                                        </div>
+                                    <% else %>
+                                        <button
+                                            class="btn btn-outline-secondary report-listing-button listing-compare-button"
+                                            type="button"
+                                            aria-label="Compare <%= @listing.title.presence || @listing.address.presence || 'this listing' %>"
+                                            data-compare-trigger
+                                            data-compare-default-label="Compare listing"
+                                            data-compare-selected-label="Selected for comparison"
+                                        >
+                                            Compare listing
+                                        </button>
+                                        <% if @listing.persisted? %>
+                                            <% if user_signed_in? %>
+                                                <button class="btn btn-outline-secondary report-listing-button" type="button" data-report-modal-trigger aria-label="Report <%= @listing.title.presence || 'this listing' %>" aria-haspopup="dialog" aria-controls="report-modal">
+                                                    Report listing
+                                                </button>
+                                            <% else %>
+                                                <a class="btn btn-outline-secondary report-listing-button" href="#" aria-haspopup="dialog" aria-controls="login-modal" data-login-trigger>
+                                                    Report listing
+                                                </a>
+                                            <% end %>
+                                        <% else %>
+                                            <button class="btn btn-outline-secondary report-listing-button" type="button" disabled title="Reports are available for posted listings.">
                                                 Report listing
                                             </button>
-                                        <% else %>
-                                            <a class="btn btn-outline-secondary report-listing-button" href="#" aria-haspopup="dialog" aria-controls="login-modal" data-login-trigger>
-                                                Report listing
-                                            </a>
                                         <% end %>
-                                    <% else %>
-                                        <button class="btn btn-outline-secondary report-listing-button" type="button" disabled title="Reports are available for posted listings.">
-                                            Report listing
-                                        </button>
                                     <% end %>
                                 </div>
                             </div>
