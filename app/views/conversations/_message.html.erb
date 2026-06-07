@@ -7,5 +7,16 @@
       <time datetime="<%= message.created_at.iso8601 %>"><%= central_time_display(message.created_at) %></time>
     </p>
     <p class="message-body"><%= message.body %></p>
+    <% if own_message %>
+      <%= button_to conversation_message_path(message.conversation, message),
+                    method: :delete,
+                    class: "message-delete-button",
+                    form: { data: { turbo_confirm: "Are you sure you want to delete this message?" } },
+                    aria: { label: "Delete message" } do %>
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 16 16">
+          <path fill="currentColor" d="M6.5 1.5h3l.5 1H14v1H2v-1h4zM3.5 4.5h9l-.55 9.25a1.5 1.5 0 0 1-1.5 1.42h-4.9a1.5 1.5 0 0 1-1.5-1.42zM6 6.5v6h1v-6zm3 0v6h1v-6z" />
+        </svg>
+      <% end %>
+    <% end %>
   </article>
 <% end %>

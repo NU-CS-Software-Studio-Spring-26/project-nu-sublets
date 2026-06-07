@@ -283,11 +283,20 @@ footer nav[aria-label="Footer links"] a:focus * {
 
 .conversation-list-item {
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr);
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
   padding: 14px;
   border: 1px solid #e4e4e7;
   border-radius: 8px;
+  color: inherit;
+}
+
+.conversation-list-link {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 14px;
+  min-width: 0;
   color: inherit;
   text-decoration: none;
 }
@@ -296,6 +305,84 @@ footer nav[aria-label="Footer links"] a:focus * {
 .conversation-list-item:focus-visible {
   border-color: #4E2A84;
   outline: none;
+}
+
+.conversation-actions {
+  position: relative;
+}
+
+.conversation-actions summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: #5b5b5b;
+  cursor: pointer;
+  font-family: "Rubik", system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  list-style: none;
+}
+
+.conversation-actions summary::-webkit-details-marker {
+  display: none;
+}
+
+.conversation-actions summary:hover,
+.conversation-actions summary:focus-visible {
+  background: #f4eff8;
+  color: #4E2A84;
+  outline: none;
+}
+
+.conversation-actions-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 3;
+  min-width: 156px;
+  padding: 6px;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(17, 17, 17, 0.14);
+}
+
+.conversation-delete-button,
+.message-delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: #b42318;
+  cursor: pointer;
+  font-family: "Rubik", system-ui, sans-serif;
+  font-weight: 700;
+}
+
+.conversation-delete-button {
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: left;
+}
+
+.conversation-delete-button:hover,
+.conversation-delete-button:focus-visible {
+  background: #fff1f1;
+  outline: none;
+}
+
+.conversation-delete-button svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
 }
 
 .conversation-list-item img,
@@ -394,6 +481,7 @@ footer nav[aria-label="Footer links"] a:focus * {
 }
 
 .message-bubble {
+  position: relative;
   width: min(78%, 560px);
   padding: 12px 14px;
   border-radius: 8px;
@@ -427,6 +515,35 @@ footer nav[aria-label="Footer links"] a:focus * {
 .message-body {
   overflow-wrap: anywhere;
   line-height: 1.45;
+}
+
+.message-delete-button {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.82);
+  opacity: 0;
+  transition: opacity 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+}
+
+.message-bubble:hover .message-delete-button,
+.message-delete-button:focus-visible {
+  opacity: 1;
+}
+
+.message-delete-button:hover,
+.message-delete-button:focus-visible {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  outline: none;
+}
+
+.message-delete-button svg {
+  width: 13px;
+  height: 13px;
 }
 
 .message-form {

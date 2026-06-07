@@ -62,6 +62,8 @@ class ConversationsTest < ActionDispatch::IntegrationTest
     assert_select "a[aria-label='Open conversation with Chat Host'][href='#{conversation_path(conversation)}']"
     assert_select ".conversation-list-context", text: @listing.title
     assert_select ".conversation-list-heading span", text: "Jun 7, 2026 8:18 PM CT"
+    assert_select "details.conversation-actions"
+    assert_select "form[action='#{conversation_path(conversation)}'][method='post'][data-turbo-confirm='Are you sure you want to delete this chat?'] button.conversation-delete-button", text: "Delete chat"
     assert_select "header.topbar nav.topbar-nav"
     assert_select ".chat-topbar", count: 0
     assert_select "a[href='#{root_path(anchor: 'recommendations')}'] svg.nav-item-icon"
@@ -79,7 +81,7 @@ class ConversationsTest < ActionDispatch::IntegrationTest
     conversation = Conversation.between(renter, @host, listing: @listing)
     conversation.save!
     message = conversation.messages.create!(
-      sender: @host,
+      sender: renter,
       body: "Central time check.",
       created_at: Time.utc(2026, 6, 8, 1, 18, 0)
     )
@@ -88,6 +90,7 @@ class ConversationsTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "time[datetime='#{message.created_at.iso8601}']", text: "Jun 7, 2026 8:18 PM CT"
+    assert_select "form[action='#{conversation_message_path(conversation, message)}'][method='post'][data-turbo-confirm='Are you sure you want to delete this message?'] button.message-delete-button"
     assert_select "header.topbar nav.topbar-nav"
     assert_select ".chat-topbar", count: 0
     assert_select "a[href='#{conversations_path}'] svg.nav-item-icon"
@@ -124,6 +127,95 @@ class ConversationsTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     assert_includes response.parsed_body["errors"], "Body can't be blank"
+  end
+
+  test "participant can delete a conversation and its messages" do
+    renter = sign_in_with_firebase_email("chat.delete.conversation@u.northwestern.edu")
+    conversation = Conversation.between(renter, @host, listing: @listing)
+    conversation.save!
+    conversation.messages.create!(sender: renter, body: "Please delete this chat.")
+
+    assert_difference("Conversation.count", -1) do
+      assert_difference("Message.count", -1) do
+        delete conversation_path(conversation)
+      end
+    end
+
+    assert_redirected_to conversations_path
+    follow_redirect!
+    assert_response :success
+    assert_select "a[href='#{conversation_path(conversation)}']", count: 0
+  end
+
+  test "logged out users cannot delete conversations" do
+    renter = User.create!(name: "Logged Out Renter", email: "logged.out.chat@u.northwestern.edu", active: true, confirmed_at: Time.current)
+    conversation = Conversation.between(renter, @host, listing: @listing)
+    conversation.save!
+
+    assert_no_difference("Conversation.count") do
+      delete conversation_path(conversation)
+    end
+
+    assert_redirected_to login_path
+  end
+
+  test "non participants cannot delete conversations" do
+    renter = sign_in_with_firebase_email("chat.delete.owner@u.northwestern.edu")
+    conversation = Conversation.between(renter, @host, listing: @listing)
+    conversation.save!
+    sign_in_with_firebase_email("chat.delete.outsider@u.northwestern.edu")
+
+    assert_no_difference("Conversation.count") do
+      delete conversation_path(conversation)
+    end
+
+    assert_response :not_found
+  end
+
+  test "sender can delete their own message" do
+    renter = sign_in_with_firebase_email("chat.delete.message@u.northwestern.edu")
+    conversation = Conversation.between(renter, @host, listing: @listing)
+    conversation.save!
+    message = conversation.messages.create!(sender: renter, body: "Delete this message.")
+
+    assert_difference("Message.count", -1) do
+      delete conversation_message_path(conversation, message)
+    end
+
+    assert_redirected_to conversation_path(conversation)
+    follow_redirect!
+    assert_response :success
+    assert_select ".message-bubble[data-message-id='#{message.id}']", count: 0
+  end
+
+  test "users cannot delete messages sent by someone else" do
+    renter = sign_in_with_firebase_email("chat.delete.other.viewer@u.northwestern.edu")
+    conversation = Conversation.between(renter, @host, listing: @listing)
+    conversation.save!
+    message = conversation.messages.create!(sender: @host, body: "Host message.")
+
+    assert_no_difference("Message.count") do
+      delete conversation_message_path(conversation, message)
+    end
+
+    assert_redirected_to conversation_path(conversation)
+    follow_redirect!
+    assert_response :success
+    assert_select ".message-bubble[data-message-id='#{message.id}']"
+    assert_select "form[action='#{conversation_message_path(conversation, message)}']", count: 0
+  end
+
+  test "logged out users cannot delete messages" do
+    renter = User.create!(name: "Logged Out Message Renter", email: "logged.out.message@u.northwestern.edu", active: true, confirmed_at: Time.current)
+    conversation = Conversation.between(renter, @host, listing: @listing)
+    conversation.save!
+    message = conversation.messages.create!(sender: renter, body: "Still here.")
+
+    assert_no_difference("Message.count") do
+      delete conversation_message_path(conversation, message)
+    end
+
+    assert_redirected_to login_path
   end
 
   test "chat javascript blocks whitespace only messages and blank live bubbles" do

@@ -19,6 +19,18 @@ class MessagesController < ApplicationController
     end
   end
 
+  def destroy
+    message = @conversation.messages.find(params[:id])
+
+    unless message.sender_id == current_user.id
+      redirect_to conversation_path(@conversation), alert: "You can only delete messages you sent."
+      return
+    end
+
+    message.destroy
+    redirect_to conversation_path(@conversation), notice: "Message deleted."
+  end
+
   private
 
   def set_conversation
