@@ -11,6 +11,8 @@ class ApplicationController < ActionController::Base
 
   helper_method :current_user, :user_signed_in?, :google_oauth_configured?
 
+  before_action :enforce_terms_acceptance
+
   private
 
   def current_user
@@ -32,5 +34,12 @@ class ApplicationController < ActionController::Base
       format.html { redirect_to login_path, alert: "Log in with your Northwestern email first." }
       format.json { render json: { error: "You must be logged in." }, status: :unauthorized }
     end
+  end
+
+  def enforce_terms_acceptance
+    return unless user_signed_in?
+    return unless session[:requires_terms_acceptance]
+
+    redirect_to onboarding_terms_path
   end
 end

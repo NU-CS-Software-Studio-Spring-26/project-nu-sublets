@@ -126,7 +126,93 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_equal "google_oauth2", user.provider
     assert_equal "google-123", user.uid
     assert user.confirmed?
+    assert_redirected_to onboarding_terms_path
+  end
+
+  test "new Google OAuth user is redirected to terms acceptance page" do
+    OmniAuth.config.mock_auth[:google_oauth2] = google_auth_hash(email: "terms.student@u.northwestern.edu")
+
+    post "/auth/google_oauth2"
+    follow_redirect!
+
+    assert_redirected_to onboarding_terms_path
+  end
+
+  test "new Google OAuth user cannot bypass terms acceptance by visiting profile" do
+    OmniAuth.config.mock_auth[:google_oauth2] = google_auth_hash(email: "bypass.student@u.northwestern.edu")
+    post "/auth/google_oauth2"
+    follow_redirect!
+
+    get profile_path
+
+    assert_redirected_to onboarding_terms_path
+  end
+
+  test "terms acceptance page is shown to users requiring acceptance" do
+    OmniAuth.config.mock_auth[:google_oauth2] = google_auth_hash(email: "terms.view@u.northwestern.edu")
+    post "/auth/google_oauth2"
+    follow_redirect!
+    follow_redirect!
+
+    assert_response :success
+    assert_select "input[type='checkbox'][name='terms_accepted']"
+    assert_select "input[type='submit'][value='Continue']"
+  end
+
+  test "user cannot accept terms without checking the checkbox" do
+    OmniAuth.config.mock_auth[:google_oauth2] = google_auth_hash(email: "nocheck.student@u.northwestern.edu")
+    post "/auth/google_oauth2"
+    follow_redirect!
+    follow_redirect!
+
+    post onboarding_accept_terms_path, params: { terms_accepted: "0" }
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, "You must accept the Terms and Community Guidelines to continue."
+
+    user = User.find_by!(email: "nocheck.student@u.northwestern.edu")
+    assert_nil user.terms_accepted_at
+  end
+
+  test "user can complete signup by accepting the terms checkbox" do
+    OmniAuth.config.mock_auth[:google_oauth2] = google_auth_hash(email: "accepted.student@u.northwestern.edu")
+    post "/auth/google_oauth2"
+    follow_redirect!
+    follow_redirect!
+
+    post onboarding_accept_terms_path, params: { terms_accepted: "1" }
+
     assert_redirected_to profile_path
+
+    user = User.find_by!(email: "accepted.student@u.northwestern.edu")
+    assert_not_nil user.terms_accepted_at
+  end
+
+  test "terms acceptance stores a timestamp on the user" do
+    OmniAuth.config.mock_auth[:google_oauth2] = google_auth_hash(email: "timestamp.student@u.northwestern.edu")
+    post "/auth/google_oauth2"
+    follow_redirect!
+    follow_redirect!
+
+    freeze_time = Time.current
+    travel_to freeze_time do
+      post onboarding_accept_terms_path, params: { terms_accepted: "1" }
+    end
+
+    user = User.find_by!(email: "timestamp.student@u.northwestern.edu")
+    assert_in_delta freeze_time.to_i, user.terms_accepted_at.to_i, 2
+  end
+
+  test "after accepting terms, user is no longer redirected to terms page" do
+    OmniAuth.config.mock_auth[:google_oauth2] = google_auth_hash(email: "done.student@u.northwestern.edu")
+    post "/auth/google_oauth2"
+    follow_redirect!
+    follow_redirect!
+    post onboarding_accept_terms_path, params: { terms_accepted: "1" }
+
+    get profile_path
+
+    assert_response :success
   end
 
   test "Google OAuth profile name with profanity shows a friendly error" do
