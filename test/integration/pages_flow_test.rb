@@ -123,6 +123,14 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "logged out home page locks browse listing sections" do
+    listing_owner("logged-out-lock").sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "Logged Out Lock Listing",
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
     get root_path
 
     assert_response :success
@@ -374,7 +382,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{post_sublet_path}']", text: /Post Sublet|Create a Posting/
     assert_select "a[href='#{profile_path}']", text: "Profile", count: 0
     assert_select "a[href='#{login_path}']", text: /Log in/
-    assert_select "a.listing-card[href]"
+    assert_select "a[href='#{listing_path}']", count: 0
   end
 
   test "home page includes category sublet carousels" do
@@ -389,15 +397,17 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "#pet-friendly-track[data-carousel-track]"
   end
 
-  test "home pet friendly carousel does not show fake fallback listings" do
+  test "home carousels do not show fake fallback listings" do
     user = User.create!(
-      name: "No Pet Carousel Owner",
-      email: "no.pet.carousel.owner@u.northwestern.edu",
+      name: "No Category Carousel Owner",
+      email: "no.category.carousel.owner@u.northwestern.edu",
       active: true
     )
-    user.sublet_listings.create!(
+    listing = user.sublet_listings.create!(
       valid_listing_attributes.merge(
-        title: "No Pet Carousel Listing",
+        title: "No Category Carousel Listing",
+        price: 1_500,
+        furnished: false,
         pets_allowed: false,
         available_from: Date.new(2026, 5, 24),
         available_until: Date.new(2026, 10, 3)
@@ -407,10 +417,15 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
+    assert_select "#recommendations-track a[href='#{listing_path}']", count: 0
+    assert_select "#budget-friendly-track a.listing-card", count: 0
+    assert_select "#budget-friendly-track a[href='#{listing_path}']", count: 0
+    assert_select "#furnished-ready-track a.listing-card", count: 0
+    assert_select "#furnished-ready-track a[href='#{listing_path}']", count: 0
     assert_select "#pet-friendly-track a.listing-card", count: 0
-    assert_select "#pet-friendly-track .recommendation-empty", count: 0
-    assert_no_match(/No pet-friendly sublets are available right now/, response.body)
     assert_select "#pet-friendly-track a[href='#{listing_path}']", count: 0
+    assert_select "#newest-track a[href='#{sublet_listing_path(listing)}']", text: /No Category Carousel Listing/
+    assert_select "#newest-track a[href='#{listing_path}']", count: 0
   end
 
   test "home category carousels use matching database listings" do

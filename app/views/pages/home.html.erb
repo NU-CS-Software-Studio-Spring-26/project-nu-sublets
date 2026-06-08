@@ -888,102 +888,6 @@
                                         </div>
                                     </a>
                                 <% end %>
-                            <% elsif !recommendation_filters_active? && @recommendation_filter_error.blank? %>
-                            <a class="listing-card" href="<%= listing_path %>" aria-label="820 Noyes Street sublet, $850 per month">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(0) %>" alt="Bedroom listing" />
-                                    <img class="listing-avatar" src="https://randomuser.me/api/portraits/women/65.jpg" alt="Sophie K." />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$850/month</p>
-                                    <div class="listing-meta">
-                                        <span>Female Roommates</span>
-                                        <span>1 bathroom</span>
-                                        <span>Laundry</span>
-                                    </div>
-                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>" aria-label="820 Noyes Street sublet, $850 per month">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(1) %>" alt="Bedroom listing" />
-                                    <img class="listing-avatar" src="https://randomuser.me/api/portraits/men/73.jpg" alt="Marcus J." />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$850/month</p>
-                                    <div class="listing-meta">
-                                        <span>Female Roommates</span>
-                                        <span>1 bathroom</span>
-                                        <span>Laundry</span>
-                                    </div>
-                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>" aria-label="820 Noyes Street sublet, $850 per month">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(2) %>" alt="Bedroom listing" />
-                                    <img class="listing-avatar" src="https://randomuser.me/api/portraits/women/27.jpg" alt="Priya M." />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$850/month</p>
-                                    <div class="listing-meta">
-                                        <span>Female Roommates</span>
-                                        <span>1 bathroom</span>
-                                        <span>Laundry</span>
-                                    </div>
-                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>" aria-label="614 Foster Street sublet, $920 per month">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(3) %>" alt="Apartment with sunny bedroom" />
-                                    <img class="listing-avatar" src="https://randomuser.me/api/portraits/men/15.jpg" alt="Jake T." />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$920/month</p>
-                                    <div class="listing-meta">
-                                        <span>2 roommates</span>
-                                        <span>1.5 bathrooms</span>
-                                        <span>Parking</span>
-                                    </div>
-                                    <p class="listing-address">614 Foster St, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>" aria-label="930 Hinman Avenue studio, $1,050 per month">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(4) %>" alt="Cozy student apartment" />
-                                    <img class="listing-avatar" src="https://randomuser.me/api/portraits/women/32.jpg" alt="Chloe R." />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$1,050/month</p>
-                                    <div class="listing-meta">
-                                        <span>Private studio</span>
-                                        <span>1 bathroom</span>
-                                        <span>Utilities</span>
-                                    </div>
-                                    <p class="listing-address">930 Hinman Ave, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>" aria-label="2018 Sherman Avenue sublet, $780 per month">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(5) %>" alt="Shared apartment near campus" />
-                                    <img class="listing-avatar" src="https://randomuser.me/api/portraits/men/12.jpg" alt="Tyler C." />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$780/month</p>
-                                    <div class="listing-meta">
-                                        <span>3 roommates</span>
-                                        <span>2 bathrooms</span>
-                                        <span>Pet friendly</span>
-                                    </div>
-                                    <p class="listing-address">2018 Sherman Ave, Evanston, IL</p>
-                                </div>
-                            </a>
                             <% end %>
                             </div>
                             <button class="carousel-button next" type="button" aria-label="Next recommended sublets" aria-controls="recommendations-track" data-carousel-next="recommendations-track">&#8250;</button>
@@ -1043,49 +947,6 @@
                 </section>
                 <% end %>
 
-                <% budget_friendly_fallbacks = [
-                    {
-                        aria_label: "Maple Avenue shared room, $740 per month",
-                        image_index: 12,
-                        image_alt: "Bright shared room near Northwestern",
-                        avatar_url: "https://randomuser.me/api/portraits/women/44.jpg",
-                        avatar_alt: "Maya B.",
-                        price: "$740",
-                        meta: [ "Shared room", "Utilities", "Near shuttle" ],
-                        address: "1612 Maple Ave, Evanston, IL"
-                    },
-                    {
-                        aria_label: "Ridge Avenue budget sublet, $810 per month",
-                        image_index: 13,
-                        image_alt: "Compact apartment bedroom with desk",
-                        avatar_url: "https://randomuser.me/api/portraits/men/31.jpg",
-                        avatar_alt: "Noah R.",
-                        price: "$810",
-                        meta: [ "1 bedroom", "Laundry", "Summer" ],
-                        address: "1901 Ridge Ave, Evanston, IL"
-                    },
-                    {
-                        aria_label: "Simpson Street room, $890 per month",
-                        image_index: 14,
-                        image_alt: "Student bedroom with natural light",
-                        avatar_url: "https://randomuser.me/api/portraits/women/39.jpg",
-                        avatar_alt: "Elena V.",
-                        price: "$890",
-                        meta: [ "Furnished", "1 bathroom", "WiFi" ],
-                        address: "725 Simpson St, Evanston, IL"
-                    },
-                    {
-                        aria_label: "Davis Street summer studio, $975 per month",
-                        image_index: 15,
-                        image_alt: "Small furnished studio apartment",
-                        avatar_url: "https://randomuser.me/api/portraits/men/42.jpg",
-                        avatar_alt: "Sam P.",
-                        price: "$975",
-                        meta: [ "Studio", "Transit", "Flexible" ],
-                        address: "1620 Davis St, Evanston, IL"
-                    }
-                ] %>
-
                 <section class="section-block" id="budget-friendly" aria-labelledby="budget-friendly-title">
                     <div class="section-inner">
                         <h2 class="section-title" id="budget-friendly-title">Budget-Friendly Finds</h2>
@@ -1096,59 +957,12 @@
                                     <% @budget_friendly_listings.each do |listing| %>
                                         <%= render "home_listing_card", listing: listing %>
                                     <% end %>
-                                <% else %>
-                                    <% budget_friendly_fallbacks.each do |fallback| %>
-                                        <%= render "home_listing_card", fallback: fallback %>
-                                    <% end %>
                                 <% end %>
                             </div>
                             <button class="carousel-button next" type="button" aria-label="Next budget-friendly sublets" aria-controls="budget-friendly-track" data-carousel-next="budget-friendly-track">&#8250;</button>
                         </div>
                     </div>
                 </section>
-
-                <% furnished_fallbacks = [
-                    {
-                        aria_label: "Chicago Avenue furnished studio, $1,120 per month",
-                        image_index: 16,
-                        image_alt: "Furnished studio with sofa and desk",
-                        avatar_url: "https://randomuser.me/api/portraits/women/51.jpg",
-                        avatar_alt: "Avery N.",
-                        price: "$1,120",
-                        meta: [ "Furnished", "Private studio", "AC / Heat" ],
-                        address: "1500 Chicago Ave, Evanston, IL"
-                    },
-                    {
-                        aria_label: "University Place furnished room, $980 per month",
-                        image_index: 17,
-                        image_alt: "Move-in ready bedroom near campus",
-                        avatar_url: "https://randomuser.me/api/portraits/men/49.jpg",
-                        avatar_alt: "Luis D.",
-                        price: "$980",
-                        meta: [ "Furnished", "Desk setup", "Utilities" ],
-                        address: "633 University Pl, Evanston, IL"
-                    },
-                    {
-                        aria_label: "Garnett Place furnished apartment, $1,260 per month",
-                        image_index: 18,
-                        image_alt: "Furnished living area in student apartment",
-                        avatar_url: "https://randomuser.me/api/portraits/women/58.jpg",
-                        avatar_alt: "Hannah C.",
-                        price: "$1,260",
-                        meta: [ "2 bedrooms", "Dishwasher", "Laundry" ],
-                        address: "720 Garnett Pl, Evanston, IL"
-                    },
-                    {
-                        aria_label: "Sheridan Road furnished lakefront room, $1,340 per month",
-                        image_index: 19,
-                        image_alt: "Furnished room with lakefront light",
-                        avatar_url: "https://randomuser.me/api/portraits/men/55.jpg",
-                        avatar_alt: "Ben W.",
-                        price: "$1,340",
-                        meta: [ "Lakefront", "Furnished", "Elevator" ],
-                        address: "1866 Sheridan Rd, Evanston, IL"
-                    }
-                ] %>
 
                 <section class="section-block" id="furnished-ready" aria-labelledby="furnished-ready-title">
                     <div class="section-inner">
@@ -1160,59 +974,12 @@
                                     <% @furnished_listings.each do |listing| %>
                                         <%= render "home_listing_card", listing: listing %>
                                     <% end %>
-                                <% else %>
-                                    <% furnished_fallbacks.each do |fallback| %>
-                                        <%= render "home_listing_card", fallback: fallback %>
-                                    <% end %>
                                 <% end %>
                             </div>
                             <button class="carousel-button next" type="button" aria-label="Next furnished sublets" aria-controls="furnished-ready-track" data-carousel-next="furnished-ready-track">&#8250;</button>
                         </div>
                     </div>
                 </section>
-
-                <% pet_friendly_fallbacks = [
-                    {
-                        aria_label: "Lake Street pet-friendly apartment, $1,150 per month",
-                        image_index: 20,
-                        image_alt: "Pet-friendly apartment living room",
-                        avatar_url: "https://randomuser.me/api/portraits/women/62.jpg",
-                        avatar_alt: "Grace F.",
-                        price: "$1,150",
-                        meta: [ "Pet-friendly", "Balcony", "1 bathroom" ],
-                        address: "820 Lake St, Evanston, IL"
-                    },
-                    {
-                        aria_label: "Oak Avenue pet-friendly room, $1,030 per month",
-                        image_index: 21,
-                        image_alt: "Bedroom in pet-friendly shared apartment",
-                        avatar_url: "https://randomuser.me/api/portraits/men/66.jpg",
-                        avatar_alt: "Owen K.",
-                        price: "$1,030",
-                        meta: [ "Pet-friendly", "Laundry", "Parking" ],
-                        address: "1722 Oak Ave, Evanston, IL"
-                    },
-                    {
-                        aria_label: "Hinman Avenue pet-friendly studio, $1,210 per month",
-                        image_index: 22,
-                        image_alt: "Studio apartment with hardwood floors",
-                        avatar_url: "https://randomuser.me/api/portraits/women/70.jpg",
-                        avatar_alt: "Nina S.",
-                        price: "$1,210",
-                        meta: [ "Studio", "Pet-friendly", "Hardwood" ],
-                        address: "1024 Hinman Ave, Evanston, IL"
-                    },
-                    {
-                        aria_label: "Emerson Street pet-friendly sublet, $1,090 per month",
-                        image_index: 23,
-                        image_alt: "Pet-friendly apartment bedroom",
-                        avatar_url: "https://randomuser.me/api/portraits/men/71.jpg",
-                        avatar_alt: "Isaac M.",
-                        price: "$1,090",
-                        meta: [ "Pet-friendly", "Near campus", "WiFi" ],
-                        address: "918 Emerson St, Evanston, IL"
-                    }
-                ] %>
 
                 <section class="section-block" id="pet-friendly" aria-labelledby="pet-friendly-title">
                     <div class="section-inner">
@@ -1258,102 +1025,6 @@
                                         </div>
                                     </a>
                                 <% end %>
-                            <% else %>
-                            <a class="listing-card" href="<%= listing_path %>" aria-label="820 Noyes Street sublet, $850 per month">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(6) %>" alt="Bedroom listing" />
-                                    <img class="listing-avatar" src="https://randomuser.me/api/portraits/women/18.jpg" alt="Zoe L." />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$850/month</p>
-                                    <div class="listing-meta">
-                                        <span>Female Roommates</span>
-                                        <span>1 bathroom</span>
-                                        <span>Laundry</span>
-                                    </div>
-                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>" aria-label="820 Noyes Street sublet, $850 per month">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(7) %>" alt="Bedroom listing" />
-                                    <img class="listing-avatar" src="https://randomuser.me/api/portraits/men/8.jpg" alt="David S." />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$850/month</p>
-                                    <div class="listing-meta">
-                                        <span>Female Roommates</span>
-                                        <span>1 bathroom</span>
-                                        <span>Laundry</span>
-                                    </div>
-                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>" aria-label="820 Noyes Street sublet, $850 per month">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(8) %>" alt="Bedroom listing" />
-                                    <img class="listing-avatar" src="https://randomuser.me/api/portraits/women/12.jpg" alt="Kate W." />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$850/month</p>
-                                    <div class="listing-meta">
-                                        <span>Female Roommates</span>
-                                        <span>1 bathroom</span>
-                                        <span>Laundry</span>
-                                    </div>
-                                    <p class="listing-address">820 Noyes St, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>" aria-label="811 Emerson Street sublet, $1,180 per month">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(9) %>" alt="Newly listed apartment bedroom" />
-                                    <img class="listing-avatar" src="https://randomuser.me/api/portraits/women/28.jpg" alt="Lily P." />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$1,180/month</p>
-                                    <div class="listing-meta">
-                                        <span>Private room</span>
-                                        <span>1 bathroom</span>
-                                        <span>Gym</span>
-                                    </div>
-                                    <p class="listing-address">811 Emerson St, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>" aria-label="415 Clark Street summer sublet, $860 per month">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(10) %>" alt="Apartment available for summer sublet" />
-                                    <img class="listing-avatar" src="https://randomuser.me/api/portraits/men/18.jpg" alt="Connor M." />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$860/month</p>
-                                    <div class="listing-meta">
-                                        <span>Summer only</span>
-                                        <span>1 bathroom</span>
-                                        <span>Furnished</span>
-                                    </div>
-                                    <p class="listing-address">415 Clark St, Evanston, IL</p>
-                                </div>
-                            </a>
-
-                            <a class="listing-card" href="<%= listing_path %>" aria-label="1740 Oak Avenue sublet, $995 per month">
-                                <div class="listing-media">
-                                    <img class="listing-main-image" src="<%= apartment_listing_image_path(11) %>" alt="Bedroom in shared sublet" />
-                                    <img class="listing-avatar" src="https://randomuser.me/api/portraits/women/24.jpg" alt="Aisha K." />
-                                </div>
-                                <div class="listing-body">
-                                    <p class="listing-price">$995/month</p>
-                                    <div class="listing-meta">
-                                        <span>2 roommates</span>
-                                        <span>2 bathrooms</span>
-                                        <span>In-unit laundry</span>
-                                    </div>
-                                    <p class="listing-address">1740 Oak Ave, Evanston, IL</p>
-                                </div>
-                            </a>
                             <% end %>
                             </div>
                             <button class="carousel-button next" type="button" aria-label="Next newest sublets" aria-controls="newest-track" data-carousel-next="newest-track">&#8250;</button>
