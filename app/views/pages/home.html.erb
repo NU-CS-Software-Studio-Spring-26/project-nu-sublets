@@ -1224,10 +1224,6 @@
                                     <% @pet_friendly_listings.each do |listing| %>
                                         <%= render "home_listing_card", listing: listing %>
                                     <% end %>
-                                <% else %>
-                                    <% pet_friendly_fallbacks.each do |fallback| %>
-                                        <%= render "home_listing_card", fallback: fallback %>
-                                    <% end %>
                                 <% end %>
                             </div>
                             <button class="carousel-button next" type="button" aria-label="Next pet-friendly sublets" aria-controls="pet-friendly-track" data-carousel-next="pet-friendly-track">&#8250;</button>

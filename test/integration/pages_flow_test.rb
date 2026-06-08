@@ -389,6 +389,30 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "#pet-friendly-track[data-carousel-track]"
   end
 
+  test "home pet friendly carousel does not show fake fallback listings" do
+    user = User.create!(
+      name: "No Pet Carousel Owner",
+      email: "no.pet.carousel.owner@u.northwestern.edu",
+      active: true
+    )
+    user.sublet_listings.create!(
+      valid_listing_attributes.merge(
+        title: "No Pet Carousel Listing",
+        pets_allowed: false,
+        available_from: Date.new(2026, 5, 24),
+        available_until: Date.new(2026, 10, 3)
+      )
+    )
+
+    get root_path
+
+    assert_response :success
+    assert_select "#pet-friendly-track a.listing-card", count: 0
+    assert_select "#pet-friendly-track .recommendation-empty", count: 0
+    assert_no_match(/No pet-friendly sublets are available right now/, response.body)
+    assert_select "#pet-friendly-track a[href='#{listing_path}']", count: 0
+  end
+
   test "home category carousels use matching database listings" do
     user = User.create!(
       name: "Carousel Owner",
