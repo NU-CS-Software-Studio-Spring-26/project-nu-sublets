@@ -4,6 +4,7 @@
         <title>Saved Sublets | NU Sublets</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <%= csrf_meta_tags %>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;500;600&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -110,6 +111,158 @@
                 color: var(--nu-muted);
                 font-size: 16px;
                 line-height: 1.4;
+            }
+
+            .advisor-panel {
+                margin-bottom: 24px;
+                padding: 20px;
+                border: 1px solid var(--nu-border);
+                border-radius: 8px;
+                background: #fafafa;
+            }
+
+            .advisor-panel[hidden] {
+                display: none;
+            }
+
+            .advisor-title {
+                margin: 0 0 6px;
+                font-family: "Rubik", sans-serif;
+                font-size: 20px;
+                font-weight: 700;
+            }
+
+            .advisor-copy {
+                margin: 0 0 14px;
+                color: var(--nu-muted);
+                font-size: 14px;
+                line-height: 1.45;
+            }
+
+            .advisor-form {
+                display: grid;
+                gap: 12px;
+            }
+
+            .advisor-label {
+                display: grid;
+                gap: 7px;
+                font-family: "Rubik", sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            .advisor-textarea {
+                min-height: 104px;
+                width: 100%;
+                resize: vertical;
+                padding: 10px 12px;
+                border: 1px solid var(--nu-border);
+                border-radius: 8px;
+                background: #fff;
+                color: var(--nu-text);
+                font-family: "Fustat", sans-serif;
+                font-size: 15px;
+                line-height: 1.4;
+            }
+
+            .advisor-textarea:focus-visible {
+                border-color: rgba(78, 42, 132, 0.5);
+                box-shadow: 0 0 0 3px rgba(78, 42, 132, 0.12);
+                outline: none;
+            }
+
+            .advisor-actions {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .advisor-button {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 38px;
+                padding: 8px 16px;
+                border: 0;
+                border-radius: 6px;
+                background: var(--nu-accent);
+                color: #fff;
+                font-family: "Rubik", sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+            .advisor-button:disabled {
+                opacity: 0.55;
+                cursor: not-allowed;
+            }
+
+            .advisor-status {
+                margin: 0;
+                color: var(--nu-muted);
+                font-size: 13px;
+            }
+
+            .advisor-error {
+                margin: 12px 0 0;
+                color: #8a1f11;
+                font-size: 14px;
+                font-weight: 600;
+            }
+
+            .advisor-results {
+                display: grid;
+                gap: 14px;
+                margin-top: 18px;
+                padding-top: 18px;
+                border-top: 1px solid var(--nu-border);
+            }
+
+            .advisor-results[hidden],
+            .advisor-error[hidden],
+            .advisor-status[hidden] {
+                display: none;
+            }
+
+            .advisor-summary {
+                margin: 0;
+                font-size: 15px;
+                line-height: 1.45;
+            }
+
+            .advisor-ranking {
+                padding: 14px;
+                border: 1px solid var(--nu-border);
+                border-radius: 8px;
+                background: #fff;
+            }
+
+            .advisor-ranking.is-top {
+                border-color: rgba(78, 42, 132, 0.45);
+                box-shadow: 0 0 0 3px rgba(78, 42, 132, 0.08);
+            }
+
+            .advisor-ranking-title {
+                margin: 0 0 8px;
+                font-family: "Rubik", sans-serif;
+                font-size: 15px;
+                font-weight: 700;
+            }
+
+            .advisor-ranking-label {
+                color: var(--nu-accent);
+                font-weight: 700;
+            }
+
+            .advisor-list {
+                margin: 0;
+                padding-left: 20px;
+                color: var(--nu-muted);
+                font-size: 14px;
+                line-height: 1.45;
             }
 
             .cards-grid {
@@ -402,6 +555,23 @@
                     <p class="saved-subtitle">Sublets you heart on the search page appear here.</p>
 
                     <% if user_signed_in? %>
+                        <section class="advisor-panel" aria-labelledby="advisor-title" data-saved-advisor data-advisor-endpoint="<%= saved_listings_advice_path %>">
+                            <h2 class="advisor-title" id="advisor-title">AI Saved Listings Advisor</h2>
+                            <p class="advisor-copy">Compare your saved sublets against what matters most to you.</p>
+                            <form class="advisor-form" data-advisor-form>
+                                <label class="advisor-label">
+                                    Your preferences
+                                    <textarea class="advisor-textarea" name="preferences" maxlength="1000" data-advisor-preferences placeholder="Example: under $1,200, quiet, furnished, close to campus, available through August, no pets, laundry preferred"></textarea>
+                                </label>
+                                <div class="advisor-actions">
+                                    <button class="advisor-button" type="submit" data-advisor-submit>Get AI advice</button>
+                                    <p class="advisor-status" data-advisor-status hidden></p>
+                                </div>
+                            </form>
+                            <p class="advisor-error" role="alert" data-advisor-error hidden></p>
+                            <div class="advisor-results" data-advisor-results hidden></div>
+                        </section>
+
                         <div class="saved-toolbar" data-saved-toolbar hidden>
                             <p class="saved-count" data-saved-count></p>
                             <label class="per-page-label">
