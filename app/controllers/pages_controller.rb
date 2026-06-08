@@ -29,10 +29,10 @@ class PagesController < ApplicationController
   def home
     prepare_recommendation_filters
     @recommended_listings = recommended_listings
-    @newest_listings = SubletListing.includes(:user).find_available_listings.order(created_at: :desc).limit(6)
-    @budget_friendly_listings = SubletListing.includes(:user).find_available_listings.maximum_price(1000).limit(6)
-    @furnished_listings = SubletListing.includes(:user).find_available_listings.furnished_only.limit(6)
-    @pet_friendly_listings = SubletListing.includes(:user).find_available_listings.pets_allowed_only.limit(6)
+    @newest_listings = listing_card_scope(SubletListing.find_available_listings).order(created_at: :desc).limit(6)
+    @budget_friendly_listings = listing_card_scope(SubletListing.find_available_listings.maximum_price(1000)).limit(6)
+    @furnished_listings = listing_card_scope(SubletListing.find_available_listings.furnished_only).limit(6)
+    @pet_friendly_listings = listing_card_scope(SubletListing.find_available_listings.pets_allowed_only).limit(6)
     @recently_viewed_listings = recently_viewed_listings
   end
 
@@ -63,7 +63,7 @@ class PagesController < ApplicationController
 
     respond_to do |format|
       format.html do
-        @pagy, @listings = pagy(:offset, listings, limit: @per_page)
+        @pagy, @listings = pagy(:offset, listing_card_scope(listings), limit: @per_page)
         @map_listings = google_map_listings_for(listings)
       end
 
@@ -472,7 +472,7 @@ class PagesController < ApplicationController
 
   def recently_viewed_listings
     ids = recently_viewed_listing_ids
-    listings_by_id = SubletListing.includes(:user).available.where(id: ids).index_by(&:id)
+    listings_by_id = listing_card_scope(SubletListing.available.where(id: ids)).index_by(&:id)
 
     ids.filter_map { |id| listings_by_id[id] }
   end
@@ -526,7 +526,7 @@ class PagesController < ApplicationController
       utilities_included: @recommendation_amenities.include?("Utilities included"),
       amenities: @recommendation_amenities,
       available_only: true
-    ).includes(:user).order(:price).limit(RECOMMENDED_LISTINGS_LIMIT)
+    ).then { |listings| listing_card_scope(listings) }.order(:price).limit(RECOMMENDED_LISTINGS_LIMIT)
   end
 
   def recommendation_date_value(label, value)
@@ -539,12 +539,16 @@ class PagesController < ApplicationController
   end
 
   def google_map_listings_for(listings)
-    mapped_listings = listings.where.not(latitude: nil, longitude: nil).limit(150).to_a
+    mapped_listings = listing_card_scope(listings.where.not(latitude: nil, longitude: nil)).limit(150).to_a
     return mapped_listings if mapped_listings.any?
     return mapped_listings unless google_maps_enabled?
 
     backfill_google_map_listings(listings.where(latitude: nil, longitude: nil).limit(MAP_GEOCODE_BACKFILL_LIMIT))
-    listings.where.not(latitude: nil, longitude: nil).limit(150).to_a
+    listing_card_scope(listings.where.not(latitude: nil, longitude: nil)).limit(150).to_a
+  end
+
+  def listing_card_scope(listings)
+    listings.includes(:user, photos_attachments: :blob)
   end
 
   def backfill_google_map_listings(listings)

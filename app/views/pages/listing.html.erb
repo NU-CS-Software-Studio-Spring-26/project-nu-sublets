@@ -978,7 +978,7 @@
                         <section class="photo-carousel" data-photo-carousel aria-label="Listing photos">
                             <div class="gallery-main">
                                 <button class="gallery-button" type="button" aria-label="Open listing photo 1 of <%= carousel_photo_count %>" data-image-popup-trigger data-photo-carousel-main-trigger>
-                                    <img class="gallery-photo" src="<%= carousel_images.first %>" alt="Listing photo 1 of <%= carousel_photo_count %> for <%= @listing.title.presence || 'this sublet' %>" data-photo-carousel-image />
+                                    <img class="gallery-photo" src="<%= carousel_images.first %>" alt="Listing photo 1 of <%= carousel_photo_count %> for <%= @listing.title.presence || 'this sublet' %>" decoding="async" fetchpriority="high" data-photo-carousel-image />
                                 </button>
                                 <% if carousel_photo_count > 1 %>
                                     <button class="photo-carousel-nav previous" type="button" aria-label="Previous photo" data-photo-carousel-previous>
@@ -1268,9 +1268,32 @@
                 const nextButton = document.querySelector("[data-photo-carousel-next]");
                 const photos = Array.from(document.querySelectorAll("[data-photo-carousel-source]")).map((source) => ({
                     src: source.dataset.src,
-                    alt: source.dataset.alt
+                    alt: source.dataset.alt,
+                    preloaded: false
                 })).filter((photo) => photo.src);
                 let activePhotoIndex = 0;
+
+                const preloadPhoto = (index) => {
+                    if (photos.length < 2) {
+                        return;
+                    }
+
+                    const photo = photos[(index + photos.length) % photos.length];
+
+                    if (!photo || photo.preloaded) {
+                        return;
+                    }
+
+                    const image = new Image();
+                    image.decoding = "async";
+                    image.src = photo.src;
+                    photo.preloaded = true;
+                };
+
+                const preloadAdjacentPhotos = () => {
+                    preloadPhoto(activePhotoIndex + 1);
+                    preloadPhoto(activePhotoIndex - 1);
+                };
 
                 const renderPhoto = () => {
                     const photo = photos[activePhotoIndex];
@@ -1289,6 +1312,8 @@
                     if (currentCount) {
                         currentCount.textContent = String(activePhotoIndex + 1);
                     }
+
+                    preloadAdjacentPhotos();
                 };
 
                 const movePhoto = (direction) => {
@@ -1303,6 +1328,7 @@
                 if (carousel && photos.length > 1) {
                     previousButton?.addEventListener("click", () => movePhoto(-1));
                     nextButton?.addEventListener("click", () => movePhoto(1));
+                    preloadAdjacentPhotos();
                 }
 
                 const popup = document.querySelector("[data-image-popup]");

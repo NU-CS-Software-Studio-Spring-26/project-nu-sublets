@@ -24,6 +24,10 @@ module ApplicationHelper
     "apartment-exterior.png"
   ].freeze
   DEFAULT_LISTING_IMAGE_ASSET = "apartment-exterior.png"
+  LISTING_IMAGE_VARIANTS = {
+    card: { resize_to_fill: [ 640, 480 ] },
+    gallery: { resize_to_limit: [ 1600, 1200 ] }
+  }.freeze
 
   AMENITY_ICON_PATHS = {
     "Furnished" => '<path d="M4 11h16v7H4zM7 11V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v4M7 18v2m10-2v2" />',
@@ -144,10 +148,10 @@ module ApplicationHelper
     end
   end
 
-  def apartment_listing_image_path(listing_or_index = nil, offset: 0)
+  def apartment_listing_image_path(listing_or_index = nil, offset: 0, variant: :card)
     if listing_or_index.respond_to?(:photos) && listing_or_index.photos.attached?
       photos = available_listing_photos(listing_or_index)
-      return url_for(photos[offset % photos.size]) if photos.any?
+      return url_for(listing_photo_variant(photos[offset % photos.size], variant)) if photos.any?
     end
 
     if listing_or_index.respond_to?(:photos)
@@ -160,7 +164,7 @@ module ApplicationHelper
   def apartment_gallery_image_paths(listing = nil)
     if listing.respond_to?(:photos) && listing.photos.attached?
       photos = available_listing_photos(listing)
-      return photos.map { |photo| url_for(photo) } if photos.any?
+      return photos.map { |photo| url_for(listing_photo_variant(photo, :gallery)) } if photos.any?
     end
 
     return [] if listing.respond_to?(:photos)
@@ -184,9 +188,15 @@ module ApplicationHelper
   end
 
   def active_storage_blob_available?(blob)
+    return true unless blob.service.is_a?(ActiveStorage::Service::DiskService)
+
     blob.service.exist?(blob.key)
   rescue ActiveStorage::FileNotFoundError, Errno::ENOENT
     false
+  end
+
+  def listing_photo_variant(photo, variant)
+    photo.variant(LISTING_IMAGE_VARIANTS.fetch(variant, LISTING_IMAGE_VARIANTS.fetch(:card)))
   end
 
   def user_avatar_url(user, size: 248)
