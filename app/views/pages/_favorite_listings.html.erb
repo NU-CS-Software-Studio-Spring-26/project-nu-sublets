@@ -137,8 +137,6 @@
             "'": "&#39;"
         })[character]);
 
-        const csrfToken = () => document.querySelector("meta[name='csrf-token']")?.content || "";
-
         const readFavorites = () => {
             try {
                 return JSON.parse(localStorage.getItem(storageKey)) || [];
@@ -284,7 +282,6 @@
             if (document.querySelector("[data-saved-grid]")) {
                 renderSavedGrid();
             }
-            updateAdvisorAvailability();
         };
 
         function bindFavoriteButtons() {
@@ -378,7 +375,6 @@
             bindFavoriteButtons();
             renderFavoriteCards();
             initializeSavedGrid();
-            initializeSavedAdvisor();
         };
 
         // ── Saved page paginated grid ────────────────────────────────────────
@@ -420,7 +416,6 @@
                 if (toolbar) toolbar.hidden = true;
                 if (paginationNav) paginationNav.hidden = true;
                 if (emptyState) emptyState.hidden = false;
-                updateAdvisorAvailability(favorites);
                 return;
             }
 
@@ -466,7 +461,6 @@
 
             bindFavoriteButtons();
             renderSavedPagination(paginationNav, totalPages);
-            updateAdvisorAvailability(favorites);
         };
 
         const renderSavedPagination = (nav, totalPages) => {
@@ -551,205 +545,6 @@
             renderSavedGrid();
         };
         // ── End saved page paginated grid ────────────────────────────────────
-
-        // ── Saved listings AI advisor ───────────────────────────────────────
-        const advisorListingPayload = (favorites) => favorites.slice(0, 10).map((listing) => ({
-            id: listing.id,
-            title: listing.title,
-            price: listing.price,
-            meta: listing.meta || [],
-            address: listing.address,
-            href: listing.href
-        }));
-
-        const updateAdvisorAvailability = (favorites = readFavorites()) => {
-            const advisor = document.querySelector("[data-saved-advisor]");
-            if (!advisor) return;
-
-            const submitButton = advisor.querySelector("[data-advisor-submit]");
-            const status = advisor.querySelector("[data-advisor-status]");
-            const hasFavorites = favorites.length > 0;
-
-            if (submitButton && submitButton.dataset.loading !== "true") {
-                submitButton.disabled = !hasFavorites;
-            }
-
-            if (status && !hasFavorites) {
-                status.hidden = false;
-                status.textContent = "Save at least one listing to use the advisor.";
-            } else if (status && submitButton?.dataset.loading !== "true") {
-                status.hidden = true;
-                status.textContent = "";
-            }
-        };
-
-        const clearAdvisorResults = (advisor) => {
-            const error = advisor.querySelector("[data-advisor-error]");
-            const results = advisor.querySelector("[data-advisor-results]");
-
-            if (error) {
-                error.hidden = true;
-                error.textContent = "";
-            }
-
-            if (results) {
-                results.hidden = true;
-                results.innerHTML = "";
-            }
-        };
-
-        const renderAdvisorList = (title, items) => {
-            const values = Array.isArray(items) ? items.filter(Boolean) : [];
-            if (values.length === 0) return null;
-
-            const section = document.createElement("div");
-            const heading = document.createElement("p");
-            const list = document.createElement("ul");
-
-            heading.className = "advisor-ranking-title";
-            heading.textContent = title;
-            list.className = "advisor-list";
-
-            values.forEach((item) => {
-                const li = document.createElement("li");
-                li.textContent = item;
-                list.appendChild(li);
-            });
-
-            section.appendChild(heading);
-            section.appendChild(list);
-            return section;
-        };
-
-        const renderAdvisorAdvice = (advisor, advice) => {
-            const results = advisor.querySelector("[data-advisor-results]");
-            if (!results) return;
-
-            results.innerHTML = "";
-
-            const summary = document.createElement("p");
-            summary.className = "advisor-summary";
-            summary.textContent = advice.summary || "Here is the best fit based on your saved listings and preferences.";
-            results.appendChild(summary);
-
-            (advice.rankings || []).forEach((ranking, index) => {
-                const card = document.createElement("article");
-                const title = document.createElement("h3");
-                const label = document.createElement("span");
-
-                card.className = "advisor-ranking";
-                if (ranking.listing_id === advice.top_listing_id || index === 0) {
-                    card.classList.add("is-top");
-                }
-
-                title.className = "advisor-ranking-title";
-                label.className = "advisor-ranking-label";
-                label.textContent = `${ranking.match_label || "Good fit"}: `;
-                title.appendChild(label);
-                title.append(document.createTextNode(ranking.title || "Saved listing"));
-                card.appendChild(title);
-
-                const reasons = renderAdvisorList("Reasons", ranking.reasons);
-                const tradeoffs = renderAdvisorList("Tradeoffs", ranking.tradeoffs);
-                if (reasons) card.appendChild(reasons);
-                if (tradeoffs) card.appendChild(tradeoffs);
-
-                results.appendChild(card);
-            });
-
-            const nextSteps = renderAdvisorList("Next steps", advice.next_steps);
-            if (nextSteps) results.appendChild(nextSteps);
-
-            results.hidden = false;
-        };
-
-        const initializeSavedAdvisor = () => {
-            const advisor = document.querySelector("[data-saved-advisor]");
-            if (!advisor || advisor.dataset.advisorBound === "true") return;
-
-            const form = advisor.querySelector("[data-advisor-form]");
-            const preferencesInput = advisor.querySelector("[data-advisor-preferences]");
-            const submitButton = advisor.querySelector("[data-advisor-submit]");
-            const status = advisor.querySelector("[data-advisor-status]");
-            const error = advisor.querySelector("[data-advisor-error]");
-            const endpoint = advisor.dataset.advisorEndpoint;
-
-            if (!form || !preferencesInput || !submitButton || !endpoint) return;
-
-            advisor.dataset.advisorBound = "true";
-            updateAdvisorAvailability();
-
-            form.addEventListener("submit", async (event) => {
-                event.preventDefault();
-
-                const favorites = readFavorites();
-                const preferences = preferencesInput.value.trim();
-
-                clearAdvisorResults(advisor);
-
-                if (favorites.length === 0) {
-                    updateAdvisorAvailability(favorites);
-                    return;
-                }
-
-                if (!preferences) {
-                    if (error) {
-                        error.hidden = false;
-                        error.textContent = "Add a few preferences before asking for advice.";
-                    }
-                    preferencesInput.focus();
-                    return;
-                }
-
-                submitButton.dataset.loading = "true";
-                submitButton.disabled = true;
-                if (status) {
-                    status.hidden = false;
-                    status.textContent = "Comparing saved listings...";
-                }
-
-                try {
-                    const response = await fetch(endpoint, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Accept": "application/json",
-                            "X-CSRF-Token": csrfToken()
-                        },
-                        body: JSON.stringify({
-                            preferences,
-                            listings: advisorListingPayload(favorites)
-                        })
-                    });
-
-                    const payload = await response.json();
-
-                    if (!response.ok || payload.error) {
-                        throw new Error(payload.error || "AI advice is unavailable right now. Please try again later.");
-                    }
-
-                    renderAdvisorAdvice(advisor, payload.advice || {});
-                    if (status) {
-                        status.hidden = true;
-                        status.textContent = "";
-                    }
-                } catch (requestError) {
-                    if (error) {
-                        error.hidden = false;
-                        error.textContent = requestError.message || "AI advice is unavailable right now. Please try again later.";
-                    }
-                    if (status) {
-                        status.hidden = true;
-                        status.textContent = "";
-                    }
-                } finally {
-                    submitButton.dataset.loading = "false";
-                    submitButton.disabled = readFavorites().length === 0;
-                    updateAdvisorAvailability();
-                }
-            });
-        };
-        // ── End saved listings AI advisor ───────────────────────────────────
 
         if (document.readyState === "loading") {
             document.addEventListener("DOMContentLoaded", initializeFavorites);

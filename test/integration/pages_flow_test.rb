@@ -164,7 +164,6 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select ".listing-access-lock__prompt", text: /Please log in to view saved listings/
     assert_select ".listing-access-lock__content[inert]"
     assert_select "[data-favorite-listings]", count: 0
-    assert_select "[data-saved-advisor]", count: 0
     refute_includes response.body, "nuSublets.favoriteListings"
   end
 
@@ -859,9 +858,6 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "[data-saved-grid]"
     assert_select "[data-saved-pagination]"
     assert_select "[data-saved-per-page]"
-    assert_select "[data-saved-advisor][data-advisor-endpoint='#{saved_listings_advice_path}']"
-    assert_select "textarea[name='preferences'][data-advisor-preferences]"
-    assert_select "button[data-advisor-submit]", text: /Get AI advice/
     assert_select "[data-favorites-empty]", text: /No saved sublets yet/
     assert_select "a[href='#{search_results_path}']", text: /Browse sublets/
     assert_includes response.body, "nuSublets.favoriteListings"

@@ -21,7 +21,6 @@ Rails.application.routes.draw do
   get "search-results" => "pages#search_results", as: :search_results
   get "compare-listings/export" => "pages#compare_listings_pdf", as: :compare_listings_pdf
   get "saved" => "pages#saved", as: :saved
-  post "saved/advice" => "saved_listings_advice#create", as: :saved_listings_advice
   get "post-sublet" => "pages#post_sublet", as: :post_sublet
   get "profile" => "pages#profile", as: :profile
   patch "profile" => "pages#update_profile"
