@@ -1652,7 +1652,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "mailto:#{user.email}"
   end
 
-  test "listing page photo carousel handles fallback single and multiple photos" do
+  test "listing page photo carousel only renders available uploaded photos" do
     no_photo_owner = User.create!(name: "No Photo Owner", email: "no.photo.owner@u.northwestern.edu", active: true)
     one_photo_owner = User.create!(name: "One Photo Owner", email: "one.photo.owner@u.northwestern.edu", active: true)
     multiple_photo_owner = User.create!(name: "Multiple Photo Owner", email: "multiple.photo.owner@u.northwestern.edu", active: true)
@@ -1697,10 +1697,10 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     get sublet_listing_path(listing_without_photos)
 
     assert_response :success
-    assert_select "section.photo-carousel[data-photo-carousel]"
+    assert_select "section.photo-carousel[data-photo-carousel]", count: 0
     assert_select ".gallery-grid", count: 0
-    assert_select "[data-photo-carousel-source]", count: 1
-    assert_select "[data-photo-carousel-total]", text: "1"
+    assert_select "[data-photo-carousel-source]", count: 0
+    assert_select "[data-photo-carousel-total]", count: 0
     assert_select "[data-photo-carousel-previous]", count: 0
     assert_select "[data-photo-carousel-next]", count: 0
 
@@ -1725,8 +1725,9 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     get sublet_listing_path(listing_with_missing_photo)
 
     assert_response :success
-    assert_select "[data-photo-carousel-source]", count: 1
-    assert_select "[data-photo-carousel-total]", text: "1"
+    assert_select "section.photo-carousel[data-photo-carousel]", count: 0
+    assert_select "[data-photo-carousel-source]", count: 0
+    assert_select "[data-photo-carousel-total]", count: 0
     assert_no_match(%r{/rails/active_storage/blobs/}, response.body)
   end
 

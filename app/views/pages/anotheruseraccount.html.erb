@@ -616,7 +616,7 @@
                                 <% listings.each do |listing| %>
                                     <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="View <%= listing.title.presence || listing.address.presence || 'sublet listing' %>, <%= number_to_currency(listing.price, precision: 0) %> per month">
                                         <div class="listing-media">
-                                            <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+                                            <%= render "listing_card_image", listing: listing %>
                                             <img class="listing-avatar" src="<%= user_avatar_url(user, size: 100) %>" alt="<%= user.display_name %> listing avatar" />
                                             <span class="favorite-button" role="button" tabindex="0" aria-pressed="false" aria-label="Save <%= listing.title.presence || listing.address.presence || 'this listing' %> to favorite listings">
                                                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">

@@ -1,0 +1,4 @@
+<% image_path = apartment_listing_image_path(listing) %>
+<% if image_path.present? %>
+    <img class="listing-main-image" src="<%= image_path %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+<% end %>

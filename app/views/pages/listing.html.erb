@@ -940,7 +940,7 @@
         <% preferences = @listing.displayed_preferences %>
         <% preferences = ["Ask host for roommate preferences"] if preferences.empty? %>
         <% gallery_images = apartment_gallery_image_paths(@listing) %>
-        <% carousel_images = listing_has_available_photos?(@listing) ? gallery_images : [ gallery_images.first ] %>
+        <% carousel_images = listing_has_available_photos?(@listing) ? gallery_images : [] %>
         <% carousel_photo_count = carousel_images.size %>
         <% listing_owner = user_signed_in? && current_user.id == @listing_host.id %>
         <div class="page-shell">
@@ -974,33 +974,35 @@
                         <p class="listing-alert <%= type %>" role="alert"><%= message %></p>
                     <% end %>
 
-                    <section class="photo-carousel" data-photo-carousel aria-label="Listing photos">
-                        <div class="gallery-main">
-                            <button class="gallery-button" type="button" aria-label="Open listing photo 1 of <%= carousel_photo_count %>" data-image-popup-trigger data-photo-carousel-main-trigger>
-                                <img class="gallery-photo" src="<%= carousel_images.first %>" alt="Listing photo 1 of <%= carousel_photo_count %> for <%= @listing.title.presence || 'this sublet' %>" data-photo-carousel-image />
-                            </button>
-                            <% if carousel_photo_count > 1 %>
-                                <button class="photo-carousel-nav previous" type="button" aria-label="Previous photo" data-photo-carousel-previous>
-                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-                                        <path d="M15 6 9 12l6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
+                    <% if carousel_images.any? %>
+                        <section class="photo-carousel" data-photo-carousel aria-label="Listing photos">
+                            <div class="gallery-main">
+                                <button class="gallery-button" type="button" aria-label="Open listing photo 1 of <%= carousel_photo_count %>" data-image-popup-trigger data-photo-carousel-main-trigger>
+                                    <img class="gallery-photo" src="<%= carousel_images.first %>" alt="Listing photo 1 of <%= carousel_photo_count %> for <%= @listing.title.presence || 'this sublet' %>" data-photo-carousel-image />
                                 </button>
-                                <button class="photo-carousel-nav next" type="button" aria-label="Next photo" data-photo-carousel-next>
-                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-                                        <path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                </button>
-                            <% end %>
-                            <p class="photo-carousel-count" aria-live="polite">
-                                <span data-photo-carousel-current>1</span> / <span data-photo-carousel-total><%= carousel_photo_count %></span>
-                            </p>
-                            <div hidden>
-                                <% carousel_images.each_with_index do |image_path, index| %>
-                                    <span data-photo-carousel-source data-src="<%= image_path %>" data-alt="Listing photo <%= index + 1 %> of <%= carousel_photo_count %> for <%= @listing.title.presence || 'this sublet' %>"></span>
+                                <% if carousel_photo_count > 1 %>
+                                    <button class="photo-carousel-nav previous" type="button" aria-label="Previous photo" data-photo-carousel-previous>
+                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                                            <path d="M15 6 9 12l6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                    <button class="photo-carousel-nav next" type="button" aria-label="Next photo" data-photo-carousel-next>
+                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                                            <path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
                                 <% end %>
+                                <p class="photo-carousel-count" aria-live="polite">
+                                    <span data-photo-carousel-current>1</span> / <span data-photo-carousel-total><%= carousel_photo_count %></span>
+                                </p>
+                                <div hidden>
+                                    <% carousel_images.each_with_index do |image_path, index| %>
+                                        <span data-photo-carousel-source data-src="<%= image_path %>" data-alt="Listing photo <%= index + 1 %> of <%= carousel_photo_count %> for <%= @listing.title.presence || 'this sublet' %>"></span>
+                                    <% end %>
+                                </div>
                             </div>
-                        </div>
-                    </section>
+                        </section>
+                    <% end %>
 
                     <section class="row g-3 g-lg-4 pt-3 pt-lg-4">
                         <div class="col-lg-7 col-xl-7 listing-copy-column">

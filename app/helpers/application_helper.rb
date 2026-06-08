@@ -151,7 +151,7 @@ module ApplicationHelper
     end
 
     if listing_or_index.respond_to?(:photos)
-      return asset_path(DEFAULT_LISTING_IMAGE_ASSET)
+      return nil
     end
 
     asset_path(APARTMENT_IMAGE_ASSETS[apartment_image_index(listing_or_index, offset)])
@@ -163,7 +163,7 @@ module ApplicationHelper
       return photos.map { |photo| url_for(photo) } if photos.any?
     end
 
-    return Array.new(4) { asset_path(DEFAULT_LISTING_IMAGE_ASSET) } if listing.respond_to?(:photos)
+    return [] if listing.respond_to?(:photos)
 
     APARTMENT_IMAGE_ASSETS.each_with_index.map do |_asset, index|
       apartment_listing_image_path(listing, offset: index)

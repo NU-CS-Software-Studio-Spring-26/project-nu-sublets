@@ -873,7 +873,7 @@
                                     <% listing_name = listing.title.presence || listing.address.presence || "Sublet listing" %>
                                     <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="<%= listing_name %>, <%= number_to_currency(listing.price, precision: 0) %> per month" <%= listing_compare_data_attributes(listing) %>>
                                         <div class="listing-media">
-                                            <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+                                            <%= render "listing_card_image", listing: listing %>
                                             <img class="listing-avatar" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
                                         </div>
                                         <div class="listing-body">
@@ -1021,7 +1021,7 @@
                                     <% listing_name = listing.title.presence || listing.address.presence || "Sublet listing" %>
                                     <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="<%= listing_name %>, <%= number_to_currency(listing.price, precision: 0) %> per month" <%= listing_compare_data_attributes(listing) %>>
                                         <div class="listing-media">
-                                            <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+                                            <%= render "listing_card_image", listing: listing %>
                                             <img class="listing-avatar" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
                                         </div>
                                         <div class="listing-body">
@@ -1247,7 +1247,7 @@
                                     <% listing_name = listing.title.presence || listing.address.presence || "Sublet listing" %>
                                     <a class="listing-card" href="<%= sublet_listing_path(listing) %>" aria-label="<%= listing_name %>, <%= number_to_currency(listing.price, precision: 0) %> per month" <%= listing_compare_data_attributes(listing) %>>
                                         <div class="listing-media">
-                                            <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title.presence || 'Sublet listing' %>" />
+                                            <%= render "listing_card_image", listing: listing %>
                                             <img class="listing-avatar" src="<%= user_avatar_url(listing_host, size: 100) %>" alt="<%= listing_host.display_name %> profile photo" />
                                         </div>
                                         <div class="listing-body">

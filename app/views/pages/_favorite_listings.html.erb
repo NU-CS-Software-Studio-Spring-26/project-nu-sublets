@@ -227,7 +227,7 @@
                     card.setAttribute("aria-label", `View ${listing.title || listing.address || "sublet listing"}${listing.price ? `, ${listing.price}` : ""}`);
                     card.innerHTML = `
                         <div class="listing-media">
-                            <img class="listing-main-image" src="${escapeHtml(listing.imageSrc)}" alt="${escapeHtml(listing.imageAlt)}" />
+                            ${listing.imageSrc ? `<img class="listing-main-image" src="${escapeHtml(listing.imageSrc)}" alt="${escapeHtml(listing.imageAlt)}" />` : ""}
                             ${listing.avatarSrc ? `<img class="listing-avatar" src="${escapeHtml(listing.avatarSrc)}" alt="${escapeHtml(listing.avatarAlt)}" />` : ""}
                         </div>
                         <div class="listing-body">
@@ -444,7 +444,7 @@
                 card.setAttribute("aria-label", `View ${escapeHtml(listing.title || listing.address || "sublet listing")}${listing.price ? `, ${escapeHtml(listing.price)}` : ""}`);
                 card.innerHTML = `
                     <div class="listing-media">
-                        <img class="listing-main-image" src="${escapeHtml(listing.imageSrc)}" alt="${escapeHtml(listing.imageAlt)}" />
+                        ${listing.imageSrc ? `<img class="listing-main-image" src="${escapeHtml(listing.imageSrc)}" alt="${escapeHtml(listing.imageAlt)}" />` : ""}
                         ${listing.avatarSrc ? `<img class="listing-avatar" src="${escapeHtml(listing.avatarSrc)}" alt="${escapeHtml(listing.avatarAlt)}" />` : ""}
                     </div>
                     <div class="listing-body">

@@ -1325,7 +1325,7 @@
                                       <article class="listing-card" id="listing-card-<%= listing.id %>" data-listing-card data-listing-id="<%= listing.id %>" <%= listing_compare_data_attributes(listing) %>>
                                           <div class="listing-media">
                                               <a class="listing-card-link listing-media-link" href="<%= sublet_listing_path(listing) %>" aria-label="View photos for <%= listing.title.presence || listing.address.presence || 'sublet listing' %>">
-                                                  <img class="listing-main-image" src="<%= apartment_listing_image_path(listing) %>" alt="<%= listing.title %>" />
+                                                  <%= render "listing_card_image", listing: listing %>
                                               </a>
 
                                               <% if listing_host.present? %>
@@ -1997,7 +1997,7 @@
                 const infoWindowContent = (group) => {
                     const listingsMarkup = group.map((listing) => `
                         <a class="map-info-card" href="${escapeHtml(listing.href)}">
-                            <img class="map-info-image" src="${escapeHtml(listing.thumbnailUrl)}" alt="${escapeHtml(listing.thumbnailAlt)}" />
+                            ${listing.thumbnailUrl ? `<img class="map-info-image" src="${escapeHtml(listing.thumbnailUrl)}" alt="${escapeHtml(listing.thumbnailAlt)}" />` : ""}
                             <span>
                                 <p class="map-info-price">${escapeHtml(listing.rentLabel)}</p>
                                 <p class="map-info-title">${escapeHtml(listing.title)}</p>
