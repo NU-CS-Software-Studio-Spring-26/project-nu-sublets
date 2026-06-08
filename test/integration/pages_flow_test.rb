@@ -385,19 +385,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{listing_path}']", count: 0
   end
 
-  test "home page includes category sublet carousels" do
-    get root_path
-
-    assert_response :success
-    assert_select "#budget-friendly-title", text: "Budget-Friendly Finds"
-    assert_select "#budget-friendly-track[data-carousel-track]"
-    assert_select "#furnished-ready-title", text: "Furnished & Move-In Ready"
-    assert_select "#furnished-ready-track[data-carousel-track]"
-    assert_select "#pet-friendly-title", text: "Pet-Friendly Picks"
-    assert_select "#pet-friendly-track[data-carousel-track]"
-  end
-
-  test "home carousels do not show fake fallback listings" do
+  test "home category carousels hide sections without matching listings" do
     user = User.create!(
       name: "No Category Carousel Owner",
       email: "no.category.carousel.owner@u.northwestern.edu",
@@ -418,12 +406,15 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "#recommendations-track a[href='#{listing_path}']", count: 0
-    assert_select "#budget-friendly-track a.listing-card", count: 0
-    assert_select "#budget-friendly-track a[href='#{listing_path}']", count: 0
-    assert_select "#furnished-ready-track a.listing-card", count: 0
-    assert_select "#furnished-ready-track a[href='#{listing_path}']", count: 0
-    assert_select "#pet-friendly-track a.listing-card", count: 0
-    assert_select "#pet-friendly-track a[href='#{listing_path}']", count: 0
+    assert_select "#budget-friendly", count: 0
+    assert_select "#budget-friendly-title", count: 0
+    assert_select "#budget-friendly-track", count: 0
+    assert_select "#furnished-ready", count: 0
+    assert_select "#furnished-ready-title", count: 0
+    assert_select "#furnished-ready-track", count: 0
+    assert_select "#pet-friendly", count: 0
+    assert_select "#pet-friendly-title", count: 0
+    assert_select "#pet-friendly-track", count: 0
     assert_select "#newest-track a[href='#{sublet_listing_path(listing)}']", text: /No Category Carousel Listing/
     assert_select "#newest-track a[href='#{listing_path}']", count: 0
   end
@@ -469,6 +460,9 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     assert_select "#budget-friendly-track a[href='#{sublet_listing_path(budget_listing)}']", text: /Affordable Carousel Match/
     assert_select "#furnished-ready-track a[href='#{sublet_listing_path(furnished_listing)}']", text: /Furnished Carousel Match/
     assert_select "#pet-friendly-track a[href='#{sublet_listing_path(pet_listing)}']", text: /Pet Carousel Match/
+    assert_select "#budget-friendly-title", text: "Budget-Friendly Finds"
+    assert_select "#furnished-ready-title", text: "Furnished & Move-In Ready"
+    assert_select "#pet-friendly-title", text: "Pet-Friendly Picks"
   end
 
   test "home browse cards use database listing owners and stored profile photos" do
