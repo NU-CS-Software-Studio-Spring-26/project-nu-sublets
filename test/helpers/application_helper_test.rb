@@ -139,4 +139,15 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_nil apartment_listing_image_path(second_listing)
     assert_empty apartment_gallery_image_paths(first_listing)
   end
+
+  test "active storage availability check does not require disk service constant" do
+    service = Object.new
+    service.define_singleton_method(:class) do
+      Struct.new(:name).new("ActiveStorage::Service::DiskService")
+    end
+    service.define_singleton_method(:exist?) { |key| key == "present-photo" }
+    blob = Struct.new(:service, :key).new(service, "present-photo")
+
+    assert active_storage_blob_available?(blob)
+  end
 end

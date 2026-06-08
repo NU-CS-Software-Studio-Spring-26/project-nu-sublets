@@ -184,7 +184,7 @@ module ApplicationHelper
   end
 
   def active_storage_blob_available?(blob)
-    return true unless blob.service.is_a?(ActiveStorage::Service::DiskService)
+    return true unless blob.service.class.name == "ActiveStorage::Service::DiskService"
 
     blob.service.exist?(blob.key)
   rescue ActiveStorage::FileNotFoundError, Errno::ENOENT
