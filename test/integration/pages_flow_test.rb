@@ -485,7 +485,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "a[href='#{sublet_listing_path(listing)}'] img.listing-avatar[alt='Ryan Anderson profile photo'][src='https://example.com/ryan-anderson.jpg']"
-    assert_select "a[href='#{sublet_listing_path(listing)}'] img.listing-main-image[src*='/rails/active_storage/representations/'][loading='lazy'][decoding='async']"
+    assert_select "a[href='#{sublet_listing_path(listing)}'] img.listing-main-image[src*='/rails/active_storage/blobs/'][loading='lazy'][decoding='async']"
   end
 
   test "home page includes recommendation filter controls" do
@@ -1742,7 +1742,7 @@ class PagesFlowTest < ActionDispatch::IntegrationTest
     get sublet_listing_path(listing_with_one_photo)
 
     assert_response :success
-    assert_select ".gallery-photo[src*='/rails/active_storage/representations/'][decoding='async'][fetchpriority='high']", count: 1
+    assert_select ".gallery-photo[src*='/rails/active_storage/blobs/'][decoding='async'][fetchpriority='high']", count: 1
     assert_select "[data-photo-carousel-source]", count: 1
     assert_select "[data-photo-carousel-total]", text: "1"
     assert_select "[data-photo-carousel-previous]", count: 0
